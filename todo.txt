@@ -1,0 +1,93 @@
+General:
+ - OBJ loader (loads meshes from .obj files)
+ - dds loader (nv_dds)
+ - PerfMeasurer
+
+Naive Renderer:
+ - Texture loader (loads textures from .dds files)
+ - Naive for loop transform update
+ - Naive compute transform update
+
+AZDO Renderer:
+ - Sparse Bindless texture loader (loads textures to sbta from .dds files)
+ - AZDOBasicRenderer .h .cpp
+ - AZDOMesh .h .cpp (stores mesh data in format of draw command info)
+
+COMPLETE:
+ - ShaderPipeline, can load and run graphics or compute pipelines
+ - RendererBase mesh list
+ - Mesh
+
+
+ That's all it takes to recreate the swap chain! However, the disadvantage of this approach is that we need to stop all rendering before creating the new swap chain.
+It is possible to create a new swap chain while drawing commands on an image from the old swap chain are still in-flight. 
+You need to pass the previous swap chain to the oldSwapChain field in the VkSwapchainCreateInfoKHR struct and destroy the old swap chain as soon as you've finished using it.
+https://renderdoc.org/
+https://www.khronos.org/registry/vulkan/specs/1.0-extensions/html/vkspec.html#VK_KHR_dedicated_allocation
+
+push constants over ubos for frequently changing uniform data vkCmdPushConstant(x)
+use different descriptor sets for per-object and per frame with array: layout(set = 0, binding = 0) uniform UniformBufferObject { ... }
+NEED a SubAllocator to allocate parts of large VkDeviceMemory allocations, see https://www.slideshare.net/Mark_Kilgard/migrating-from-opengl-to-vulkan (28)
+
+IS AN ADDITIONAL MODERN RENDERER to multithread filling command buffer for different objects vs a single thread implementation? See above slides (35)
+
+[vkCmdDrawIndexedIndirect https://www.khronos.org/registry/vulkan/specs/1.1-extensions/man/html/vkCmdDrawIndexedIndirect.html
+	vs vkDrawCmdIndexed?
+	Found: https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html
+	vkCmdDraw, vkCmdDrawIndexed, vkCmdDrawIndirect, vkCmdDrawIndexedIndirect
+
+	maybe could look at for (obj in objects) do vkDrawIndexed against vkDrawIndexed(instances)
+	and that against building secondary vkDrawIndexed(instances) on different threads
+]
+
+buildCommandBuffer of https://github.com/SaschaWillems/Vulkan/blob/master/examples/instancing/instancing.cpp could give insight
+
+Per frame is record command buffer!
+
+Utility -> static (namespace) holding useful macros and functions (strict functions, i.e. NO state changes)
+System -> holds instance, device, and swapchain, (and command pool??), and in debug mode validation
+	QueueFamilies ->
+	ValidationLayer->
+	Swapchain ->
+	PhysicalDevice ->
+	depth and color buffer ->
+MemAllocator -> allocates memory in the best way (dedicated/aliasing/sparse)
+
+GfxPipeline -> holds a graphics pipeline, vertex input buffers, (texture buffers) (i.e. everything working on a pipeline)
+	also, using a given command buffer, records its stuff
+Uniforms -> Cleaned up outside a GfxPipeline (uniform objects can be shared), Gfx needs these passed to it, (WAIT, it is based on a pipeline layout?)
+
+ComputePipeline -> ...
+
+Test -> measure frame time and fps
+
+Missing:
+ - Render pass, synchronisation?, ...
+	Render pass sub-component of System?
+
+
+Vertex.h fillAttribDescs and fillBindingDesc preconditions
+Device only checks for swapchain ext, but submits a vector
+Refactor Device, SwapChain, RenderPass, GfxPipeline, and methods (technically old and stolen code)
+GfxPipeline read fields from file?
+
+framebuffers (render pass) -> command pool (device) -> command buffers (I guess device?) -> sync (swap chain)
+vertex buffer -> index buffer -> uniform buffers -> descriptor pool -> descriptor set
+
+Swapchain actually need to create a render pass object
+GfxPipeline(VertexInput*) now it MUST use a specific vertex input, but vertex inputs are held in RenderPass
+
+make supportedFormat more general?
+
+        createVertexBuffer();
+        createIndexBuffer();
+        createUniformBuffers();
+        createDescriptorPool();
+        createDescriptorSets();
+        createCommandBuffers();
+        createSyncObjects();
+
+all utility copypasta
+image2d copypasta
+element buffer copypasta
+
