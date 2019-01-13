@@ -27,7 +27,6 @@
     <ClInclude Include="ShaderPipeline.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Texture.h" />
-    <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

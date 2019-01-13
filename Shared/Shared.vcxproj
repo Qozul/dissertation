@@ -136,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gl3w.c" />
+    <ClCompile Include="PerfMeasurer.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
