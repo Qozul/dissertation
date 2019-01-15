@@ -19,6 +19,21 @@
     <Filter Include="Source Files\GL3W">
       <UniqueIdentifier>{9b4e81b5-6968-4911-9e61-787b1541d54f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Tests">
+      <UniqueIdentifier>{d8eef988-6fac-4f48-9368-49c2eecd5337}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tests">
+      <UniqueIdentifier>{0ccbc072-dcf0-4502-9c5c-6f7fd38b0074}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Nvidia DDS">
+      <UniqueIdentifier>{25c48544-b3a9-4333-8c45-f86d3ca2eb56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Nvidia DDS">
+      <UniqueIdentifier>{065975be-2546-448a-b551-8989c4b58788}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Tinyobj">
+      <UniqueIdentifier>{691eeaac-c1ee-4a14-847c-395613b3a7df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\todo.txt" />
@@ -31,6 +46,18 @@
       <Filter>Source Files\GL3W</Filter>
     </ClCompile>
     <ClCompile Include="PerfMeasurer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitTester.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nv_dds.cpp">
+      <Filter>Source Files\Nvidia DDS</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -49,6 +76,27 @@
     </ClInclude>
     <ClInclude Include="Utility.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitTester.h">
+      <Filter>Header Files\Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nv_dds.h">
+      <Filter>Header Files\Nvidia DDS</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_obj_loader.h">
+      <Filter>Header Files\Tinyobj</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

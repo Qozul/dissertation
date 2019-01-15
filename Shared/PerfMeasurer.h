@@ -1,7 +1,6 @@
 /// Author: Ralph Ridley
 /// Date: 13/01/19
 /// Purpose: Provide functionality for measuring duration for performance testing
-
 #pragma once
 #include <chrono>
 #include <vector>

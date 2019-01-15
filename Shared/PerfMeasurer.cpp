@@ -1,6 +1,5 @@
 /// Author: Ralph Ridley
 /// Date: 13/01/19
-
 #include "PerfMeasurer.h"
 
 using namespace QZL;
