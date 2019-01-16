@@ -3,6 +3,9 @@
 
 using namespace QZL;
 
+const std::string ShaderPipeline::kPath = "../Assets/Shaders/GLSL/";
+const std::string ShaderPipeline::kExt = ".glsl";
+
 ShaderPipeline::ShaderPipeline(const std::string& compute)
 {
 	GLuint cId = glCreateShader(GL_COMPUTE_SHADER);
@@ -32,7 +35,7 @@ ShaderPipeline::ShaderPipeline(const std::string& vertex, const std::string& fra
 
 void ShaderPipeline::compileShader(GLuint id, std::string path)
 {
-	std::ifstream file(path);
+	std::ifstream file(kPath + path + kExt);
 	ENSURESM(!file.fail(), path);
 
 	std::string contents = "";
@@ -60,7 +63,7 @@ void ShaderPipeline::compileShader(GLuint id, std::string path)
 
 		glDeleteShader(id);
 
-		ENSURESM(false, "Shader " + path + " failed to compile");
+		DEBUG_OUT("Shader " << kPath << path << kExt << " failed to compile");
 	}
 }
 

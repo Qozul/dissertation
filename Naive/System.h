@@ -1,24 +1,27 @@
 /// Author: Ralph Ridley
 /// Date: 31/12/18
 #pragma once
-#include "RendererBase.h"
+#include "../Shared/RendererBase.h"
 
 namespace QZL
 {
-	class System {
-	public:
-		System();
-		~System();
-		void loop();
-	private:
-		void initGLFW();
-		void initGL3W();
+	namespace Naive
+	{
+		class System {
+		public:
+			System();
+			~System();
+			void loop();
+		private:
+			void initGLFW();
+			void initGL3W();
 
-		RendererBase* basicRenderer_;
+			glm::mat4 viewMatrix_;
 
-		GLFWwindow* window_;
+			Shared::RendererBase<BasicMesh>* basicRenderer_;
+			//Shared::RendererBase<TexturedBasicMesh>* texturedRenderer_;
 
-		static const int kDefaultWidth = 800;
-		static const int kDefaultHeight = 600;
-	};
+			GLFWwindow* window_;
+		};
+	}
 }

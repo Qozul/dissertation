@@ -9,7 +9,7 @@ namespace QZL
 	namespace Naive
 	{
 		struct Texture {
-			GLuint texId;
+			GLuint id;
 		};
 	}
 	namespace AZDO

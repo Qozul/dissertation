@@ -1,21 +1,19 @@
 /// Author: Ralph Ridley
 /// Date: 10/1/19
 #pragma once
-#include "NaiveAbstractRenderer.h"
+#include "../Shared/RendererBase.h"
 
 namespace QZL
 {
 	namespace Naive
 	{
-		class TexturedRenderer : public AbstractRenderer {
+		// Note that TexturedRenderer uses base class meshes_ map GLuint key as proxy for texture id
+		// rather than vao id
+		class TexturedRenderer : public Shared::RendererBase<TexturedBasicMesh> {
+			using Base = Shared::RendererBase<TexturedBasicMesh>;
 		public:
 			TexturedRenderer(ShaderPipeline* pipeline);
-			void doFrame();
-			void addTexturedMesh(Texture* texture, Mesh* mesh) {
-				texturedMeshes_[texture].push_back(mesh);
-			};
-		private:
-			std::map<Texture*, std::vector<Mesh*>> texturedMeshes_;
+			void doFrame(const glm::mat4& viewMatrix) override;
 		};
 	}
 }

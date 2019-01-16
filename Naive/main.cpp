@@ -5,7 +5,7 @@
 constexpr auto kHoldConsole = false;
 
 using namespace QZL;
-
+using namespace QZL::Naive;
 int main()
 {
 	System system;

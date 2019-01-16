@@ -140,6 +140,8 @@
     <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="nv_dds.cpp" />
     <ClCompile Include="PerfMeasurer.cpp" />
+    <ClCompile Include="ShaderPipeline.cpp" />
+    <ClCompile Include="TestStateLoader.cpp" />
     <ClCompile Include="UnitTester.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
@@ -151,6 +153,9 @@
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="nv_dds.h" />
     <ClInclude Include="PerfMeasurer.h" />
+    <ClInclude Include="RendererBase.h" />
+    <ClInclude Include="ShaderPipeline.h" />
+    <ClInclude Include="TestStateLoader.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="Transform.h" />

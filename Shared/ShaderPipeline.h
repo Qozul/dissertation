@@ -1,6 +1,5 @@
 #pragma once
-//#include "Utility.h"
-#include "../Shared/Utility.h"
+#include "Utility.h"
 
 namespace QZL
 {
@@ -12,7 +11,7 @@ namespace QZL
 
 		GLint getUniformLocation(const std::string& name) {
 			GLint location = glGetUniformLocation(id_, name.c_str());
-			ENSURES(location != GL_INVALID_INDEX);
+			ENSURES(location != -1);
 			return location;
 		}
 
@@ -33,5 +32,8 @@ namespace QZL
 		void linkShaders(std::vector<GLuint> shaderIds);
 
 		GLuint id_;
+
+		static const std::string kPath;
+		static const std::string kExt;
 	};
 }

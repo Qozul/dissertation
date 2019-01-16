@@ -20,13 +20,23 @@ namespace QZL
 
 			glm::vec3 getPosition() const { return position_; };
 			glm::vec3 getRotation() const { return rotation_; };
+			float getRotationAngle() const { return angle_; };
 			glm::vec3 getScale() const { return scale_; };
+			void setPosition(const glm::vec3& newPos) { position_ = newPos; };
+			void setRotation(const glm::vec3& newRot) { rotation_ = newRot; };
+			void setRotationAngle(const float newAng) { angle_ = newAng; };
+			void setScale(const glm::vec3& newScale) { scale_ = newScale; };
+			void setScale(const float newScale) { 
+				scale_.x = newScale;
+				scale_.y = newScale;
+				scale_.z = newScale;
+			};
 
 			glm::mat4 toModelMatrix() {
-				glm::mat4 model;
-				glm::translate(model, position_);
-				glm::rotate(model, angle_, rotation_);
-				glm::scale(model, scale_);
+				glm::mat4 model(1.0f);
+				model = glm::translate(model, position_);
+				model = glm::rotate(model, angle_, rotation_);
+				model = glm::scale(model, scale_);
 				return model; 
 			}
 		private:

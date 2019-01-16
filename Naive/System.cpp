@@ -1,19 +1,11 @@
 /// Author: Ralph Ridley
 /// Date: 31/12/18
 #include "System.h"
-//#include "Utility.h"
-#include "../Shared/Utility.h"
 #include "NaiveBasicRenderer.h"
-
-// Uncomment the define below depending on Naive/AZDO usage of the engine
-//#define USE_AZDO
-#ifdef USE_AZDO
-using namespace QZL::AZDO;
-#else
-using namespace QZL::Naive;
-#endif
+#include "../Shared/TestStateLoader.h"
 
 using namespace QZL;
+using namespace QZL::Naive;
 
 void errorCallback(int error, const char* description)
 {
@@ -24,33 +16,43 @@ System::System()
 {
 	initGLFW();
 	initGL3W();
-	//basicRenderer_ = new BasicRenderer();
-	basicRenderer_ = nullptr;
+	basicRenderer_ = new BasicRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
+	basicRenderer_->addMesh(0, testStateLoader().getNaiveBasicMeshes());
+	//texturedRenderer_ = new BasicRenderer(new ShaderPipeline("NaiveBasicVert.glsl", "NaiveBasicFrag.glsl"));
+	viewMatrix_ = glm::lookAt(glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 System::~System()
 {
 	SAFE_DELETE(basicRenderer_);
+	//SAFE_DELETE(texturedRenderer_);
 	glfwDestroyWindow(window_);
 	glfwTerminate();
 }
 
 void System::loop()
 {
+	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	while (!glfwWindowShouldClose(window_)) {
 		glfwPollEvents();
-		basicRenderer_->doFrame();
+		glClearDepth(1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		basicRenderer_->doFrame(viewMatrix_);
+		glfwSwapBuffers(window_);
 	}
 }
 
 void System::initGLFW()
 {
 	glfwInit();
-
-	window_ = glfwCreateWindow(kDefaultWidth, kDefaultHeight, "OpenGL Engine", nullptr, nullptr);
+	window_ = glfwCreateWindow(Shared::kDefaultWidth, Shared::kDefaultHeight, "OpenGL Engine: Naive", nullptr, nullptr);
 	ENSURES(window_ != nullptr);
 	//glfwSetWindowUserPointer(window_, this);
 	glfwSetErrorCallback(errorCallback);
+	glfwMakeContextCurrent(window_);
 }
 
 void System::initGL3W()
@@ -58,8 +60,5 @@ void System::initGL3W()
 	if (gl3wInit()) {
 		throw std::runtime_error("failed to initialize OpenGL");
 	}
-	if (!gl3wIsSupported(3, 2)) {
-		throw std::runtime_error("OpenGL 3.2 not supported");
-	}
-	DEBUG_OUT("OpenGL %s, GLSL %s\n" << glGetString(GL_VERSION) << glGetString(GL_SHADING_LANGUAGE_VERSION));
+	DEBUG_OUT("OpenGL, GLSL\n" << glGetString(GL_VERSION) << glGetString(GL_SHADING_LANGUAGE_VERSION));
 }

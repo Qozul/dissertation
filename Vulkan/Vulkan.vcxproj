@@ -23,7 +23,6 @@
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="ElementBuffer.cpp" />
     <ClCompile Include="GfxPipeline.cpp" />
-    <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="Image2D.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QueueFamilies.cpp" />
@@ -41,7 +40,6 @@
     <ClInclude Include="Device.h" />
     <ClInclude Include="ElementBuffer.h" />
     <ClInclude Include="GfxPipeline.h" />
-    <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="Image2D.h" />
     <ClInclude Include="QueueFamilies.h" />
     <ClInclude Include="RenderPass.h" />

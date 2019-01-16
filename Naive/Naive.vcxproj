@@ -19,20 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="NaiveAbstractRenderer.h" />
     <ClInclude Include="NaiveBasicRenderer.h" />
     <ClInclude Include="NaiveTexturedRenderer.h" />
-    <ClInclude Include="RendererBase.h" />
-    <ClInclude Include="ShaderPipeline.h" />
     <ClInclude Include="System.h" />
-    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NaiveBasicRenderer.cpp" />
     <ClCompile Include="NaiveTexturedRenderer.cpp" />
-    <ClCompile Include="ShaderPipeline.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
