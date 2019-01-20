@@ -19,7 +19,7 @@ namespace QZL
 			glm::mat4 viewMatrix_;
 
 			Shared::RendererBase<BasicMesh>* basicRenderer_;
-			//Shared::RendererBase<TexturedBasicMesh>* texturedRenderer_;
+			Shared::RendererBase<TexturedBasicMesh>* texturedRenderer_;
 
 			GLFWwindow* window_;
 		};

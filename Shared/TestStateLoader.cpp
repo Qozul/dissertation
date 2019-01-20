@@ -5,34 +5,10 @@
 using namespace QZL;
 using namespace QZL::Shared;
 
-void TestStateLoader::loadNaiveState()
+NaiveStateLoader& QZL::Naive::testStateLoader()
 {
-	nbms_.push_back(meshLoader_->loadNaiveMesh("crate"));
-	nbms_[0]->transform.setScale(0.02f);
-}
-
-void TestStateLoader::loadAZDOState()
-{
-}
-
-void TestStateLoader::loadVulkanState()
-{
-}
-
-QZL::Shared::TestStateLoader& QZL::Naive::testStateLoader()
-{
-	static QZL::Shared::TestStateLoader instance(QZL::Shared::TestStateLoader::TestState::kNaive);
-	return instance;
-}
-
-QZL::Shared::TestStateLoader& QZL::AZDO::testStateLoader()
-{
-	static QZL::Shared::TestStateLoader instance(QZL::Shared::TestStateLoader::TestState::kAZDO);
-	return instance;
-}
-
-QZL::Shared::TestStateLoader& QZL::Vulk::testStateLoader()
-{
-	static QZL::Shared::TestStateLoader instance(QZL::Shared::TestStateLoader::TestState::kVulkan);
+	static QZL::Shared::TestStateLoader<Naive::BasicMesh, Naive::TexturedBasicMesh> instance;
+	if (!instance.naiveLoaded_)
+		instance.loadNaiveState();
 	return instance;
 }

@@ -4,6 +4,7 @@
 ///		Data order is important for optimal byte boundary alignment.
 #pragma once
 #include "Transform.h"
+#include "Texture.h"
 
 namespace QZL
 {
@@ -19,11 +20,11 @@ namespace QZL
 		struct TexturedBasicMesh {
 			GLuint vaoId;
 			GLsizei indexCount;
-			GLuint texId; // Just a single texture
-			Shared::Transform tranform;
+			Texture* texture; // Just a single texture
+			Shared::Transform transform;
 		};
 
-		TexturedBasicMesh basicToTextured(const BasicMesh& bmesh);
+		TexturedBasicMesh* basicToTextured(const BasicMesh& bmesh);
 	}
 	namespace AZDO
 	{

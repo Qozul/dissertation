@@ -9,7 +9,11 @@ namespace QZL
 	namespace Naive
 	{
 		struct Texture {
+			// Must be a generated texture id
 			GLuint id;
+			void deleteTexture() {
+				glDeleteTextures(1, &id);
+			}
 		};
 	}
 	namespace AZDO
@@ -18,6 +22,8 @@ namespace QZL
 		struct Texture {
 			GLuint64 handle;
 			GLuint64 page;
+			void deleteTexture() {
+			}
 		};
 	}
 	namespace Vulk {

@@ -35,7 +35,7 @@ Naive::BasicMesh* MeshLoader::loadNaiveMesh(const std::string& meshName)
 	vertexArrays_.push_back(vao);
 	mesh->vaoId = vao;
 
-	std::vector<int> indices;
+	std::vector<GLushort> indices;
 	std::vector<Vertex> verts;
 	// TODO: remove duplicate vertices
 	for (const auto& shape : shapes) {
@@ -59,7 +59,7 @@ Naive::BasicMesh* MeshLoader::loadNaiveMesh(const std::string& meshName)
 
 	// Put element data in the index buffer object
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(int), indices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLushort), indices.data(), GL_STATIC_DRAW);
 
 	// VBO
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);

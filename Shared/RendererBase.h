@@ -23,7 +23,7 @@ namespace QZL
 				meshes_[id].push_back(mesh);
 			}
 			void addMesh(GLuint id, std::vector<M*> meshes) {
-				meshes_[id] = meshes;
+				std::copy(std::begin(meshes), std::end(meshes), std::back_inserter(meshes_[id]));
 			}
 		protected:
 			ShaderPipeline* pipeline_;

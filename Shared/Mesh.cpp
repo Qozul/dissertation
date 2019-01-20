@@ -4,12 +4,12 @@
 
 using namespace QZL;
 
-Naive::TexturedBasicMesh Naive::basicToTextured(const BasicMesh& bmesh)
+Naive::TexturedBasicMesh* Naive::basicToTextured(const BasicMesh& bmesh)
 {
-	Naive::TexturedBasicMesh tbm;
-	tbm.vaoId = bmesh.vaoId;
-	tbm.indexCount = bmesh.indexCount;
-	tbm.tranform = bmesh.transform;
-	tbm.texId = 0;
+	Naive::TexturedBasicMesh* tbm = new Naive::TexturedBasicMesh();
+	tbm->vaoId = bmesh.vaoId;
+	tbm->indexCount = bmesh.indexCount;
+	tbm->transform = bmesh.transform;
+	tbm->texture = nullptr;
 	return tbm;
 }

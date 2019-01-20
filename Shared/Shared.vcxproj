@@ -142,6 +142,7 @@
     <ClCompile Include="PerfMeasurer.cpp" />
     <ClCompile Include="ShaderPipeline.cpp" />
     <ClCompile Include="TestStateLoader.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="UnitTester.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
@@ -157,6 +158,7 @@
     <ClInclude Include="ShaderPipeline.h" />
     <ClInclude Include="TestStateLoader.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UnitTester.h" />

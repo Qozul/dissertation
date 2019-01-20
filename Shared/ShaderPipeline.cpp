@@ -61,6 +61,9 @@ void ShaderPipeline::compileShader(GLuint id, std::string path)
 		std::vector<char> errorLog(maxLength);
 		glGetShaderInfoLog(id, maxLength, &maxLength, &errorLog[0]);
 
+		for (char logChar : errorLog)
+			std::cout << logChar;
+
 		glDeleteShader(id);
 
 		DEBUG_OUT("Shader " << kPath << path << kExt << " failed to compile");
@@ -81,8 +84,10 @@ void ShaderPipeline::linkShaders(std::vector<GLuint> shaderIds)
 		GLint maxLength = 0;
 		glGetProgramiv(id_, GL_INFO_LOG_LENGTH, &maxLength);
 
-		std::vector<char> infoLog(maxLength);
-		glGetProgramInfoLog(id_, maxLength, &maxLength, &infoLog[0]);
+		if (maxLength > 0) {
+			std::vector<char> infoLog(maxLength);
+			glGetProgramInfoLog(id_, maxLength, &maxLength, &infoLog[0]);
+		}
 
 		glDeleteProgram(id_);
 		for (GLuint shaderId : shaderIds) {
