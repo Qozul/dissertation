@@ -11,6 +11,7 @@ namespace QZL
 			using Base = Shared::RendererBase<BasicMesh>;
 		public:
 			LoopRenderer(ShaderPipeline* pipeline);
+			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;
 
 		private:

@@ -16,8 +16,14 @@ namespace QZL
 			// pipeline must by dynamically allocated
 			RendererBase(ShaderPipeline* pipeline) : pipeline_(pipeline) {};
 			virtual ~RendererBase() {
-				delete pipeline_;
+				for (auto& it : meshes_) {
+					for (M* mesh : it.second) {
+						SAFE_DELETE(mesh);
+					}
+				}
+				SAFE_DELETE(pipeline_);
 			}
+			virtual void initialise() = 0;
 			virtual void doFrame(const glm::mat4& viewMatrix) = 0;
 			void addMesh(GLuint id, M* mesh) {
 				meshes_[id].push_back(mesh);

@@ -29,6 +29,8 @@ namespace QZL
 			std::vector<GLuint> indexBuffers_;
 			std::vector<GLuint> vertexArrays_;
 
+			std::map<std::string, std::pair<GLuint, GLuint>> naiveMeshes_;
+
 			static const std::string kPath;
 			static const std::string kExt;
 		};

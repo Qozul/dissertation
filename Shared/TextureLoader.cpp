@@ -10,17 +10,14 @@ Naive::Texture* TextureLoader::loadNaiveTexture(const std::string& fileName)
 {
 	DEBUG_OUT("Loading texture " << fileName);
 	auto texIterator = naiveTextures_.find(fileName);
-	Naive::Texture* texture;
 	if (texIterator != naiveTextures_.end()) {
 		DEBUG_OUT("Finished loading " << fileName);
 		return texIterator->second;
 	}
-	else {
-		texture = new Naive::Texture();
-		glGenTextures(1, &texture->id);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, texture->id);
-	}
+	Naive::Texture* texture = new Naive::Texture();
+	glGenTextures(1, &texture->id);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texture->id);
 
 	auto imgIterator = nvddsImages_.find(fileName);
 	nv_dds::CDDSImage* image;

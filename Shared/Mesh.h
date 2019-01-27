@@ -24,7 +24,8 @@ namespace QZL
 			Shared::Transform transform;
 		};
 
-		TexturedBasicMesh* basicToTextured(const BasicMesh& bmesh);
+		// Input mesh is deleted by this function
+		TexturedBasicMesh* basicToTextured(BasicMesh* bmesh, Texture* texture);
 	}
 	namespace AZDO
 	{

@@ -13,6 +13,15 @@ const std::string MeshLoader::kExt = ".obj";
 
 Naive::BasicMesh* MeshLoader::loadNaiveMesh(const std::string& meshName)
 {
+	Naive::BasicMesh* mesh = new Naive::BasicMesh();
+
+	auto meshIterator = naiveMeshes_.find(meshName);
+	if (meshIterator != naiveMeshes_.end()) {
+		mesh->vaoId = meshIterator->second.first;
+		mesh->indexCount = meshIterator->second.second;
+		return mesh;
+	}
+
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
@@ -25,7 +34,6 @@ Naive::BasicMesh* MeshLoader::loadNaiveMesh(const std::string& meshName)
 	if (!err.empty())
 		std::cout << err << std::endl;
 	
-	Naive::BasicMesh* mesh = new Naive::BasicMesh();
 	GLuint vbo, ibo, vao;
 	glGenBuffers(1, &vbo);
 	glGenBuffers(1, &ibo);
@@ -72,6 +80,10 @@ Naive::BasicMesh* MeshLoader::loadNaiveMesh(const std::string& meshName)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindVertexArray(0);
+
+	naiveMeshes_[meshName].first = mesh->vaoId;
+	naiveMeshes_[meshName].second = mesh->indexCount;
+
 	DEBUG_OUT("Loaded naive BasicMesh " << kPath << meshName << kExt);
 	return mesh;
 }

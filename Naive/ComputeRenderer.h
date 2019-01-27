@@ -12,6 +12,7 @@ namespace QZL
 		public:
 			ComputeRenderer(ShaderPipeline* pipeline);
 			~ComputeRenderer();
+			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;
 
 		private:

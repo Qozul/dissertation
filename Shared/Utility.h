@@ -68,7 +68,7 @@ namespace QZL
 		inline void checkGLError() {
 			GLenum err = glGetError();
 			if (err != GL_NO_ERROR)
-				DEBUG_OUT(std::hex << "0x" << err);
+				DEBUG_OUT("OpenGL Error " << std::hex << "0x" << err);
 		}
 
 		namespace Vulk

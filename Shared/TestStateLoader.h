@@ -59,12 +59,12 @@ namespace QZL
 				SAFE_DELETE(textureLoader_);
 			}
 			void loadNaiveState() {
-				basicMeshes_.push_back(meshLoader_->loadNaiveMesh("crate"));
-				basicMeshes_[0]->transform.setScale(0.02f);
+				/*basicMeshes_.push_back(meshLoader_->loadNaiveMesh("teapot-fixed"));
+				basicMeshes_[0]->transform.setScale(0.7f);
 				Naive::TexturedBasicMesh* textured = basicToTextured(*basicMeshes_[0]);
 				textured->texture = textureLoader_->loadNaiveTexture("Mandelbrot");
 				texturedMeshes_[textured->texture->id].push_back(textured);
-				naiveLoaded_ = true;
+				naiveLoaded_ = true;*/
 			}
 			void loadAZDOState();
 			void loadVulkanState();

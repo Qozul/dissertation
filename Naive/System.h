@@ -2,6 +2,7 @@
 /// Date: 31/12/18
 #pragma once
 #include "../Shared/RendererBase.h"
+#include "../Shared/TestStateLoader.h"
 
 namespace QZL
 {
@@ -15,6 +16,9 @@ namespace QZL
 		private:
 			void initGLFW();
 			void initGL3W();
+
+			QZL::Shared::MeshLoader* meshLoader_;
+			QZL::Shared::TextureLoader* textureLoader_;
 
 			glm::mat4 viewMatrix_;
 
