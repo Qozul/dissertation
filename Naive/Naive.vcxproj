@@ -19,14 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NaiveBasicRenderer.h" />
-    <ClInclude Include="NaiveTexturedRenderer.h" />
+    <ClInclude Include="ComputeRenderer.h" />
+    <ClInclude Include="LoopRenderer.h" />
+    <ClInclude Include="BasicRenderer.h" />
+    <ClInclude Include="TexturedRenderer.h" />
     <ClInclude Include="System.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ComputeRenderer.cpp" />
+    <ClCompile Include="LoopRenderer.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="NaiveBasicRenderer.cpp" />
-    <ClCompile Include="NaiveTexturedRenderer.cpp" />
+    <ClCompile Include="BasicRenderer.cpp" />
+    <ClCompile Include="TexturedRenderer.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>

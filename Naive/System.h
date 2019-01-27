@@ -20,6 +20,8 @@ namespace QZL
 
 			Shared::RendererBase<BasicMesh>* basicRenderer_;
 			Shared::RendererBase<TexturedBasicMesh>* texturedRenderer_;
+			Shared::RendererBase<BasicMesh>* loopRenderer_;
+			Shared::RendererBase<BasicMesh>* computeRenderer_;
 
 			GLFWwindow* window_;
 		};

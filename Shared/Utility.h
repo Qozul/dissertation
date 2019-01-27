@@ -12,6 +12,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 #include <stdexcept>
@@ -63,6 +64,12 @@ namespace QZL
 		constexpr float kFoV = 45.0f;
 
 		static const glm::mat4 kProjectionMatrix = glm::perspective(glm::radians(kFoV), 4.0f/3.0f, 0.1f, 100.0f);
+
+		inline void checkGLError() {
+			GLenum err = glGetError();
+			if (err != GL_NO_ERROR)
+				DEBUG_OUT(std::hex << "0x" << err);
+		}
 
 		namespace Vulk
 		{

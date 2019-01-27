@@ -1,24 +1,26 @@
-/// Author: Ralph Ridley
-/// Date: 31/12/18
-
-#include "NaiveBasicRenderer.h"
+#include "LoopRenderer.h"
 
 using namespace QZL;
 using namespace QZL::Naive;
 
-BasicRenderer::BasicRenderer(ShaderPipeline* pipeline)
+const float LoopRenderer::kRotationSpeed = 0.1f;
+
+LoopRenderer::LoopRenderer(ShaderPipeline* pipeline)
 	: Base(pipeline)
 {
 }
 
-void BasicRenderer::doFrame(const glm::mat4& viewMatrix)
+void LoopRenderer::doFrame(const glm::mat4& viewMatrix)
 {
+	for (auto& mesh : meshes_[0]) {
+		updateTransform(mesh->transform);
+	}
 	pipeline_->use();
 	for (const auto& mesh : meshes_[0]) {
 		GLint loc = pipeline_->getUniformLocation("uMVP");
 		glm::mat4 model = mesh->transform.toModelMatrix();
 		glm::mat4 mvp = Shared::kProjectionMatrix * viewMatrix * model;
-		glUniformMatrix4fv(loc, 1, GL_FALSE, &mvp[0][0]);
+		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(mvp));
 
 		glBindVertexArray(mesh->vaoId);
 		glEnableVertexAttribArray(0);
@@ -31,4 +33,9 @@ void BasicRenderer::doFrame(const glm::mat4& viewMatrix)
 	}
 	glBindVertexArray(0);
 	pipeline_->unuse();
+}
+
+void LoopRenderer::updateTransform(QZL::Shared::Transform & transform)
+{
+	transform.angle = transform.angle + kRotationSpeed;
 }

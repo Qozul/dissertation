@@ -1,7 +1,7 @@
 /// Author: Ralph Ridley
 /// Date: 10/1/19
 
-#include "NaiveTexturedRenderer.h"
+#include "TexturedRenderer.h"
 
 using namespace QZL;
 using namespace QZL::Naive;
@@ -21,7 +21,7 @@ void TexturedRenderer::doFrame(const glm::mat4& viewMatrix)
 			GLint loc = pipeline_->getUniformLocation("uMVP");
 			glm::mat4 model = mesh->transform.toModelMatrix();
 			glm::mat4 mvp = Shared::kProjectionMatrix * viewMatrix * model;
-			glUniformMatrix4fv(loc, 1, GL_FALSE, &mvp[0][0]);
+			glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(mvp));
 
 			glBindVertexArray(mesh->vaoId);
 			glEnableVertexAttribArray(0);

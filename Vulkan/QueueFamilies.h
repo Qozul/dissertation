@@ -17,18 +17,18 @@ namespace QZL
 	public:
 		QueueFamilies();
 		QueueFamilies(VkPhysicalDevice& device, VkSurfaceKHR& surface);
-		bool has_all_families();
-		std::vector<VkDeviceQueueCreateInfo> get_create_infos(const float* queue_priority);
-		VkQueue get_queue_handle(QueueFamilyType type, VkDevice& logic_device, uint32_t index);
-		const uint32_t get_family_index(QueueFamilyType type) const;
-		const std::vector<uint32_t>& get_all_indices() const noexcept;
+		bool hasAllFamilies();
+		std::vector<VkDeviceQueueCreateInfo> getCreateInfos(const float* queuePriority);
+		VkQueue getQueueHandle(QueueFamilyType type, VkDevice& logicDevice, uint32_t index);
+		const uint32_t getFamilyIndex(QueueFamilyType type) const;
+		const std::vector<uint32_t>& getAllIndices() const noexcept;
 
 	private:
-		void find_indices(VkPhysicalDevice& device, VkSurfaceKHR& surface);
+		void findIndices(VkPhysicalDevice& device, VkSurfaceKHR& surface);
 
 		// Use QueueFamilyType to index in to the appropriate family
-		std::vector<uint32_t> family_indices_;
-		bool is_suitable;
+		std::vector<uint32_t> familyIndices_;
+		bool isSuitable;
 
 		static const uint32_t kInvalidIndex = std::numeric_limits<uint32_t>::max();
 	};

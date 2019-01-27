@@ -161,9 +161,9 @@ bool Device::hasSuitableSwapchain(DeviceSwapChainDetails* swapChainDetails, VkSu
 void Device::findIndices(VkPhysicalDevice& device, VkSurfaceKHR& surface)
 {
 	EXPECTS(device != VK_NULL_HANDLE && surface != VK_NULL_HANDLE);
-	auto queue_families = Shared::Vulk::obtainVkData<VkQueueFamilyProperties>(vkGetPhysicalDeviceQueueFamilyProperties, device);
+	auto queueFamilies = Shared::Vulk::obtainVkData<VkQueueFamilyProperties>(vkGetPhysicalDeviceQueueFamilyProperties, device);
 	int i = 0;
-	for (const auto& queueFamily : queue_families) {
+	for (const auto& queueFamily : queueFamilies) {
 		// Want a queue family that has the graphics bit
 		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 			familyIndices_[static_cast<size_t>(QueueFamilyType::kGraphicsQueue)] = i;

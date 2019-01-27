@@ -8,6 +8,8 @@ const std::string ShaderPipeline::kExt = ".glsl";
 
 ShaderPipeline::ShaderPipeline(const std::string& compute)
 {
+	id_ = glCreateProgram();
+
 	GLuint cId = glCreateShader(GL_COMPUTE_SHADER);
 	ENSURES(cId != NULL);
 	compileShader(cId, compute);
@@ -67,6 +69,7 @@ void ShaderPipeline::compileShader(GLuint id, std::string path)
 		glDeleteShader(id);
 
 		DEBUG_OUT("Shader " << kPath << path << kExt << " failed to compile");
+		QZL::Shared::checkGLError();
 	}
 }
 
@@ -87,14 +90,17 @@ void ShaderPipeline::linkShaders(std::vector<GLuint> shaderIds)
 		if (maxLength > 0) {
 			std::vector<char> infoLog(maxLength);
 			glGetProgramInfoLog(id_, maxLength, &maxLength, &infoLog[0]);
+			for (char logChar : infoLog)
+				std::cout << logChar;
 		}
 
 		glDeleteProgram(id_);
 		for (GLuint shaderId : shaderIds) {
 			glDeleteShader(shaderId);
 		}
-
-		ENSURESM(false, "Shaders failed to link");
+		DEBUG_OUT("Shader program " << id_ << " failed to link");
+		QZL::Shared::checkGLError();
+		ENSURES(false);
 	}
 
 	for (GLuint shaderId : shaderIds) {
