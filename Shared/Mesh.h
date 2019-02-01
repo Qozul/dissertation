@@ -31,7 +31,22 @@ namespace QZL
 	{
 		/// BasicMesh needs to provide a transform and pointers to it's data
 		struct BasicMesh {
+			size_t id;
+			GLuint indexCount;
+			GLuint indexOffset;
+			GLuint vertexOffset;
 		};
+		struct MeshInstance {
+			size_t meshId;
+			Shared::Transform transform;
+		};
+		struct TexturedMeshInstance {
+			size_t meshId;
+			Texture* texture;
+			Shared::Transform transform;
+		};
+		template<typename InstType>
+		InstType* makeMeshInstance(const BasicMesh& mesh);
 	}
 	namespace Vulk {
 		struct Mesh {

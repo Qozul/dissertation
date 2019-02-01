@@ -15,3 +15,16 @@ Naive::TexturedBasicMesh* Naive::basicToTextured(BasicMesh* bmesh, Texture* text
 	SAFE_DELETE(bmesh);
 	return tbm;
 }
+
+
+template<typename InstType>
+InstType* AZDO::makeMeshInstance(const AZDO::BasicMesh& mesh)
+{
+	static_assert(std::is_same<InstType, AZDO::MeshInstance>::value || 
+		std::is_same<InstType, AZDO::TexturedMeshInstance>::value, 
+		"Type not allowed");
+
+	InstType* inst = new InstType();
+	inst->meshId = mesh.id;
+	return inst;
+}

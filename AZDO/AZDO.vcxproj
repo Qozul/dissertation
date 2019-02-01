@@ -18,6 +18,21 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AbstractRenderer.h" />
+    <ClInclude Include="BasicRenderer.h" />
+    <ClInclude Include="ComputeRenderer.h" />
+    <ClInclude Include="LoopRenderer.h" />
+    <ClInclude Include="System.h" />
+    <ClInclude Include="TexturedRenderer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BasicRenderer.cpp" />
+    <ClCompile Include="ComputeRenderer.cpp" />
+    <ClCompile Include="LoopRenderer.cpp" />
+    <ClCompile Include="System.cpp" />
+    <ClCompile Include="TexturedRenderer.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{C45C1B9D-3C64-4899-89C8-8FF746F9E38A}</ProjectGuid>

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AbstractRenderer.h" />
     <ClInclude Include="ComputeRenderer.h" />
     <ClInclude Include="LoopRenderer.h" />
     <ClInclude Include="BasicRenderer.h" />

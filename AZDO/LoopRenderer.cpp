@@ -1,7 +1,9 @@
+/// Author: Ralph Ridley
+/// Date: 31/1/19
 #include "LoopRenderer.h"
 
 using namespace QZL;
-using namespace QZL::Naive;
+using namespace QZL::AZDO;
 
 const float LoopRenderer::kRotationSpeed = 0.1f;
 
@@ -12,17 +14,17 @@ LoopRenderer::LoopRenderer(ShaderPipeline* pipeline)
 
 void LoopRenderer::initialise()
 {
-	meshes_[0]->transform.position = glm::vec3(2.0f, -2.0f, 0.0f);
-	meshes_[0]->transform.setScale(0.7f);
+	meshes_[0][0]->transform.position = glm::vec3(2.0f, -2.0f, 0.0f);
+	meshes_[0][0]->transform.setScale(0.7f);
 }
 
 void LoopRenderer::doFrame(const glm::mat4& viewMatrix)
 {
-	for (auto& mesh : meshes_) {
+	for (auto& mesh : meshes_[0]) {
 		updateTransform(mesh->transform);
 	}
 	pipeline_->use();
-	for (const auto& mesh : meshes_) {
+	for (const auto& mesh : meshes_[0]) {
 		GLint loc0 = pipeline_->getUniformLocation("uModelMat");
 		GLint loc1 = pipeline_->getUniformLocation("uMVP");
 		glm::mat4 model = mesh->transform.toModelMatrix();

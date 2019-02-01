@@ -1,5 +1,5 @@
 /// Author: Ralph Ridley
-/// Date: 31/12/18
+/// Date: 31/01/18
 #include "System.h"
 #include "BasicRenderer.h"
 #include "TexturedRenderer.h"
@@ -7,7 +7,7 @@
 #include "ComputeRenderer.h"
 
 using namespace QZL;
-using namespace QZL::Naive;
+using namespace QZL::AZDO;
 
 void errorCallback(int error, const char* description)
 {
@@ -22,7 +22,7 @@ System::System()
 
 
 	basicRenderer_ = new BasicRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	basicRenderer_->addMesh(meshLoader_->loadNaiveMesh("teapot-fixed"));
+	basicRenderer_->addMesh(0, meshLoader_->loadNaiveMesh("teapot-fixed"));
 	basicRenderer_->initialise();
 
 	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("NaiveTexturedVert", "NaiveTexturedFrag"));
@@ -32,11 +32,11 @@ System::System()
 	texturedRenderer_->initialise();
 
 	loopRenderer_ = new LoopRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	loopRenderer_->addMesh(meshLoader_->loadNaiveMesh("teapot-fixed"));
+	loopRenderer_->addMesh(0, meshLoader_->loadNaiveMesh("teapot-fixed"));
 	loopRenderer_->initialise();
 
 	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	computeRenderer_->addMesh(meshLoader_->loadNaiveMesh("teapot-fixed"));
+	computeRenderer_->addMesh(0, meshLoader_->loadNaiveMesh("teapot-fixed"));
 	computeRenderer_->initialise();
 
 	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -49,7 +49,7 @@ System::~System()
 	SAFE_DELETE(basicRenderer_);
 	SAFE_DELETE(texturedRenderer_);
 	SAFE_DELETE(loopRenderer_);
-	SAFE_DELETE(computeRenderer_); 
+	SAFE_DELETE(computeRenderer_);
 	SAFE_DELETE(meshLoader_);
 	SAFE_DELETE(textureLoader_);
 	glfwDestroyWindow(window_);

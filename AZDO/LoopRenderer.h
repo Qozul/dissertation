@@ -1,14 +1,14 @@
 /// Author: Ralph Ridley
-/// Date: 27/01/19
+/// Date: 31/01/19
 #pragma once
-#include "AbstractRenderer.h"
+#include "../Shared/RendererBase.h"
 
 namespace QZL
 {
-	namespace Naive
+	namespace AZDO
 	{
-		class LoopRenderer : public AbstractRenderer {
-			using Base = AbstractRenderer;
+		class LoopRenderer : public Shared::RendererBase<BasicMesh> {
+			using Base = Shared::RendererBase<BasicMesh>;
 		public:
 			LoopRenderer(ShaderPipeline* pipeline);
 			void initialise() override;

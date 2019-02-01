@@ -1,23 +1,13 @@
 /// Author: Ralph Ridley
-/// Date: 10/1/19
-
+/// Date: 31/1/19
 #include "TexturedRenderer.h"
 
 using namespace QZL;
-using namespace QZL::Naive;
+using namespace QZL::AZDO;
 
 TexturedRenderer::TexturedRenderer(ShaderPipeline* pipeline)
 	: Base(pipeline)
 {
-}
-
-TexturedRenderer::~TexturedRenderer()
-{
-	for (auto& it : meshes_) {
-		for (TexturedBasicMesh* mesh : it.second) {
-			SAFE_DELETE(mesh);
-		}
-	}
 }
 
 void TexturedRenderer::initialise()

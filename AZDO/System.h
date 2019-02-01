@@ -1,15 +1,13 @@
 /// Author: Ralph Ridley
-/// Date: 31/12/18
+/// Date: 31/01/19
 #pragma once
+#include "../Shared/RendererBase.h"
 #include "../Shared/TestStateLoader.h"
 
 namespace QZL
 {
-	namespace Naive
+	namespace AZDO
 	{
-		class AbstractRenderer;
-		class TexturedRenderer;
-
 		class System {
 		public:
 			System();
@@ -24,12 +22,13 @@ namespace QZL
 
 			glm::mat4 viewMatrix_;
 
-			AbstractRenderer* basicRenderer_;
-			TexturedRenderer* texturedRenderer_;
-			AbstractRenderer* loopRenderer_;
-			AbstractRenderer* computeRenderer_;
+			Shared::RendererBase<BasicMesh>* basicRenderer_;
+			Shared::RendererBase<TexturedBasicMesh>* texturedRenderer_;
+			Shared::RendererBase<BasicMesh>* loopRenderer_;
+			Shared::RendererBase<BasicMesh>* computeRenderer_;
 
 			GLFWwindow* window_;
 		};
 	}
 }
+

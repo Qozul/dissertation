@@ -1,14 +1,14 @@
 /// Author: Ralph Ridley
-/// Date: 27/01/19
+/// Date: 31/01/19
 #pragma once
-#include "AbstractRenderer.h"
+#include "../Shared/RendererBase.h"
 
 namespace QZL
 {
-	namespace Naive
+	namespace AZDO
 	{
-		class ComputeRenderer : public AbstractRenderer {
-			using Base = AbstractRenderer;
+		class ComputeRenderer : public Shared::RendererBase<BasicMesh> {
+			using Base = Shared::RendererBase<BasicMesh>;
 		public:
 			ComputeRenderer(ShaderPipeline* pipeline);
 			~ComputeRenderer();
@@ -16,8 +16,6 @@ namespace QZL
 			void doFrame(const glm::mat4& viewMatrix) override;
 
 		private:
-			void computeTransform();
-
 			ShaderPipeline* computePipeline_;
 			GLuint computeBuffer_;
 			void* compBufPtr_;

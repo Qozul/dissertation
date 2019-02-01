@@ -13,14 +13,14 @@ BasicRenderer::BasicRenderer(ShaderPipeline* pipeline)
 
 void BasicRenderer::initialise()
 {
-	meshes_[0][0]->transform.position = glm::vec3(2.0f, 2.0f, 0.0f);
-	meshes_[0][0]->transform.setScale(0.7f);
+	meshes_[0]->transform.position = glm::vec3(2.0f, 2.0f, 0.0f);
+	meshes_[0]->transform.setScale(0.7f);
 }
 
 void BasicRenderer::doFrame(const glm::mat4& viewMatrix)
 {
 	pipeline_->use();
-	for (const auto& mesh : meshes_[0]) {
+	for (const auto& mesh : meshes_) {
 		GLint loc0 = pipeline_->getUniformLocation("uModelMat");
 		GLint loc1 = pipeline_->getUniformLocation("uMVP");
 		glm::mat4 model = mesh->transform.toModelMatrix();
