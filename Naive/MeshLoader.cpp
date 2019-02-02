@@ -3,20 +3,20 @@
 #include "MeshLoader.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include "tiny_obj_loader.h"
+#include "../Shared/tiny_obj_loader.h"
 
 using namespace QZL;
-using namespace QZL::Shared;
+using namespace QZL::Naive;
 
 const std::string MeshLoader::kPath = "../Assets/Meshes/";
 const std::string MeshLoader::kExt = ".obj";
 
-Naive::BasicMesh* MeshLoader::loadNaiveMesh(const std::string& meshName)
+BasicMesh* MeshLoader::loadMesh(const std::string& meshName)
 {
-	Naive::BasicMesh* mesh = new Naive::BasicMesh();
+	BasicMesh* mesh = new Naive::BasicMesh();
 
-	auto meshIterator = naiveMeshes_.find(meshName);
-	if (meshIterator != naiveMeshes_.end()) {
+	auto meshIterator = loadedMeshes_.find(meshName);
+	if (meshIterator != loadedMeshes_.end()) {
 		mesh->vaoId = meshIterator->second.first;
 		mesh->indexCount = meshIterator->second.second;
 		return mesh;
@@ -33,7 +33,7 @@ Naive::BasicMesh* MeshLoader::loadNaiveMesh(const std::string& meshName)
 		std::cout << warn << std::endl;
 	if (!err.empty())
 		std::cout << err << std::endl;
-	
+
 	GLuint vbo, ibo, vao;
 	glGenBuffers(1, &vbo);
 	glGenBuffers(1, &ibo);
@@ -44,11 +44,11 @@ Naive::BasicMesh* MeshLoader::loadNaiveMesh(const std::string& meshName)
 	mesh->vaoId = vao;
 
 	std::vector<GLushort> indices;
-	std::vector<Vertex> verts;
+	std::vector<Shared::Vertex> verts;
 	// TODO: remove duplicate vertices
 	for (const auto& shape : shapes) {
 		for (const auto& index : shape.mesh.indices) {
-			Vertex vertex = {};
+			Shared::Vertex vertex = {};
 			vertex.x = attrib.vertices[3 * index.vertex_index + 0];
 			vertex.y = attrib.vertices[3 * index.vertex_index + 1];
 			vertex.z = attrib.vertices[3 * index.vertex_index + 2];
@@ -71,18 +71,18 @@ Naive::BasicMesh* MeshLoader::loadNaiveMesh(const std::string& meshName)
 
 	// VBO
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(Vertex), verts.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0); // x, y, z
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(3 * sizeof(GLfloat))); // u, v
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)(5 * sizeof(GLfloat))); // nx, ny, nz
+	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(Shared::Vertex), verts.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Shared::Vertex), (GLvoid*)0); // x, y, z
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Shared::Vertex), (GLvoid*)(3 * sizeof(GLfloat))); // u, v
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Shared::Vertex), (GLvoid*)(5 * sizeof(GLfloat))); // nx, ny, nz
 
 	// Unbind the buffer, writing is finished
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindVertexArray(0);
 
-	naiveMeshes_[meshName].first = mesh->vaoId;
-	naiveMeshes_[meshName].second = mesh->indexCount;
+	loadedMeshes_[meshName].first = mesh->vaoId;
+	loadedMeshes_[meshName].second = mesh->indexCount;
 
 	DEBUG_OUT("Loaded naive BasicMesh " << kPath << meshName << kExt);
 	return mesh;

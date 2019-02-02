@@ -6,7 +6,7 @@ using namespace QZL::Naive;
 const float ComputeRenderer::kRotationSpeed = 0.11f;
 
 ComputeRenderer::ComputeRenderer(ShaderPipeline* pipeline)
-	: Base(pipeline), computePipeline_(new ShaderPipeline("NaiveCompute")), compBufBound_(false)
+	: Base(pipeline), computePipeline_(new ShaderPipeline("NaiveCompute")), compBufPtr_(nullptr)
 {
 	// SSBO for compute write
 	glGenBuffers(1, &computeBuffer_);
@@ -14,7 +14,7 @@ ComputeRenderer::ComputeRenderer(ShaderPipeline* pipeline)
 
 ComputeRenderer::~ComputeRenderer()
 {
-	if (compBufBound_)
+	if (compBufPtr_)
 		glUnmapNamedBuffer(computeBuffer_);
 	glDeleteBuffers(1, &computeBuffer_);
 	SAFE_DELETE(computePipeline_)
@@ -25,12 +25,11 @@ void ComputeRenderer::initialise()
 	meshes_[0]->transform.position = glm::vec3(-2.0f, -2.0f, 0.0f);
 	meshes_[0]->transform.setScale(0.7f);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeBuffer_);
-	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_READ_BIT | GL_MAP_READ_BIT;
+	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT | GL_MAP_READ_BIT;
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, meshes_.size() * sizeof(GLfloat), 0, flags);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, computeBuffer_);
 	// Persistantly map
 	compBufPtr_ = glMapNamedBufferRange(computeBuffer_, 0, meshes_.size() * sizeof(GLfloat), flags);
-	compBufBound_ = true;
 }
 
 void ComputeRenderer::doFrame(const glm::mat4& viewMatrix)

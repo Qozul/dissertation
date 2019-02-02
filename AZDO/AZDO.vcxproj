@@ -23,15 +23,25 @@
     <ClInclude Include="BasicRenderer.h" />
     <ClInclude Include="ComputeRenderer.h" />
     <ClInclude Include="LoopRenderer.h" />
+    <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="TexturedRenderer.h" />
+    <ClInclude Include="VaoWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BasicRenderer.cpp" />
     <ClCompile Include="ComputeRenderer.cpp" />
     <ClCompile Include="LoopRenderer.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="TexturedRenderer.cpp" />
+    <ClCompile Include="VaoWrapper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.vcxproj">
+      <Project>{c120cc19-1034-4f09-87ce-21304d421c01}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -99,11 +109,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Lib\glfw\include;$(SolutionDir)Lib\glm;$(SolutionDir)Lib\gl3w\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Lib\glfw\include;$(SolutionDir)Lib\glm;C:\VulkanSDK\1.1.85.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Lib\glfw\lib-vc2015;C:\VulkanSDK\1.1.85.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Lib\glfw\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>

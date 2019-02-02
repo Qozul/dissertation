@@ -1,6 +1,7 @@
 /// Author: Ralph Ridley
 /// Date: 31/1/19
 #include "LoopRenderer.h"
+#include "VaoWrapper.h"
 
 using namespace QZL;
 using namespace QZL::AZDO;
@@ -14,35 +15,52 @@ LoopRenderer::LoopRenderer(ShaderPipeline* pipeline)
 
 void LoopRenderer::initialise()
 {
-	meshes_[0][0]->transform.position = glm::vec3(2.0f, -2.0f, 0.0f);
-	meshes_[0][0]->transform.setScale(0.7f);
+	for (auto& it : meshes_) {
+		for (auto& mesh : it.second) {
+			for (auto& inst : mesh.second) {
+				inst->transform.position = glm::vec3(2.0f, 2.0f, 0.0f);
+				inst->transform.setScale(0.7f);
+			}
+		}
+	}
+	bindInstanceDataBuffer();
+	commandBufferClient_.reserve(meshes_.size());
 }
 
 void LoopRenderer::doFrame(const glm::mat4& viewMatrix)
 {
-	for (auto& mesh : meshes_[0]) {
+	/*for (auto& mesh : meshes_[0]) {
 		updateTransform(mesh->transform);
-	}
+	}*/
 	pipeline_->use();
-	for (const auto& mesh : meshes_[0]) {
-		GLint loc0 = pipeline_->getUniformLocation("uModelMat");
-		GLint loc1 = pipeline_->getUniformLocation("uMVP");
-		glm::mat4 model = mesh->transform.toModelMatrix();
-		glm::mat4 mvp = Shared::kProjectionMatrix * viewMatrix * model;
-		glUniformMatrix4fv(loc0, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(loc1, 1, GL_FALSE, glm::value_ptr(mvp));
+	for (const auto& it : meshes_) {
+		// first = VaoWrapper, second = string |-> instances
+		it.first->bind();
+		GLuint instanceCount = 0;
+		for (const auto& it2 : it.second) {
+			// Build command buffer
+			const BasicMesh* mesh = (*it.first)[it2.first];
+			commandBufferClient_.emplace_back(mesh->indexCount, it2.second.size(), mesh->indexOffset, mesh->vertexOffset, instanceCount);
+			instanceCount += it2.second.size();
+			for (int i = 0; i < it2.second.size(); ++i) {
+				auto inst = it2.second[i];
+				// Build instance data buffer
+				glm::mat4 model = inst->transform.toModelMatrix();
+				*(instanceDataBufPtr_ + (i * sizeof(InstanceData))) = {
+					model, Shared::kProjectionMatrix * viewMatrix * model
+				};
+			}
+		}
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, commandBuffer_);
+		glBufferData(GL_DRAW_INDIRECT_BUFFER, (commandBufferClient_.size()) * sizeof(DrawElementsCommand), NULL, GL_DYNAMIC_DRAW);
 
-		glBindVertexArray(mesh->vaoId);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_SHORT, 0);
-		glDisableVertexAttribArray(2);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(0);
+		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_SHORT, nullptr, commandBufferClient_.size(), 0);
+		QZL::Shared::checkGLError(); // Error 0x502
+		glMemoryBarrier(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+		it.first->unbind();
 	}
-	glBindVertexArray(0);
 	pipeline_->unuse();
+	commandBufferClient_.clear();
 }
 
 void LoopRenderer::updateTransform(QZL::Shared::Transform & transform)

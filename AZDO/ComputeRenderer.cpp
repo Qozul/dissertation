@@ -1,6 +1,7 @@
 /// Author: Ralph Ridley
-/// Date: 31/1/19
+/// Date: 31/01/19
 #include "ComputeRenderer.h"
+#include "VaoWrapper.h"
 
 using namespace QZL;
 using namespace QZL::AZDO;
@@ -8,67 +9,57 @@ using namespace QZL::AZDO;
 const float ComputeRenderer::kRotationSpeed = 0.11f;
 
 ComputeRenderer::ComputeRenderer(ShaderPipeline* pipeline)
-	: Base(pipeline), computePipeline_(new ShaderPipeline("NaiveCompute")), compBufBound_(false)
+	: Base(pipeline), computePipeline_(new ShaderPipeline("NaiveCompute"))
 {
-	// SSBO for compute write
-	glGenBuffers(1, &computeBuffer_);
 }
 
 ComputeRenderer::~ComputeRenderer()
 {
-	if (compBufBound_)
-		glUnmapNamedBuffer(computeBuffer_);
-	glDeleteBuffers(1, &computeBuffer_);
-	SAFE_DELETE(computePipeline_)
 }
 
 void ComputeRenderer::initialise()
 {
-	meshes_[0][0]->transform.position = glm::vec3(-2.0f, -2.0f, 0.0f);
-	meshes_[0][0]->transform.setScale(0.7f);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeBuffer_);
-	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_READ_BIT | GL_MAP_READ_BIT;
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, meshes_[0].size() * sizeof(GLfloat), 0, flags);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, computeBuffer_);
-	// Persistantly map
-	compBufPtr_ = glMapNamedBufferRange(computeBuffer_, 0, meshes_[0].size() * sizeof(GLfloat), flags);
-	compBufBound_ = true;
+	for (auto& it : meshes_) {
+		for (auto& mesh : it.second) {
+			for (auto& inst : mesh.second) {
+				inst->transform.position = glm::vec3(2.0f, 2.0f, 0.0f);
+				inst->transform.setScale(0.7f);
+			}
+		}
+	}
+	bindInstanceDataBuffer();
+	commandBufferClient_.reserve(meshes_.size());
 }
 
 void ComputeRenderer::doFrame(const glm::mat4& viewMatrix)
 {
-	for (int i = 0; i < meshes_[0].size(); i++) {
-		memcpy(static_cast<GLfloat*>(compBufPtr_) + sizeof(GLfloat) * i, &meshes_[0][i]->transform.angle, sizeof(GLfloat));
-	}
-	computePipeline_->use();
-	GLint rotLoc = computePipeline_->getUniformLocation("uRotationAmount");
-	glUniform1f(rotLoc, kRotationSpeed);
-	glDispatchCompute(1, 1, 1);
-	computePipeline_->unuse();
-
-	glFinish();
-	for (int i = 0; i < meshes_[0].size(); i++) {
-		memcpy(&meshes_[0][i]->transform.angle, static_cast<GLfloat*>(compBufPtr_) + sizeof(GLfloat) * i, sizeof(GLfloat));
-	}
-
 	pipeline_->use();
-	for (const auto& mesh : meshes_[0]) {
-		GLint loc0 = pipeline_->getUniformLocation("uModelMat");
-		GLint loc1 = pipeline_->getUniformLocation("uMVP");
-		glm::mat4 model = mesh->transform.toModelMatrix();
-		glm::mat4 mvp = Shared::kProjectionMatrix * viewMatrix * model;
-		glUniformMatrix4fv(loc0, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(loc1, 1, GL_FALSE, glm::value_ptr(mvp));
+	for (const auto& it : meshes_) {
+		// first = VaoWrapper, second = string |-> instances
+		it.first->bind();
+		GLuint instanceCount = 0;
+		for (const auto& it2 : it.second) {
+			// Build command buffer
+			const BasicMesh* mesh = (*it.first)[it2.first];
+			commandBufferClient_.emplace_back(mesh->indexCount, it2.second.size(), mesh->indexOffset, mesh->vertexOffset, instanceCount);
+			instanceCount += it2.second.size();
+			for (int i = 0; i < it2.second.size(); ++i) {
+				auto inst = it2.second[i];
+				// Build instance data buffer
+				glm::mat4 model = inst->transform.toModelMatrix();
+				*(instanceDataBufPtr_ + (i * sizeof(InstanceData))) = {
+					model, Shared::kProjectionMatrix * viewMatrix * model
+				};
+			}
+		}
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, commandBuffer_);
+		glBufferData(GL_DRAW_INDIRECT_BUFFER, (commandBufferClient_.size()) * sizeof(DrawElementsCommand), NULL, GL_DYNAMIC_DRAW);
 
-		glBindVertexArray(mesh->vaoId);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_SHORT, 0);
-		glDisableVertexAttribArray(2);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(0);
+		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_SHORT, nullptr, commandBufferClient_.size(), 0);
+		QZL::Shared::checkGLError(); // Error 0x502
+		glMemoryBarrier(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+		it.first->unbind();
 	}
-	glBindVertexArray(0);
 	pipeline_->unuse();
+	commandBufferClient_.clear();
 }

@@ -1,14 +1,19 @@
 /// Author: Ralph Ridley
 /// Date: 31/12/18
 #pragma once
-#include "../Shared/TestStateLoader.h"
+#include "../Shared/Utility.h"
 
 namespace QZL
 {
+	namespace Shared
+	{
+		class TextureLoader;
+	}
 	namespace Naive
 	{
 		class AbstractRenderer;
 		class TexturedRenderer;
+		class MeshLoader;
 
 		class System {
 		public:
@@ -19,7 +24,7 @@ namespace QZL
 			void initGLFW();
 			void initGL3W();
 
-			QZL::Shared::MeshLoader* meshLoader_;
+			MeshLoader* meshLoader_;
 			QZL::Shared::TextureLoader* textureLoader_;
 
 			glm::mat4 viewMatrix_;

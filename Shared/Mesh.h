@@ -31,22 +31,30 @@ namespace QZL
 	{
 		/// BasicMesh needs to provide a transform and pointers to it's data
 		struct BasicMesh {
-			size_t id;
 			GLuint indexCount;
 			GLuint indexOffset;
 			GLuint vertexOffset;
 		};
 		struct MeshInstance {
-			size_t meshId;
+			std::string meshName;
 			Shared::Transform transform;
 		};
 		struct TexturedMeshInstance {
-			size_t meshId;
+			std::string meshName;
 			Texture* texture;
 			Shared::Transform transform;
 		};
 		template<typename InstType>
-		InstType* makeMeshInstance(const BasicMesh& mesh);
+		inline InstType* makeMeshInstance(const std::string& meshName, const BasicMesh& mesh)
+		{
+			static_assert(std::is_same<InstType, AZDO::MeshInstance>::value ||
+				std::is_same<InstType, AZDO::TexturedMeshInstance>::value,
+				"Type not allowed");
+
+			InstType* inst = new InstType();
+			inst->meshName = meshName;
+			return inst;
+		}
 	}
 	namespace Vulk {
 		struct Mesh {

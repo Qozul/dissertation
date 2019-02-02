@@ -2,6 +2,7 @@
 /// Date: 31/01/19
 
 #include "BasicRenderer.h"
+#include "VaoWrapper.h"
 
 using namespace QZL;
 using namespace QZL::AZDO;
@@ -21,42 +22,39 @@ void BasicRenderer::initialise()
 			}
 		}
 	}
-	commandBuffer_.reserve(meshes_.count);
+	bindInstanceDataBuffer();
+	commandBufferClient_.reserve(meshes_.size());
 }
 
 void BasicRenderer::doFrame(const glm::mat4& viewMatrix)
 {
 	pipeline_->use();
-	/*GLint loc0 = pipeline_->getUniformLocation("uModelMat");
-	GLint loc1 = pipeline_->getUniformLocation("uMVP");
-	glm::mat4 model = mesh->transform.toModelMatrix();
-	glm::mat4 mvp = Shared::kProjectionMatrix * viewMatrix * model;
-	glUniformMatrix4fv(loc0, 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, glm::value_ptr(mvp));*/
-
 	for (const auto& it : meshes_) {
-		glBindVertexArray(it.first);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		GLuint i = 0;
-		for (const auto& mesh : it.second) {
+		// first = VaoWrapper, second = string |-> instances
+		it.first->bind();
+		GLuint instanceCount = 0;
+		for (const auto& it2 : it.second) {
 			// Build command buffer
-			commandBuffer_.emplace_back(mesh.first->indexCount, mesh.second.size(), mesh.first->indexOffset, mesh.first->vertexOffset, i);
-			i += mesh.second.size();
-
-			for (int i = 0; i < mesh.second.size(); ++i) {
-				auto inst = mesh.second[i];
+			const BasicMesh* mesh = (*it.first)[it2.first];
+			commandBufferClient_.emplace_back(mesh->indexCount, it2.second.size(), mesh->indexOffset, mesh->vertexOffset, instanceCount);
+			instanceCount += it2.second.size();
+			for (int i = 0; i < it2.second.size(); ++i) {
+				auto inst = it2.second[i];
 				// Build instance data buffer
-				
+				glm::mat4 model = inst->transform.toModelMatrix();
+				*(instanceDataBufPtr_ + (i * sizeof(InstanceData))) = {
+					model, Shared::kProjectionMatrix * viewMatrix * model
+				};
 			}
 		}
-		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_SHORT, &*commandBuffer_.begin(), commandBuffer_.size(), 0);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, commandBuffer_);
+		glBufferData(GL_DRAW_INDIRECT_BUFFER, (commandBufferClient_.size()) * sizeof(DrawElementsCommand), commandBufferClient_.data(), GL_DYNAMIC_DRAW);
+
+		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_SHORT, nullptr, commandBufferClient_.size(), 0);
 		glMemoryBarrier(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
-		glDisableVertexAttribArray(2);
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(0);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+		it.first->unbind();
 	}
-	glBindVertexArray(0);
 	pipeline_->unuse();
+	commandBufferClient_.clear();
 }

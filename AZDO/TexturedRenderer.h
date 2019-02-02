@@ -1,7 +1,7 @@
 /// Author: Ralph Ridley
 /// Date: 31/1/19
 #pragma once
-#include "../Shared/RendererBase.h"
+#include "AbstractRenderer.h"
 
 namespace QZL
 {
@@ -9,8 +9,8 @@ namespace QZL
 	{
 		// Note that TexturedRenderer uses base class meshes_ map GLuint key as proxy for texture id
 		// rather than vao id
-		class TexturedRenderer : public Shared::RendererBase<TexturedBasicMesh> {
-			using Base = Shared::RendererBase<TexturedBasicMesh>;
+		class TexturedRenderer : public AbstractRenderer<TexturedMeshInstance> {
+			using Base = AbstractRenderer<TexturedMeshInstance>;
 		public:
 			TexturedRenderer(ShaderPipeline* pipeline);
 			void initialise() override;

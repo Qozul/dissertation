@@ -13,9 +13,6 @@ namespace QZL
 			BasicRenderer(ShaderPipeline* pipeline);
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;
-		private:
-			GLuint elemBuffer_;
-			GLuint elemBufBound_;
 		};
 	}
 }

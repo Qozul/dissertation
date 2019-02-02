@@ -21,7 +21,6 @@ namespace QZL
 			ShaderPipeline* computePipeline_;
 			GLuint computeBuffer_;
 			void* compBufPtr_;
-			bool compBufBound_;
 
 			static const float kRotationSpeed;
 		};

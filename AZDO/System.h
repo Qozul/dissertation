@@ -1,13 +1,22 @@
 /// Author: Ralph Ridley
 /// Date: 31/01/19
 #pragma once
-#include "../Shared/RendererBase.h"
-#include "../Shared/TestStateLoader.h"
+#include "../Shared/Utility.h"
 
 namespace QZL
 {
+	namespace Shared
+	{
+		class TextureLoader;
+	}
 	namespace AZDO
 	{
+		template<typename InstType>
+		class AbstractRenderer;
+		struct MeshInstance;
+		struct TexturedMeshInstance;
+		class VaoWrapper;
+
 		class System {
 		public:
 			System();
@@ -17,15 +26,15 @@ namespace QZL
 			void initGLFW();
 			void initGL3W();
 
-			QZL::Shared::MeshLoader* meshLoader_;
 			QZL::Shared::TextureLoader* textureLoader_;
 
 			glm::mat4 viewMatrix_;
 
-			Shared::RendererBase<BasicMesh>* basicRenderer_;
-			Shared::RendererBase<TexturedBasicMesh>* texturedRenderer_;
-			Shared::RendererBase<BasicMesh>* loopRenderer_;
-			Shared::RendererBase<BasicMesh>* computeRenderer_;
+			VaoWrapper* vaoWrapper_;
+			AbstractRenderer<MeshInstance>* basicRenderer_;
+			AbstractRenderer<TexturedMeshInstance>* texturedRenderer_;
+			AbstractRenderer<MeshInstance>* loopRenderer_;
+			AbstractRenderer<MeshInstance>* computeRenderer_;
 
 			GLFWwindow* window_;
 		};

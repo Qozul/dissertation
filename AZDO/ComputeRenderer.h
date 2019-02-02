@@ -1,14 +1,14 @@
 /// Author: Ralph Ridley
 /// Date: 31/01/19
 #pragma once
-#include "../Shared/RendererBase.h"
+#include "AbstractRenderer.h"
 
 namespace QZL
 {
 	namespace AZDO
 	{
-		class ComputeRenderer : public Shared::RendererBase<BasicMesh> {
-			using Base = Shared::RendererBase<BasicMesh>;
+		class ComputeRenderer : public AbstractRenderer<MeshInstance> {
+			using Base = AbstractRenderer<MeshInstance>;
 		public:
 			ComputeRenderer(ShaderPipeline* pipeline);
 			~ComputeRenderer();
@@ -19,7 +19,6 @@ namespace QZL
 			ShaderPipeline* computePipeline_;
 			GLuint computeBuffer_;
 			void* compBufPtr_;
-			bool compBufBound_;
 
 			static const float kRotationSpeed;
 		};

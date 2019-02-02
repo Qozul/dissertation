@@ -1,3 +1,6 @@
+/// Author: Ralph Ridley
+/// Date: 02/02/19
+/// Purpose: Define shared behaviour of AZDO renderers
 #pragma once
 #include "../Shared/RendererBase.h"
 
@@ -5,12 +8,17 @@ namespace QZL
 {
 	namespace AZDO
 	{
+		class VaoWrapper;
+
 		struct DrawElementsCommand {
 			GLuint indexCount; // Num indices of mesh
 			GLuint instanceCount; // Number of instances of the mesh
 			GLuint firstIndex; // The offset of the indices in the index buffer of the mesh
 			GLuint baseVertex; // The offset of the vertices in the vertex buffer of the mesh
 			GLuint baseInstance; // Encodes the index in to an array of instance data, the final index is gl_BaseInstance + gl_InstanceID
+			// Note that baseInstance should be 0 if gl version is less than 4.2 TODO
+			DrawElementsCommand(GLuint idxCount, GLuint instCount, GLuint firstIdx, GLuint baseVert, GLuint baseInst)
+				: indexCount(idxCount), instanceCount(instCount), firstIndex(firstIdx), baseVertex(baseVert), baseInstance(baseInst) {}
 		};
 
 		struct InstanceData {
@@ -22,8 +30,9 @@ namespace QZL
 		class AbstractRenderer : public Shared::RendererBase {
 		public:
 			AbstractRenderer(ShaderPipeline* pipeline)
-				: Shared::RendererBase(pipeline) {
+				: Shared::RendererBase(pipeline), instanceDataBufPtr_(nullptr) {
 				glGenBuffers(1, &instanceDataBuffer_);
+				glGenBuffers(1, &commandBuffer_);
 			}
 			~AbstractRenderer() {
 				for (auto& it : meshes_) {
@@ -31,20 +40,37 @@ namespace QZL
 						for (auto& inst : mesh.second) {
 							SAFE_DELETE(inst);
 						}
-						SAFE_DELETE(mesh.first);
 					}
 				}
+				if (instanceDataBufPtr_)
+					glUnmapNamedBuffer(instanceDataBuffer_);
 				glDeleteBuffers(1, &instanceDataBuffer_);
+				glDeleteBuffers(1, &commandBuffer_);
 			}
-			void addMesh(GLuint vaoId, BasicMesh* mesh, InstType* instance) {
-				meshes_[vaoId][mesh].push_back(instance);
+			void bindInstanceDataBuffer() {
+				glBindBuffer(GL_SHADER_STORAGE_BUFFER, instanceDataBuffer_);
+				GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT;
+				size_t numInstances = 0;
+				for (auto& it : meshes_) {
+					for (auto& mesh : it.second) {
+						numInstances += mesh.second.size();
+					}
+				}
+				glBufferStorage(GL_SHADER_STORAGE_BUFFER, numInstances * sizeof(InstanceData), 0, flags);
+				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, instanceDataBuffer_);
+				instanceDataBufPtr_ = static_cast<InstanceData*>(glMapNamedBufferRange(instanceDataBuffer_, 0, numInstances * sizeof(InstanceData), flags));
+			}
+			void addMesh(VaoWrapper* vao, std::string meshName, InstType* instance) {
+				meshes_[vao][meshName].push_back(instance);
 			}
 		protected:
-			// VaoId |-> multiple of (mesh |-> multiple of (instances))
-			std::map<GLuint, std::map<BasicMesh*, std::vector<InstType*>>> meshes_;
+			// VaoId |-> multiple of (mesh name |-> multiple of (instances))
+			std::map<VaoWrapper*, std::map<std::string, std::vector<InstType*>>> meshes_;
 
 			GLuint instanceDataBuffer_;
-			std::vector<DrawElementsCommand> commandBuffer_;
+			InstanceData* instanceDataBufPtr_;
+			GLuint commandBuffer_;
+			std::vector<DrawElementsCommand> commandBufferClient_;
 		};
 	}
 }

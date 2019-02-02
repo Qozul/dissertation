@@ -5,6 +5,8 @@
 #include "TexturedRenderer.h"
 #include "LoopRenderer.h"
 #include "ComputeRenderer.h"
+#include "../Shared/TextureLoader.h"
+#include "MeshLoader.h"
 
 using namespace QZL;
 using namespace QZL::Naive;
@@ -15,28 +17,28 @@ void errorCallback(int error, const char* description)
 }
 
 System::System()
-	: meshLoader_(new QZL::Shared::MeshLoader()), textureLoader_(new QZL::Shared::TextureLoader())
+	: meshLoader_(new MeshLoader()), textureLoader_(new QZL::Shared::TextureLoader())
 {
 	initGLFW();
 	initGL3W();
 
 
 	basicRenderer_ = new BasicRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	basicRenderer_->addMesh(meshLoader_->loadNaiveMesh("teapot-fixed"));
+	basicRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	basicRenderer_->initialise();
 
 	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("NaiveTexturedVert", "NaiveTexturedFrag"));
-	Naive::TexturedBasicMesh* textured = basicToTextured(meshLoader_->loadNaiveMesh("teapot-fixed"),
+	Naive::TexturedBasicMesh* textured = basicToTextured(meshLoader_->loadMesh("teapot-fixed"),
 		textureLoader_->loadNaiveTexture("Mandelbrot"));
 	texturedRenderer_->addMesh(textured->texture->id, textured);
 	texturedRenderer_->initialise();
 
 	loopRenderer_ = new LoopRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	loopRenderer_->addMesh(meshLoader_->loadNaiveMesh("teapot-fixed"));
+	loopRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	loopRenderer_->initialise();
 
 	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	computeRenderer_->addMesh(meshLoader_->loadNaiveMesh("teapot-fixed"));
+	computeRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	computeRenderer_->initialise();
 
 	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
