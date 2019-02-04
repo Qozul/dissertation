@@ -47,7 +47,9 @@ namespace QZL
 				glDeleteBuffers(1, &instanceDataBuffer_);
 				glDeleteBuffers(1, &commandBuffer_);
 			}
-			void bindInstanceDataBuffer() {
+			virtual void initialise() = 0;
+			virtual void doFrame(const glm::mat4& viewMatrix) = 0;
+			void setupInstanceDataBuffer() {
 				glBindBuffer(GL_SHADER_STORAGE_BUFFER, instanceDataBuffer_);
 				GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT;
 				size_t numInstances = 0;
@@ -57,8 +59,10 @@ namespace QZL
 					}
 				}
 				glBufferStorage(GL_SHADER_STORAGE_BUFFER, numInstances * sizeof(InstanceData), 0, flags);
-				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, instanceDataBuffer_);
 				instanceDataBufPtr_ = static_cast<InstanceData*>(glMapNamedBufferRange(instanceDataBuffer_, 0, numInstances * sizeof(InstanceData), flags));
+			}
+			void bindInstanceDataBuffer() {
+				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, instanceDataBuffer_);
 			}
 			void addMesh(VaoWrapper* vao, std::string meshName, InstType* instance) {
 				meshes_[vao][meshName].push_back(instance);
@@ -66,6 +70,9 @@ namespace QZL
 		protected:
 			// VaoId |-> multiple of (mesh name |-> multiple of (instances))
 			std::map<VaoWrapper*, std::map<std::string, std::vector<InstType*>>> meshes_;
+			size_t totalInstances_;
+			size_t totalCommands_;
+			//std::map<VaoWrapper*, std::vector<std::pair<std::string, std::vector<InstType*>>>> meshes_;
 
 			GLuint instanceDataBuffer_;
 			InstanceData* instanceDataBufPtr_;

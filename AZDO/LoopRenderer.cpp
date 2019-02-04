@@ -1,12 +1,11 @@
 /// Author: Ralph Ridley
-/// Date: 31/1/19
+/// Date: 31/01/19
+
 #include "LoopRenderer.h"
 #include "VaoWrapper.h"
 
 using namespace QZL;
 using namespace QZL::AZDO;
-
-const float LoopRenderer::kRotationSpeed = 0.1f;
 
 LoopRenderer::LoopRenderer(ShaderPipeline* pipeline)
 	: Base(pipeline)
@@ -15,23 +14,31 @@ LoopRenderer::LoopRenderer(ShaderPipeline* pipeline)
 
 void LoopRenderer::initialise()
 {
+	totalCommands_ = 0;
 	for (auto& it : meshes_) {
 		for (auto& mesh : it.second) {
-			for (auto& inst : mesh.second) {
-				inst->transform.position = glm::vec3(2.0f, 2.0f, 0.0f);
-				inst->transform.setScale(0.7f);
+			++totalCommands_;
+			for (int i = 0; i < mesh.second.size(); ++i) {
+				auto inst = mesh.second[i];
+				inst->transform.position = glm::vec3(-4.0f + i * 0.5f, 2.0f, 0.0f);
+				inst->transform.setScale(0.2f);
 			}
 		}
 	}
-	bindInstanceDataBuffer();
-	commandBufferClient_.reserve(meshes_.size());
+	setupInstanceDataBuffer();
+	commandBufferClient_.reserve(totalCommands_);
 }
 
 void LoopRenderer::doFrame(const glm::mat4& viewMatrix)
 {
-	/*for (auto& mesh : meshes_[0]) {
-		updateTransform(mesh->transform);
-	}*/
+	for (const auto& it : meshes_) {
+		for (const auto& it2 : it.second) {
+			for (const auto& inst : it2.second) {
+				inst->transform.angle = inst->transform.angle + 0.1f;
+			}
+		}
+	}
+	bindInstanceDataBuffer();
 	pipeline_->use();
 	for (const auto& it : meshes_) {
 		// first = VaoWrapper, second = string |-> instances
@@ -46,24 +53,19 @@ void LoopRenderer::doFrame(const glm::mat4& viewMatrix)
 				auto inst = it2.second[i];
 				// Build instance data buffer
 				glm::mat4 model = inst->transform.toModelMatrix();
-				*(instanceDataBufPtr_ + (i * sizeof(InstanceData))) = {
+				instanceDataBufPtr_[i] = {
 					model, Shared::kProjectionMatrix * viewMatrix * model
 				};
 			}
 		}
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, commandBuffer_);
-		glBufferData(GL_DRAW_INDIRECT_BUFFER, (commandBufferClient_.size()) * sizeof(DrawElementsCommand), NULL, GL_DYNAMIC_DRAW);
+		glBufferData(GL_DRAW_INDIRECT_BUFFER, (commandBufferClient_.size()) * sizeof(DrawElementsCommand), commandBufferClient_.data(), GL_DYNAMIC_DRAW);
 
 		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_SHORT, nullptr, commandBufferClient_.size(), 0);
-		QZL::Shared::checkGLError(); // Error 0x502
 		glMemoryBarrier(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 		it.first->unbind();
 	}
 	pipeline_->unuse();
 	commandBufferClient_.clear();
-}
-
-void LoopRenderer::updateTransform(QZL::Shared::Transform & transform)
-{
-	transform.angle = transform.angle + kRotationSpeed;
 }

@@ -14,20 +14,24 @@ BasicRenderer::BasicRenderer(ShaderPipeline* pipeline)
 
 void BasicRenderer::initialise()
 {
+	totalCommands_ = 0;
 	for (auto& it : meshes_) {
 		for (auto& mesh : it.second) {
-			for (auto& inst : mesh.second) {
-				inst->transform.position = glm::vec3(2.0f, 2.0f, 0.0f);
-				inst->transform.setScale(0.7f);
+			++totalCommands_;
+			for (int i = 0; i < mesh.second.size(); ++i) {
+				auto inst = mesh.second[i];
+				inst->transform.position = glm::vec3(-4.0f + i * 0.5f, 1.0f, 0.0f);
+				inst->transform.setScale(0.2f);
 			}
 		}
 	}
-	bindInstanceDataBuffer();
-	commandBufferClient_.reserve(meshes_.size());
+	setupInstanceDataBuffer();
+	commandBufferClient_.reserve(totalCommands_);
 }
 
 void BasicRenderer::doFrame(const glm::mat4& viewMatrix)
 {
+	bindInstanceDataBuffer();
 	pipeline_->use();
 	for (const auto& it : meshes_) {
 		// first = VaoWrapper, second = string |-> instances
@@ -42,7 +46,7 @@ void BasicRenderer::doFrame(const glm::mat4& viewMatrix)
 				auto inst = it2.second[i];
 				// Build instance data buffer
 				glm::mat4 model = inst->transform.toModelMatrix();
-				*(instanceDataBufPtr_ + (i * sizeof(InstanceData))) = {
+				instanceDataBufPtr_[i] = {
 					model, Shared::kProjectionMatrix * viewMatrix * model
 				};
 			}
@@ -58,3 +62,15 @@ void BasicRenderer::doFrame(const glm::mat4& viewMatrix)
 	pipeline_->unuse();
 	commandBufferClient_.clear();
 }
+
+
+
+/*for (auto& it : meshes_) {
+	for (auto& mesh : it.second) {
+		for (int i = 0; i < mesh.second.size(); ++i) {
+			MeshInstance* inst = mesh.second[i];
+			inst->transform.position = glm::vec3(2.0f, 2.0f, 0.0f);
+			inst->transform.setScale(0.7f);
+		}
+	}
+}*/

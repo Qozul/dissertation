@@ -8,6 +8,7 @@ namespace QZL
 	namespace Shared
 	{
 		class TextureLoader;
+		class PerfMeasurer;
 	}
 	namespace AZDO
 	{
@@ -35,6 +36,10 @@ namespace QZL
 			AbstractRenderer<TexturedMeshInstance>* texturedRenderer_;
 			AbstractRenderer<MeshInstance>* loopRenderer_;
 			AbstractRenderer<MeshInstance>* computeRenderer_;
+
+			Shared::PerfMeasurer* basicPerfMeasurer_;
+			Shared::PerfMeasurer* loopPerfMeasurer_;
+			Shared::PerfMeasurer* computePerfMeasurer_;
 
 			GLFWwindow* window_;
 		};

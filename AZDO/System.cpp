@@ -7,6 +7,8 @@
 #include "ComputeRenderer.h"
 #include "MeshLoader.h"
 #include "../Shared/TextureLoader.h"
+#include "../Shared/PerfMeasurer.h"
+#include "../Shared/RendererBase.h"
 
 using namespace QZL;
 using namespace QZL::AZDO;
@@ -17,7 +19,8 @@ void errorCallback(int error, const char* description)
 }
 
 System::System()
-	: textureLoader_(new QZL::Shared::TextureLoader())
+	: textureLoader_(new QZL::Shared::TextureLoader()), basicPerfMeasurer_(new Shared::PerfMeasurer()),
+	loopPerfMeasurer_(new Shared::PerfMeasurer()), computePerfMeasurer_(new Shared::PerfMeasurer())
 {
 	initGLFW();
 	initGL3W();
@@ -25,23 +28,28 @@ System::System()
 	vaoWrapper_ = new VaoWrapper();
 
 	basicRenderer_ = new BasicRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
-	
-	basicRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
+	for (int i = 0; i < 10; ++i) {
+		basicRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
+	}
 	basicRenderer_->initialise();
 
 	/*texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("NaiveTexturedVert", "NaiveTexturedFrag"));
-	Naive::TexturedBasicMesh* textured = basicToTextured(meshLoader_->loadNaiveMesh("teapot-fixed"),
+	TexturedBasicMesh* textured = basicToTextured(meshLoader_->loadNaiveMesh("teapot-fixed"),
 		textureLoader_->loadNaiveTexture("Mandelbrot"));
 	texturedRenderer_->addMesh(textured->texture->id, textured);
-	texturedRenderer_->initialise();
+	texturedRenderer_->initialise();*/
 
-	loopRenderer_ = new LoopRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	loopRenderer_->addMesh(0, meshLoader_->loadNaiveMesh("teapot-fixed"));
+	loopRenderer_ = new LoopRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
+	for (int i = 0; i < 10; ++i) {
+		loopRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
+	}
 	loopRenderer_->initialise();
 
-	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	computeRenderer_->addMesh(0, meshLoader_->loadNaiveMesh("teapot-fixed"));
-	computeRenderer_->initialise();*/
+	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
+	for (int i = 0; i < 10; ++i) {
+		computeRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
+	}
+	computeRenderer_->initialise();
 
 	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -52,11 +60,14 @@ System::System()
 System::~System()
 {
 	SAFE_DELETE(basicRenderer_);
-	/*SAFE_DELETE(texturedRenderer_);
+	//SAFE_DELETE(texturedRenderer_);
 	SAFE_DELETE(loopRenderer_);
-	SAFE_DELETE(computeRenderer_);*/
+	SAFE_DELETE(computeRenderer_);
 	SAFE_DELETE(textureLoader_);
 	SAFE_DELETE(vaoWrapper_);
+	SAFE_DELETE(basicPerfMeasurer_);
+	SAFE_DELETE(loopPerfMeasurer_);
+	SAFE_DELETE(computePerfMeasurer_);
 	glfwDestroyWindow(window_);
 	glfwTerminate();
 }
@@ -73,20 +84,33 @@ void System::loop()
 		glfwPollEvents();
 		glClearDepth(1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		basicRenderer_->doFrame(viewMatrix_);
-		/*texturedRenderer_->doFrame(viewMatrix_);
-		loopRenderer_->doFrame(viewMatrix_);
-		computeRenderer_->doFrame(viewMatrix_);*/
-		glfwSwapBuffers(window_);
 
+		basicPerfMeasurer_->startTime();
+		basicRenderer_->doFrame(viewMatrix_);
+		basicPerfMeasurer_->endTime();
+
+		//texturedRenderer_->doFrame(viewMatrix_);
+
+		loopPerfMeasurer_->startTime();
+		loopRenderer_->doFrame(viewMatrix_);
+		loopPerfMeasurer_->endTime();
+
+		computePerfMeasurer_->startTime();
+		computeRenderer_->doFrame(viewMatrix_);
+		computePerfMeasurer_->endTime();
+
+		glfwSwapBuffers(window_);
 		QZL::Shared::checkGLError();
 	}
+	std::cout << "Basic perf: " << basicPerfMeasurer_->getAverageTime().count() << std::endl;
+	std::cout << "Loop perf: " << loopPerfMeasurer_->getAverageTime().count() << std::endl;
+	std::cout << "Compute perf: " << computePerfMeasurer_->getAverageTime().count() << std::endl;
 }
 
 void System::initGLFW()
 {
 	glfwInit();
-	window_ = glfwCreateWindow(Shared::kDefaultWidth, Shared::kDefaultHeight, "OpenGL Engine: Naive", nullptr, nullptr);
+	window_ = glfwCreateWindow(Shared::kDefaultWidth, Shared::kDefaultHeight, "OpenGL Engine: AZDO", nullptr, nullptr);
 	ENSURES(window_ != nullptr);
 	//glfwSetWindowUserPointer(window_, this);
 	glfwSetErrorCallback(errorCallback);

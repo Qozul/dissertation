@@ -14,6 +14,7 @@ namespace QZL
 			~ComputeRenderer();
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;
+			void computeTransform();
 
 		private:
 			ShaderPipeline* computePipeline_;
