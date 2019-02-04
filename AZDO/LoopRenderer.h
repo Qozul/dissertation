@@ -5,6 +5,10 @@
 
 namespace QZL
 {
+	namespace Shared
+	{
+		class Transform;
+	}
 	namespace AZDO
 	{
 		class LoopRenderer : public AbstractRenderer<MeshInstance> {
@@ -15,7 +19,7 @@ namespace QZL
 			void doFrame(const glm::mat4& viewMatrix) override;
 
 		private:
-			void updateTransform(QZL::Shared::Transform& transform);
+			void updateTransform(Shared::Transform& transform);
 
 			static const float kRotationSpeed;
 		};

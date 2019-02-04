@@ -714,6 +714,10 @@ union GL3WProcs {
 		PFNGLVIEWPORTINDEXEDFPROC                               ViewportIndexedf;
 		PFNGLVIEWPORTINDEXEDFVPROC                              ViewportIndexedfv;
 		PFNGLWAITSYNCPROC                                       WaitSync;
+		PFNGLMAKETEXTUREHANDLERESIDENTARBPROC					glMakeTextureHandleResidentARB;
+		PFNGLMAKETEXTUREHANDLENONRESIDENTARBPROC				glMakeTextureHandleNonResidentARB;
+		PFNGLGETTEXTUREHANDLEARBPROC							glGetTextureHandleARB;
+		PFNGLTEXPAGECOMMITMENTARBPROC							glTexPageCommitmentARB;
 	} gl;
 };
 
@@ -1377,6 +1381,10 @@ extern union GL3WProcs gl3wProcs;
 #define glViewportIndexedf                               gl3wProcs.gl.ViewportIndexedf
 #define glViewportIndexedfv                              gl3wProcs.gl.ViewportIndexedfv
 #define glWaitSync                                       gl3wProcs.gl.WaitSync
+#define glMakeTextureHandleResidentARB					 gl3wProcs.gl.glMakeTextureHandleResidentARB
+#define glMakeTextureHandleNonResidentARB				 gl3wProcs.gl.glMakeTextureHandleNonResidentARB
+#define glGetTextureHandleARB							 gl3wProcs.gl.glGetTextureHandleARB
+#define glTexPageCommitmentARB							 gl3wProcs.gl.glTexPageCommitmentARB
 
 #ifdef __cplusplus
 }

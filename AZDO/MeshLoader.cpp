@@ -1,8 +1,10 @@
 
 #include "MeshLoader.h"
 
+
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../Shared/tiny_obj_loader.h"
+#include "../Shared/Vertex.h"
 
 using namespace QZL;
 using namespace QZL::AZDO;

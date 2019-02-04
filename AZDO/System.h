@@ -7,7 +7,6 @@ namespace QZL
 {
 	namespace Shared
 	{
-		class TextureLoader;
 		class PerfMeasurer;
 	}
 	namespace AZDO
@@ -17,6 +16,7 @@ namespace QZL
 		struct MeshInstance;
 		struct TexturedMeshInstance;
 		class VaoWrapper;
+		class Texture;
 
 		class System {
 		public:
@@ -27,7 +27,7 @@ namespace QZL
 			void initGLFW();
 			void initGL3W();
 
-			QZL::Shared::TextureLoader* textureLoader_;
+			Texture* texture_;
 
 			glm::mat4 viewMatrix_;
 

@@ -7,14 +7,18 @@ namespace QZL
 {
 	namespace AZDO
 	{
-		// Note that TexturedRenderer uses base class meshes_ map GLuint key as proxy for texture id
-		// rather than vao id
+		struct TextureData;
+
 		class TexturedRenderer : public AbstractRenderer<TexturedMeshInstance> {
 			using Base = AbstractRenderer<TexturedMeshInstance>;
 		public:
 			TexturedRenderer(ShaderPipeline* pipeline);
+			~TexturedRenderer();
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;
+		private:
+			GLuint textureBuffer_;
+			TextureData* texBufPtr_;
 		};
 	}
 }

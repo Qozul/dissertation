@@ -3,6 +3,7 @@
 /// Purpose: Define shared behaviour of AZDO renderers
 #pragma once
 #include "../Shared/RendererBase.h"
+#include "Mesh.h"
 
 namespace QZL
 {

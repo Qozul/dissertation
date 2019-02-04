@@ -5,8 +5,9 @@
 #include "TexturedRenderer.h"
 #include "LoopRenderer.h"
 #include "ComputeRenderer.h"
-#include "../Shared/TextureLoader.h"
+#include "Texture.h"
 #include "MeshLoader.h"
+#include "Mesh.h"
 
 using namespace QZL;
 using namespace QZL::Naive;
@@ -17,20 +18,19 @@ void errorCallback(int error, const char* description)
 }
 
 System::System()
-	: meshLoader_(new MeshLoader()), textureLoader_(new QZL::Shared::TextureLoader())
+	: meshLoader_(new MeshLoader())
 {
 	initGLFW();
 	initGL3W();
-
 
 	basicRenderer_ = new BasicRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
 	basicRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	basicRenderer_->initialise();
 
+	texture_ = new Texture("mandelbrot");
 	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("NaiveTexturedVert", "NaiveTexturedFrag"));
-	Naive::TexturedBasicMesh* textured = basicToTextured(meshLoader_->loadMesh("teapot-fixed"),
-		textureLoader_->loadNaiveTexture("Mandelbrot"));
-	texturedRenderer_->addMesh(textured->texture->id, textured);
+	TexturedBasicMesh* texturedMesh = basicToTextured(meshLoader_->loadMesh("teapot-fixed"), texture_);
+	texturedRenderer_->addMesh(texturedMesh->texture->id, texturedMesh);
 	texturedRenderer_->initialise();
 
 	loopRenderer_ = new LoopRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
@@ -53,7 +53,6 @@ System::~System()
 	SAFE_DELETE(loopRenderer_);
 	SAFE_DELETE(computeRenderer_); 
 	SAFE_DELETE(meshLoader_);
-	SAFE_DELETE(textureLoader_);
 	glfwDestroyWindow(window_);
 	glfwTerminate();
 }

@@ -2,13 +2,14 @@
 /// Date: 15/01/19
 /// Purpose: Encapsulate and support loading meshes from .obj files.
 #pragma once
-#include "../Shared/Mesh.h"
-#include "../Shared/Vertex.h"
+#include "../Shared/Utility.h"
 
 namespace QZL
 {
 	namespace Naive
 	{
+		struct BasicMesh;
+
 		class MeshLoader {
 		public:
 			MeshLoader() {};

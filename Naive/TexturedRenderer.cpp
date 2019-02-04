@@ -2,6 +2,7 @@
 /// Date: 10/1/19
 
 #include "TexturedRenderer.h"
+#include "Mesh.h"
 
 using namespace QZL;
 using namespace QZL::Naive;

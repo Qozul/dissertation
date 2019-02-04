@@ -2,6 +2,7 @@
 /// Date: 01/02/19
 #pragma once
 #include "../Shared/RendererBase.h"
+#include "Mesh.h"
 
 namespace QZL
 {

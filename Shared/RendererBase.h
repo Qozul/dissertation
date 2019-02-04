@@ -3,8 +3,6 @@
 #pragma once
 
 #include "ShaderPipeline.h"
-#include "Mesh.h"
-#include "Texture.h"
 
 namespace QZL
 {

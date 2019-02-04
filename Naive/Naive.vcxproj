@@ -23,7 +23,9 @@
     <ClInclude Include="ComputeRenderer.h" />
     <ClInclude Include="LoopRenderer.h" />
     <ClInclude Include="BasicRenderer.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshLoader.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="TexturedRenderer.h" />
     <ClInclude Include="System.h" />
   </ItemGroup>
@@ -33,6 +35,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="BasicRenderer.cpp" />
     <ClCompile Include="MeshLoader.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TexturedRenderer.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>

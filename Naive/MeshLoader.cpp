@@ -1,6 +1,8 @@
 /// Author: Ralph Ridley
 /// Date: 15/01/19
 #include "MeshLoader.h"
+#include "Mesh.h"
+#include "../Shared/Vertex.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../Shared/tiny_obj_loader.h"
@@ -13,7 +15,7 @@ const std::string MeshLoader::kExt = ".obj";
 
 BasicMesh* MeshLoader::loadMesh(const std::string& meshName)
 {
-	BasicMesh* mesh = new Naive::BasicMesh();
+	BasicMesh* mesh = new BasicMesh();
 
 	auto meshIterator = loadedMeshes_.find(meshName);
 	if (meshIterator != loadedMeshes_.end()) {

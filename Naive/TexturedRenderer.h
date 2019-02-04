@@ -7,8 +7,8 @@ namespace QZL
 {
 	namespace Naive
 	{
-		// Note that TexturedRenderer uses base class meshes_ map GLuint key as proxy for texture id
-		// rather than vao id
+		struct TexturedBasicMesh;
+
 		class TexturedRenderer : public Shared::RendererBase {
 			using Base = Shared::RendererBase;
 		public:
@@ -23,7 +23,6 @@ namespace QZL
 				std::copy(std::begin(meshes), std::end(meshes), std::back_inserter(meshes_[texId]));
 			}
 		private:
-			// VAO id, mesh ptr not owned here. Use dummy vao id for naive.
 			std::map<GLuint, std::vector<TexturedBasicMesh*>> meshes_;
 		};
 	}

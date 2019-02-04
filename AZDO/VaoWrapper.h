@@ -2,15 +2,12 @@
 /// Date: 02/02/19
 /// Purpose: Contain and define operations on a vertex array
 #pragma once
-#include "../Shared/Vertex.h"
-#include "../Shared/Mesh.h"
+#include "Mesh.h"
 
 namespace QZL
 {
 	namespace AZDO
 	{
-		struct BasicMesh;
-
 		class VaoWrapper {
 			using Index = GLushort;
 		public:

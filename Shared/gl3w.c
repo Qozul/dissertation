@@ -829,6 +829,10 @@ static const char *proc_names[] = {
 	"glViewportIndexedf",
 	"glViewportIndexedfv",
 	"glWaitSync",
+	"glMakeTextureHandleResidentARB",
+	"glMakeTextureHandleNonResidentARB",
+	"glGetTextureHandleARB",
+	"glTexPageCommitmentARB",
 };
 
 union GL3WProcs gl3wProcs;

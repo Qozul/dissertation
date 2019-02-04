@@ -19,9 +19,6 @@
     <Filter Include="Source Files\GL3W">
       <UniqueIdentifier>{9b4e81b5-6968-4911-9e61-787b1541d54f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Tests">
-      <UniqueIdentifier>{d8eef988-6fac-4f48-9368-49c2eecd5337}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Tests">
       <UniqueIdentifier>{0ccbc072-dcf0-4502-9c5c-6f7fd38b0074}</UniqueIdentifier>
     </Filter>
@@ -54,20 +51,11 @@
     <ClCompile Include="PerfMeasurer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UnitTester.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="nv_dds.cpp">
       <Filter>Source Files\Nvidia DDS</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderPipeline.cpp">
       <Filter>Source Files\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureLoader.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -86,16 +74,7 @@
     <ClInclude Include="Utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UnitTester.h">
-      <Filter>Header Files\Tests</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="nv_dds.h">
@@ -109,9 +88,6 @@
     </ClInclude>
     <ClInclude Include="ShaderPipeline.h">
       <Filter>Header Files\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureLoader.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>

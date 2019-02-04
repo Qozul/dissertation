@@ -5,15 +5,12 @@
 
 namespace QZL
 {
-	namespace Shared
-	{
-		class TextureLoader;
-	}
 	namespace Naive
 	{
 		class AbstractRenderer;
 		class TexturedRenderer;
 		class MeshLoader;
+		class Texture;
 
 		class System {
 		public:
@@ -25,9 +22,9 @@ namespace QZL
 			void initGL3W();
 
 			MeshLoader* meshLoader_;
-			QZL::Shared::TextureLoader* textureLoader_;
 
 			glm::mat4 viewMatrix_;
+			Texture* texture_;
 
 			AbstractRenderer* basicRenderer_;
 			TexturedRenderer* texturedRenderer_;

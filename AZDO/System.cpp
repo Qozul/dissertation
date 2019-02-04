@@ -6,7 +6,8 @@
 #include "LoopRenderer.h"
 #include "ComputeRenderer.h"
 #include "MeshLoader.h"
-#include "../Shared/TextureLoader.h"
+#include "Texture.h"
+
 #include "../Shared/PerfMeasurer.h"
 #include "../Shared/RendererBase.h"
 
@@ -19,13 +20,15 @@ void errorCallback(int error, const char* description)
 }
 
 System::System()
-	: textureLoader_(new QZL::Shared::TextureLoader()), basicPerfMeasurer_(new Shared::PerfMeasurer()),
-	loopPerfMeasurer_(new Shared::PerfMeasurer()), computePerfMeasurer_(new Shared::PerfMeasurer())
+	: basicPerfMeasurer_(new Shared::PerfMeasurer()), loopPerfMeasurer_(new Shared::PerfMeasurer()), 
+	computePerfMeasurer_(new Shared::PerfMeasurer())
 {
 	initGLFW();
 	initGL3W();
 
 	vaoWrapper_ = new VaoWrapper();
+	texture_ = new Texture("Mandelbrot");
+	texture_->commit(true);
 
 	basicRenderer_ = new BasicRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
 	for (int i = 0; i < 10; ++i) {
@@ -33,11 +36,11 @@ System::System()
 	}
 	basicRenderer_->initialise();
 
-	/*texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("NaiveTexturedVert", "NaiveTexturedFrag"));
-	TexturedBasicMesh* textured = basicToTextured(meshLoader_->loadNaiveMesh("teapot-fixed"),
-		textureLoader_->loadNaiveTexture("Mandelbrot"));
-	texturedRenderer_->addMesh(textured->texture->id, textured);
-	texturedRenderer_->initialise();*/
+	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("AZDOTexturedVert", "AZDOTexturedFrag"));
+	auto inst = MeshLoader::loadMesh<TexturedMeshInstance>("teapot-fixed", *vaoWrapper_);
+	inst->texture = texture_;
+	texturedRenderer_->addMesh(vaoWrapper_, "teapot-fixed", inst);
+	texturedRenderer_->initialise();
 
 	loopRenderer_ = new LoopRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
 	for (int i = 0; i < 10; ++i) {
@@ -63,7 +66,7 @@ System::~System()
 	//SAFE_DELETE(texturedRenderer_);
 	SAFE_DELETE(loopRenderer_);
 	SAFE_DELETE(computeRenderer_);
-	SAFE_DELETE(textureLoader_);
+	SAFE_DELETE(texture_);
 	SAFE_DELETE(vaoWrapper_);
 	SAFE_DELETE(basicPerfMeasurer_);
 	SAFE_DELETE(loopPerfMeasurer_);
@@ -86,17 +89,17 @@ void System::loop()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		basicPerfMeasurer_->startTime();
-		basicRenderer_->doFrame(viewMatrix_);
+		//basicRenderer_->doFrame(viewMatrix_);
 		basicPerfMeasurer_->endTime();
 
 		//texturedRenderer_->doFrame(viewMatrix_);
 
 		loopPerfMeasurer_->startTime();
-		loopRenderer_->doFrame(viewMatrix_);
+		//loopRenderer_->doFrame(viewMatrix_);
 		loopPerfMeasurer_->endTime();
 
 		computePerfMeasurer_->startTime();
-		computeRenderer_->doFrame(viewMatrix_);
+		//computeRenderer_->doFrame(viewMatrix_);
 		computePerfMeasurer_->endTime();
 
 		glfwSwapBuffers(window_);

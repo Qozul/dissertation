@@ -23,9 +23,12 @@
     <ClInclude Include="BasicRenderer.h" />
     <ClInclude Include="ComputeRenderer.h" />
     <ClInclude Include="LoopRenderer.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="System.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="TexturedRenderer.h" />
+    <ClInclude Include="TextureStore.h" />
     <ClInclude Include="VaoWrapper.h" />
   </ItemGroup>
   <ItemGroup>
@@ -35,7 +38,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="System.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TexturedRenderer.cpp" />
+    <ClCompile Include="TextureStore.cpp" />
     <ClCompile Include="VaoWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -136,28 +136,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gl3w.c" />
-    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="nv_dds.cpp" />
     <ClCompile Include="PerfMeasurer.cpp" />
     <ClCompile Include="ShaderPipeline.cpp" />
-    <ClCompile Include="TextureLoader.cpp" />
-    <ClCompile Include="UnitTester.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gl3w.h" />
     <ClInclude Include="glcorearb.h" />
     <ClInclude Include="khrplatform.h" />
-    <ClInclude Include="Mesh.h" />
     <ClInclude Include="nv_dds.h" />
     <ClInclude Include="PerfMeasurer.h" />
     <ClInclude Include="RendererBase.h" />
     <ClInclude Include="ShaderPipeline.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="Transform.h" />
-    <ClInclude Include="UnitTester.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>

@@ -1,7 +1,6 @@
 /// Author: Ralph Ridley
 /// Date: 02/02/19
 #include "VaoWrapper.h"
-#include "../Shared/Mesh.h"
 #include "../Shared/Vertex.h"
 
 using namespace QZL;
