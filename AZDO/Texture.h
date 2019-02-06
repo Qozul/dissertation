@@ -20,7 +20,7 @@ namespace QZL
 		/// AZDO uses sparse bindless texture arrays
 		class Texture {
 		public:
-			Texture(const std::string& fileName);
+			Texture(TextureStore* store, nv_dds::CDDSImage& image);
 			~Texture();
 			Texture(const Texture& other) = delete;
 			Texture(Texture&& other) = delete;
@@ -41,6 +41,7 @@ namespace QZL
 		private:
 			void addToStorage(nv_dds::CDDSImage& image);
 
+			TextureStore* store_;
 			TextureData data_;
 
 			static const std::string kPath;

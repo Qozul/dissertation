@@ -3,10 +3,7 @@
 using namespace QZL;
 using namespace QZL::AZDO;
 
-std::map<GLuint64, std::unique_ptr<TextureStore>> TextureStore::sExistingStores;
-GLint TextureStore::sMaxArrayPages;
-
-TextureStore::TextureStore(const TexStoreInfo& info)
+TextureStore::TextureStore(const TexStoreInfo& info, GLint maxPages)
 	: info_(info)
 {
 	GLint indexCount = 0;
@@ -51,7 +48,7 @@ TextureStore::TextureStore(const TexStoreInfo& info)
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_ANISOTROPY, 8);
 
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_VIRTUAL_PAGE_SIZE_INDEX_ARB, bestIndex);
-	glTexStorage3D(GL_TEXTURE_2D_ARRAY, info.levels, info.format, info.width, info.height, sMaxArrayPages);
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, info.levels, info.format, info.width, info.height, maxPages);
 
 	// This would mean the implementation has no valid sizes for us, or that this format doesn't actually support sparse
 	// texture allocation. Need to implement the fallback.
@@ -62,7 +59,7 @@ TextureStore::TextureStore(const TexStoreInfo& info)
 
 	glMakeTextureHandleResidentARB(handle_);
 	
-	for (GLsizei i = 0; i < sMaxArrayPages; ++i) {
+	for (GLsizei i = 0; i < maxPages; ++i) {
 		freePages_.push(i);
 	}
 }
@@ -86,6 +83,7 @@ bool TextureStore::hasSpace()
 
 void TextureStore::commit(GLsizei page, bool commit)
 {
+	Shared::checkGLError();
 	GLsizei mipLevelWidth = info_.width;
 	GLsizei mipLevelHeight = info_.height;
 	// For each mipmap level commit or uncommit the texture in the layer
@@ -120,25 +118,11 @@ void TextureStore::addSubImage(GLint level, GLint xoffset, GLint yoffset, GLint 
 	GLsizei depth, GLenum format, GLsizei image_size, const void* data)
 {
 	ENSURES(data != nullptr);
-	Shared::checkGLError();
+	if (level >= info_.levels)
+		return;
+
 	glCompressedTextureSubImage3D(texId_, level, xoffset, yoffset, zoffset, width, height, depth, format, image_size, data);
 	Shared::checkGLError();
-}
-
-GLuint64 TextureStore::obtainTexStore(const TexStoreInfo info)
-{
-	glGetIntegerv(GL_MAX_SPARSE_ARRAY_TEXTURE_LAYERS_ARB, &TextureStore::sMaxArrayPages);
-
-	// If a suitable store exists then use it
-	for (auto& store : TextureStore::sExistingStores) {
-		if (store.second->info_ == info && store.second->hasSpace()) {
-			return store.second->handle_;
-		}
-	}
-	// No suitable store found so create one
-	TextureStore* store = new TextureStore(info);
-	TextureStore::sExistingStores[store->handle_] = std::unique_ptr<TextureStore>(store);
-	return store->handle_;
 }
 
 TexStoreInfo QZL::AZDO::makeTexStoreInfo(GLsizei levels, GLenum format, GLsizei width, GLsizei height)

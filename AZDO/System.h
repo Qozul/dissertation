@@ -17,6 +17,7 @@ namespace QZL
 		struct TexturedMeshInstance;
 		class VaoWrapper;
 		class Texture;
+		class TextureLoader;
 
 		class System {
 		public:
@@ -27,6 +28,7 @@ namespace QZL
 			void initGLFW();
 			void initGL3W();
 
+			TextureLoader* textureLoader_;
 			Texture* texture_;
 
 			glm::mat4 viewMatrix_;
@@ -38,6 +40,7 @@ namespace QZL
 			AbstractRenderer<MeshInstance>* computeRenderer_;
 
 			Shared::PerfMeasurer* basicPerfMeasurer_;
+			Shared::PerfMeasurer* texturedPerfMeasurer_;
 			Shared::PerfMeasurer* loopPerfMeasurer_;
 			Shared::PerfMeasurer* computePerfMeasurer_;
 

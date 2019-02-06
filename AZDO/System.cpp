@@ -7,6 +7,7 @@
 #include "ComputeRenderer.h"
 #include "MeshLoader.h"
 #include "Texture.h"
+#include "TextureLoader.h"
 
 #include "../Shared/PerfMeasurer.h"
 #include "../Shared/RendererBase.h"
@@ -21,14 +22,16 @@ void errorCallback(int error, const char* description)
 
 System::System()
 	: basicPerfMeasurer_(new Shared::PerfMeasurer()), loopPerfMeasurer_(new Shared::PerfMeasurer()), 
-	computePerfMeasurer_(new Shared::PerfMeasurer())
+	computePerfMeasurer_(new Shared::PerfMeasurer()), texturedPerfMeasurer_(new Shared::PerfMeasurer())
 {
 	initGLFW();
 	initGL3W();
 
 	vaoWrapper_ = new VaoWrapper();
-	texture_ = new Texture("Mandelbrot");
+	textureLoader_ = new TextureLoader();
+	texture_ = textureLoader_->loadTexture("101");
 	texture_->commit(true);
+	QZL::Shared::checkGLError();
 
 	basicRenderer_ = new BasicRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
 	for (int i = 0; i < 10; ++i) {
@@ -37,9 +40,11 @@ System::System()
 	basicRenderer_->initialise();
 
 	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("AZDOTexturedVert", "AZDOTexturedFrag"));
-	auto inst = MeshLoader::loadMesh<TexturedMeshInstance>("teapot-fixed", *vaoWrapper_);
-	inst->texture = texture_;
-	texturedRenderer_->addMesh(vaoWrapper_, "teapot-fixed", inst);
+	for (int i = 0; i < 10; ++i) {
+		auto inst = MeshLoader::loadMesh<TexturedMeshInstance>("teapot-fixed", *vaoWrapper_);
+		inst->texture = texture_;
+		texturedRenderer_->addMesh(vaoWrapper_, "teapot-fixed", inst);
+	}
 	texturedRenderer_->initialise();
 
 	loopRenderer_ = new LoopRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
@@ -63,14 +68,16 @@ System::System()
 System::~System()
 {
 	SAFE_DELETE(basicRenderer_);
-	//SAFE_DELETE(texturedRenderer_);
+	SAFE_DELETE(texturedRenderer_);
 	SAFE_DELETE(loopRenderer_);
 	SAFE_DELETE(computeRenderer_);
-	SAFE_DELETE(texture_);
 	SAFE_DELETE(vaoWrapper_);
 	SAFE_DELETE(basicPerfMeasurer_);
+	SAFE_DELETE(texturedPerfMeasurer_);
 	SAFE_DELETE(loopPerfMeasurer_);
 	SAFE_DELETE(computePerfMeasurer_);
+	SAFE_DELETE(texture_);
+	SAFE_DELETE(textureLoader_);
 	glfwDestroyWindow(window_);
 	glfwTerminate();
 }
@@ -89,23 +96,26 @@ void System::loop()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		basicPerfMeasurer_->startTime();
-		//basicRenderer_->doFrame(viewMatrix_);
+		basicRenderer_->doFrame(viewMatrix_);
 		basicPerfMeasurer_->endTime();
 
-		//texturedRenderer_->doFrame(viewMatrix_);
+		texturedPerfMeasurer_->startTime();
+		texturedRenderer_->doFrame(viewMatrix_);
+		texturedPerfMeasurer_->endTime();
 
 		loopPerfMeasurer_->startTime();
-		//loopRenderer_->doFrame(viewMatrix_);
+		loopRenderer_->doFrame(viewMatrix_);
 		loopPerfMeasurer_->endTime();
 
 		computePerfMeasurer_->startTime();
-		//computeRenderer_->doFrame(viewMatrix_);
+		computeRenderer_->doFrame(viewMatrix_);
 		computePerfMeasurer_->endTime();
 
 		glfwSwapBuffers(window_);
 		QZL::Shared::checkGLError();
 	}
 	std::cout << "Basic perf: " << basicPerfMeasurer_->getAverageTime().count() << std::endl;
+	std::cout << "Textured perf: " << texturedPerfMeasurer_->getAverageTime().count() << std::endl;
 	std::cout << "Loop perf: " << loopPerfMeasurer_->getAverageTime().count() << std::endl;
 	std::cout << "Compute perf: " << computePerfMeasurer_->getAverageTime().count() << std::endl;
 }

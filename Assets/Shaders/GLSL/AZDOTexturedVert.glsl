@@ -1,4 +1,4 @@
-#version 460 core
+#version 440 core
 
 struct InstanceData
 {
@@ -14,20 +14,21 @@ layout(std430, binding = 0) buffer InstanceDataBuffer
 layout(location = 0) in vec3 iPosition;
 layout(location = 1) in vec2 iTexUV;
 layout(location = 2) in vec3 iNormal;
+in int gl_BaseInstanceARB;
 
 out Vertex
 {
-	vec4 colour;
+	vec2 texUV;
 	vec3 worldPos;
 	vec3 normal;
-	int instanceID;
+	flat int instanceID;
 } OUT;
 
 void main(void)
 {
-	instanceID = gl_BaseInstance + gl_InstanceID;
-	gl_Position	= uInstanceData[instanceID].mvp * vec4(iPosition, 1.0);
-	OUT.colour = vec4(iNormal, 1.0);
-	OUT.worldPos = (uInstanceData[instanceID].model * vec4(iPosition, 1.0)).xyz;
-	OUT.normal = mat3(transpose(inverse(uInstanceData[instanceID].model))) * iNormal;
+	OUT.instanceID = gl_BaseInstanceARB + gl_InstanceID;
+	gl_Position	= uInstanceData[OUT.instanceID].mvp * vec4(iPosition, 1.0);
+	OUT.texUV = iTexUV;
+	OUT.worldPos = (uInstanceData[OUT.instanceID].model * vec4(iPosition, 1.0)).xyz;
+	OUT.normal = mat3(transpose(inverse(uInstanceData[OUT.instanceID].model))) * iNormal;
 }

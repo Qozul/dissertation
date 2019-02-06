@@ -20,10 +20,11 @@ namespace QZL
 
 		class TextureStore {
 			friend class Texture;
+			friend class TextureLoader;
 		public:
 			~TextureStore();
 		private:
-			TextureStore(const TexStoreInfo& info);
+			TextureStore(const TexStoreInfo& info, GLint maxPages);
 
 			bool hasSpace();
 			void commit(GLsizei page, bool commit);
@@ -39,9 +40,6 @@ namespace QZL
 			const TexStoreInfo info_;
 			std::queue<GLsizei> freePages_;
 			std::vector<GLsizei> pages_;
-
-			static std::map<GLuint64, std::unique_ptr<TextureStore>> sExistingStores;
-			static GLint sMaxArrayPages;
 		};
 	}
 }

@@ -30,11 +30,13 @@ void TexturedRenderer::initialise()
 				auto inst = mesh.second[i];
 				inst->transform.position = glm::vec3(-4.0f + i * 0.5f, -1.0f, 0.0f);
 				inst->transform.setScale(0.2f);
+				++totalInstances_;
 			}
 		}
 	}
 	setupInstanceDataBuffer();
 	commandBufferClient_.reserve(totalCommands_);
+
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, textureBuffer_);
 	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT;
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, totalInstances_ * sizeof(TextureData), 0, flags);

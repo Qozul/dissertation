@@ -1,30 +1,31 @@
 #version 440 core
+#extension GL_ARB_bindless_texture : require
 
 struct Texture
 {
 	sampler2DArray handle;
 	float page;
-}
+};
 
 in Vertex
 {
 	vec2 texUV;
 	vec3 worldPos;
 	vec3 normal;
-	int instanceID;
+	flat int instanceID;
 } IN;
 
 out vec4 fragColor;
 
-layout(std430, binding = 2) buffer Textures
+layout(std430, binding = 2) readonly buffer Textures
 {
-    uniform Texture[] tDiffuse
+    Texture[] tDiffuse;
 };
 
 
 uniform vec3 uCamPosition = vec3(0.0, 0.0, 10.0);
 
-const vec3 kLightPosition = vec3(1000.0, 500.0, 1000.0);
+const vec3 kLightPosition = vec3(1000.0, 500.0, -1000.0);
 const vec3 kAmbientColour = vec3(0.2, 0.2, 0.2);
 const vec3 kDiffuseColour = vec3(1.0, 1.0, 1.0);
 const vec3 kSpecularColour = vec3(1.0, 1.0, 1.0);
@@ -41,7 +42,7 @@ void main(void)
 	float rFactor = max(0.0, dot(halfDir, IN.normal));
 	float sFactor = pow(rFactor , kSpecularExponent);
 	
-	vec4 texColour = texture(tDiffuse[instanceID].handle, vec3(IN.texUV, tDiffuse[instanceID].page));
+	vec4 texColour = texture(tDiffuse[IN.instanceID].handle, vec3(IN.texUV, tDiffuse[IN.instanceID].page));
 	
 	vec3 ambient = texColour.rgb * kAmbientColour;
 	vec3 diffuse = texColour.rgb * kDiffuseColour * lambert;
