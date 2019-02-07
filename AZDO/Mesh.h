@@ -18,11 +18,9 @@ namespace QZL
 			GLuint vertexOffset;
 		};
 		struct MeshInstance {
-			std::string meshName;
 			Shared::Transform transform;
 		};
 		struct TexturedMeshInstance {
-			std::string meshName;
 			Texture* texture;
 			Shared::Transform transform;
 		};
@@ -34,7 +32,6 @@ namespace QZL
 				"Type not allowed");
 
 			InstType* inst = new InstType();
-			inst->meshName = meshName;
 			return inst;
 		}
 	}

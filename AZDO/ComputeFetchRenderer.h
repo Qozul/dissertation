@@ -1,5 +1,5 @@
 /// Author: Ralph Ridley
-/// Date: 07/02/19
+/// Date: 31/01/19
 #pragma once
 #include "AbstractRenderer.h"
 
@@ -7,11 +7,11 @@ namespace QZL
 {
 	namespace AZDO
 	{
-		class ComputeRenderer : public AbstractRenderer<MeshInstance> {
+		class ComputeFetchRenderer : public AbstractRenderer<MeshInstance> {
 			using Base = AbstractRenderer<MeshInstance>;
 		public:
-			ComputeRenderer(ShaderPipeline* pipeline);
-			~ComputeRenderer();
+			ComputeFetchRenderer(ShaderPipeline* pipeline);
+			~ComputeFetchRenderer();
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;
 			void computeTransform();

@@ -1,22 +1,22 @@
 /// Author: Ralph Ridley
 /// Date: 31/01/19
-#include "ComputeRenderer.h"
+#include "ComputeFetchRenderer.h"
 #include "VaoWrapper.h"
 
 using namespace QZL;
 using namespace QZL::AZDO;
 
-const float ComputeRenderer::kRotationSpeed = 0.11f;
+const float ComputeFetchRenderer::kRotationSpeed = 0.11f;
 
-ComputeRenderer::ComputeRenderer(ShaderPipeline* pipeline)
-	: Base(pipeline), computePipeline_(new ShaderPipeline("AZDOCompute2")), compBufPtr_(nullptr)
+ComputeFetchRenderer::ComputeFetchRenderer(ShaderPipeline* pipeline)
+	: Base(pipeline), computePipeline_(new ShaderPipeline("AZDOCompute")), compBufPtr_(nullptr)
 {
 	glGenBuffers(1, &computeBuffer_);
 	totalInstances_ = 0;
 	totalCommands_ = 0;
 }
 
-ComputeRenderer::~ComputeRenderer()
+ComputeFetchRenderer::~ComputeFetchRenderer()
 {
 	if (compBufPtr_)
 		glUnmapNamedBuffer(computeBuffer_);
@@ -24,7 +24,7 @@ ComputeRenderer::~ComputeRenderer()
 	SAFE_DELETE(computePipeline_)
 }
 
-void ComputeRenderer::initialise()
+void ComputeFetchRenderer::initialise()
 {
 	totalInstances_ = 0;
 	totalCommands_ = 0;
@@ -33,7 +33,7 @@ void ComputeRenderer::initialise()
 			++totalCommands_;
 			for (int i = 0; i < mesh.second.size(); ++i) {
 				auto inst = mesh.second[i];
-				inst->transform.position = glm::vec3(-4.0f + i * 0.5f, -2.0f, 0.0f);
+				inst->transform.position = glm::vec3(-4.0f + i * 0.5f, 0.0f, 0.0f);
 				inst->transform.setScale(0.2f);
 				++totalInstances_;
 			}
@@ -42,13 +42,13 @@ void ComputeRenderer::initialise()
 	setupInstanceDataBuffer();
 	commandBufferClient_.reserve(totalCommands_);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeBuffer_);
-	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT;
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, totalInstances_ * sizeof(Shared::Transform), 0, flags);
+	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT | GL_MAP_READ_BIT;
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, totalInstances_ * sizeof(GLfloat), 0, flags);
 	// Persistantly map
-	compBufPtr_ = glMapNamedBufferRange(computeBuffer_, 0, totalInstances_ * sizeof(Shared::Transform), flags);
+	compBufPtr_ = glMapNamedBufferRange(computeBuffer_, 0, totalInstances_ * sizeof(GLfloat), flags);
 }
 
-void ComputeRenderer::doFrame(const glm::mat4& viewMatrix)
+void ComputeFetchRenderer::doFrame(const glm::mat4& viewMatrix)
 {
 	bindInstanceDataBuffer();
 	computeTransform();
@@ -62,6 +62,14 @@ void ComputeRenderer::doFrame(const glm::mat4& viewMatrix)
 			const BasicMesh* mesh = (*it.first)[it2.first];
 			commandBufferClient_.emplace_back(mesh->indexCount, it2.second.size(), mesh->indexOffset, mesh->vertexOffset, instanceCount);
 			instanceCount += it2.second.size();
+			for (int i = 0; i < it2.second.size(); ++i) {
+				auto inst = it2.second[i];
+				// Build instance data buffer
+				glm::mat4 model = inst->transform.toModelMatrix();
+				(instanceDataBufPtr_[i]) = {
+					model, Shared::kProjectionMatrix * viewMatrix * model
+				};
+			}
 		}
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, commandBuffer_);
 		glBufferData(GL_DRAW_INDIRECT_BUFFER, (commandBufferClient_.size()) * sizeof(DrawElementsCommand), commandBufferClient_.data(), GL_DYNAMIC_DRAW);
@@ -75,13 +83,14 @@ void ComputeRenderer::doFrame(const glm::mat4& viewMatrix)
 	commandBufferClient_.clear();
 }
 
-void ComputeRenderer::computeTransform()
+void ComputeFetchRenderer::computeTransform()
 {
-	size_t instanceIndex = 0;
 	for (auto& it : meshes_) {
 		for (auto& mesh : it.second) {
-			memcpy(&static_cast<Shared::Transform*>(compBufPtr_)[instanceIndex], &mesh.second, mesh.second.size() * sizeof(Shared::Transform));
-			instanceIndex += mesh.second.size();
+			for (int i = 0; i < mesh.second.size(); ++i) {
+				static_cast<GLfloat*>(compBufPtr_)[i] = mesh.second[i]->transform.angle;
+				//memcpy(&static_cast<GLfloat*>(compBufPtr_)[i], &mesh.second[i]->transform.angle, sizeof(GLfloat));
+			}
 		}
 	}
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, computeBuffer_);
@@ -90,5 +99,14 @@ void ComputeRenderer::computeTransform()
 	glUniform1f(rotLoc, kRotationSpeed);
 	glDispatchCompute(totalInstances_, 1, 1);
 	computePipeline_->unuse();
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	glFinish();
+	for (auto& it : meshes_) {
+		for (auto& mesh : it.second) {
+			for (int i = 0; i < mesh.second.size(); ++i) {
+				mesh.second[i]->transform.angle = static_cast<GLfloat*>(compBufPtr_)[i];
+				//memcpy(&mesh.second[i]->transform.angle, static_cast<GLfloat*>(compBufPtr_) + sizeof(GLfloat) * i, sizeof(GLfloat));
+			}
+		}
+	}
 }

@@ -37,6 +37,7 @@ namespace QZL
 			AbstractRenderer<MeshInstance>* basicRenderer_;
 			AbstractRenderer<TexturedMeshInstance>* texturedRenderer_;
 			AbstractRenderer<MeshInstance>* loopRenderer_;
+			AbstractRenderer<MeshInstance>* computeFetchRenderer_;
 			AbstractRenderer<MeshInstance>* computeRenderer_;
 
 			Shared::PerfMeasurer* basicPerfMeasurer_;

@@ -28,21 +28,26 @@ System::System()
 		perfMeasurers_.push_back(new Shared::PerfMeasurer());
 
 	basicRenderer_ = new BasicRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	basicRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
+	for (int i = 0; i < 10; ++i)
+		basicRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	basicRenderer_->initialise();
 
 	texture_ = new Texture("mandelbrot");
 	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("NaiveTexturedVert", "NaiveTexturedFrag"));
-	TexturedBasicMesh* texturedMesh = basicToTextured(meshLoader_->loadMesh("teapot-fixed"), texture_);
-	texturedRenderer_->addMesh(texturedMesh->texture->id, texturedMesh);
+	for (int i = 0; i < 10; ++i) {
+		TexturedBasicMesh* texturedMesh = basicToTextured(meshLoader_->loadMesh("teapot-fixed"), texture_);
+		texturedRenderer_->addMesh(texturedMesh->texture->id, texturedMesh);
+	}
 	texturedRenderer_->initialise();
 
 	loopRenderer_ = new LoopRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	loopRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
+	for (int i = 0; i < 10; ++i)
+		loopRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	loopRenderer_->initialise();
 
 	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	computeRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
+	for (int i = 0; i < 10; ++i)
+		computeRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	computeRenderer_->initialise();
 
 	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -84,7 +89,7 @@ void System::loop()
 
 		perfMeasurers_[2]->startTime();
 		loopRenderer_->doFrame(viewMatrix_);
-		perfMeasurers_[2]->startTime();
+		perfMeasurers_[2]->endTime();
 
 		perfMeasurers_[3]->startTime();
 		computeRenderer_->doFrame(viewMatrix_);

@@ -36,9 +36,6 @@
     <ClInclude Include="BasicRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="ComputeRenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="LoopRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -57,6 +54,12 @@
     <ClInclude Include="TextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ComputeFetchRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ComputeRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System.cpp">
@@ -74,9 +77,6 @@
     <ClCompile Include="BasicRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="ComputeRenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="LoopRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -91,6 +91,12 @@
     </ClCompile>
     <ClCompile Include="TextureLoader.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeFetchRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

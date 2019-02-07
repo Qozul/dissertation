@@ -4,6 +4,7 @@
 #include "BasicRenderer.h"
 #include "TexturedRenderer.h"
 #include "LoopRenderer.h"
+#include "ComputeFetchRenderer.h"
 #include "ComputeRenderer.h"
 #include "MeshLoader.h"
 #include "Texture.h"
@@ -34,7 +35,7 @@ System::System()
 	QZL::Shared::checkGLError();
 
 	basicRenderer_ = new BasicRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 10000; ++i) {
 		basicRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
 	}
 	basicRenderer_->initialise();
@@ -53,8 +54,14 @@ System::System()
 	}
 	loopRenderer_->initialise();
 
-	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
+	computeFetchRenderer_ = new ComputeFetchRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
 	for (int i = 0; i < 10; ++i) {
+		computeFetchRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
+	}
+	computeFetchRenderer_->initialise();
+
+	computeRenderer_ = new ComputeFetchRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
+	for (int i = 0; i < 10000; ++i) {
 		computeRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
 	}
 	computeRenderer_->initialise();
@@ -70,6 +77,7 @@ System::~System()
 	SAFE_DELETE(basicRenderer_);
 	SAFE_DELETE(texturedRenderer_);
 	SAFE_DELETE(loopRenderer_);
+	SAFE_DELETE(computeFetchRenderer_);
 	SAFE_DELETE(computeRenderer_);
 	SAFE_DELETE(vaoWrapper_);
 	SAFE_DELETE(basicPerfMeasurer_);
@@ -96,18 +104,19 @@ void System::loop()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		basicPerfMeasurer_->startTime();
-		basicRenderer_->doFrame(viewMatrix_);
+		//basicRenderer_->doFrame(viewMatrix_);
 		basicPerfMeasurer_->endTime();
 
 		texturedPerfMeasurer_->startTime();
-		texturedRenderer_->doFrame(viewMatrix_);
+		//texturedRenderer_->doFrame(viewMatrix_);
 		texturedPerfMeasurer_->endTime();
 
 		loopPerfMeasurer_->startTime();
-		loopRenderer_->doFrame(viewMatrix_);
+		//loopRenderer_->doFrame(viewMatrix_);
 		loopPerfMeasurer_->endTime();
 
 		computePerfMeasurer_->startTime();
+		//computeFetchRenderer_->doFrame(viewMatrix_);
 		computeRenderer_->doFrame(viewMatrix_);
 		computePerfMeasurer_->endTime();
 
