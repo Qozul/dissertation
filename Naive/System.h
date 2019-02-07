@@ -5,6 +5,10 @@
 
 namespace QZL
 {
+	namespace Shared
+	{
+		class PerfMeasurer;
+	}
 	namespace Naive
 	{
 		class AbstractRenderer;
@@ -30,6 +34,8 @@ namespace QZL
 			TexturedRenderer* texturedRenderer_;
 			AbstractRenderer* loopRenderer_;
 			AbstractRenderer* computeRenderer_;
+
+			std::vector<Shared::PerfMeasurer*> perfMeasurers_;
 
 			GLFWwindow* window_;
 		};

@@ -8,16 +8,20 @@
 using namespace QZL;
 
 System::System()
-	: validation_(nullptr)
+	: validation_(nullptr), device_(nullptr), swapChain_(nullptr)
 {
 	uint32_t enabledLayerCount;
 	const char* const* ppEnabledLayerNames;
 	setupCoreSystem(enabledLayerCount, ppEnabledLayerNames);
 	validation_ = new Validation(details_.instance, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT);
+	ENSURES(validation_ != nullptr);
 	createPhysicalDevice();
 	createLogicDevice(enabledLayerCount, ppEnabledLayerNames);
+	ENSURES(device_ != nullptr);
 	details_.primaryCommandPool = device_->createCommandPool(); // TODO move to swapchain as owner
 	swapChain_ = new SwapChain(device_, details_.surface, details_.window, swapChainDetails_, details_.primaryCommandPool);
+	ENSURES(swapChain_ != nullptr);
+
 	// SwapChain ->(swapChain, imageViews, depth, descriptor pool and sets?, framebuffers?, Synchronisation?)
 	// RenderPass ->(renderPass, descriptor sets, GfxPipelines, command pool, command buffers)
 

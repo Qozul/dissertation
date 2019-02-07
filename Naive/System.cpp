@@ -8,6 +8,7 @@
 #include "Texture.h"
 #include "MeshLoader.h"
 #include "Mesh.h"
+#include "../Shared/PerfMeasurer.h"
 
 using namespace QZL;
 using namespace QZL::Naive;
@@ -22,6 +23,9 @@ System::System()
 {
 	initGLFW();
 	initGL3W();
+
+	for (int i = 0; i < 4; ++i)
+		perfMeasurers_.push_back(new Shared::PerfMeasurer());
 
 	basicRenderer_ = new BasicRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
 	basicRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
@@ -69,14 +73,32 @@ void System::loop()
 		glfwPollEvents();
 		glClearDepth(1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		perfMeasurers_[0]->startTime();
 		basicRenderer_->doFrame(viewMatrix_);
+		perfMeasurers_[0]->endTime();
+
+		perfMeasurers_[1]->startTime();
 		texturedRenderer_->doFrame(viewMatrix_);
+		perfMeasurers_[1]->endTime();
+
+		perfMeasurers_[2]->startTime();
 		loopRenderer_->doFrame(viewMatrix_);
+		perfMeasurers_[2]->startTime();
+
+		perfMeasurers_[3]->startTime();
 		computeRenderer_->doFrame(viewMatrix_);
+		perfMeasurers_[3]->endTime();
+
 		glfwSwapBuffers(window_);
 
 		QZL::Shared::checkGLError();
 	}
+
+	std::cout << "Basic perf: " << perfMeasurers_[0]->getAverageTime().count() << std::endl <<
+		"Textured perf: " << perfMeasurers_[1]->getAverageTime().count() << std::endl <<
+		"Loop perf: " << perfMeasurers_[2]->getAverageTime().count() << std::endl <<
+		"Compute perf: " << perfMeasurers_[3]->getAverageTime().count() << std::endl;
 }
 
 void System::initGLFW()
