@@ -44,7 +44,7 @@ bool Validation::tryEnable(std::vector<const char*>& extensions, uint32_t& enabl
 	return false;
 #else
 	// Check the extension is available with this Vulkan implementation
-	auto availableExtensions = Shared::Vulk::obtainVkData<VkExtensionProperties>(vkEnumerateInstanceExtensionProperties, "");
+	auto availableExtensions = obtainVkData<VkExtensionProperties>(vkEnumerateInstanceExtensionProperties, "");
 	bool found = false;
 	for (auto ext : kExtensions) {
 		for (const auto& extension : availableExtensions) {
@@ -57,7 +57,7 @@ bool Validation::tryEnable(std::vector<const char*>& extensions, uint32_t& enabl
 			return false;
 	}
 	// Check the validation layers are available.
-	auto layerProperties = Shared::Vulk::obtainVkData<VkLayerProperties>(vkEnumerateInstanceLayerProperties);
+	auto layerProperties = obtainVkData<VkLayerProperties>(vkEnumerateInstanceLayerProperties);
 	for (auto layer : kLayers) {
 		bool found = false;
 		for (const auto& property : layerProperties) {

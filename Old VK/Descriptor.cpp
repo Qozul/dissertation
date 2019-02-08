@@ -16,7 +16,7 @@ Descriptor::~Descriptor()
 	vkDestroyDescriptorSetLayout(cLogicDevice_, layout_, nullptr);
 }
 
-std::vector<VkDescriptorSet>& QZL::Descriptor::getSets()
+std::vector<VkDescriptorSet>& Descriptor::getSets()
 {
 	return sets_;
 }

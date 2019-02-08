@@ -86,7 +86,7 @@ void QZL::Shared::Vulk::createBuffer(VkPhysicalDevice physicalDevice, VkDevice l
 	allocInfo.allocationSize = memRequirements.size;
 	allocInfo.memoryTypeIndex = findMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
-	CHECK_VKRESULT(vkAllocateMemory(logicDevice, &allocInfo, nullptr, &bufferMemory));
+	//CHECK_VKRESULT(vkAllocateMemory(logicDevice, &allocInfo, nullptr, &bufferMemory));
 
 	vkBindBufferMemory(logicDevice, buffer, bufferMemory, 0);
 }

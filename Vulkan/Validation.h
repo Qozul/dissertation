@@ -2,7 +2,7 @@
 /// Date 29/10/18
 /// Purpose: Class for the Vulkan validation layer
 #pragma once
-#include "../Shared/Utility.h"
+#include "VkUtil.h"
 
 #define ENABLE_VALIDATION _DEBUG
 
