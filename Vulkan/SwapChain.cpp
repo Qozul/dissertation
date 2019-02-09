@@ -3,6 +3,16 @@
 
 using namespace QZL;
 
+void SwapChain::loop()
+{
+	// Begin render pass
+	// For each renderer fill command buffers
+	// End Render pass
+
+	
+	presentSubmit();
+}
+
 SwapChain::SwapChain(GLFWwindow* window, VkSurfaceKHR surface, LogicDevice* logicDevice, DeviceSurfaceCapabilities& surfaceCapabilities)
 	: logicDevice_(logicDevice)
 {
@@ -128,4 +138,12 @@ VkExtent2D SwapChain::chooseExtent(GLFWwindow* window, VkSurfaceCapabilitiesKHR&
 
 		return actualExtent;
 	}
+}
+
+void SwapChain::queueSubmit()
+{
+}
+
+void SwapChain::presentSubmit()
+{
 }

@@ -1,9 +1,12 @@
 #pragma once
 #include "VkUtil.h"
 
+struct VmaAllocator;
+
 namespace QZL
 {
 	class SwapChain;
+	struct SystemDetails;
 
 	enum class QueueFamilyType : size_t {
 		kGraphicsQueue = 0,
@@ -28,12 +31,13 @@ namespace QZL
 		VkQueue getQueueHandle(QueueFamilyType type);
 
 	private:
-		LogicDevice(VkDevice device, GLFWwindow* window, VkSurfaceKHR surface, DeviceSurfaceCapabilities& surfaceCapabilities,
+		LogicDevice(VkDevice device, const SystemDetails& sysDetails, DeviceSurfaceCapabilities& surfaceCapabilities,
 			std::vector<uint32_t> indices, std::vector<VkQueue> handles);
 		~LogicDevice();
 
 		VkDevice device_;
 		VkCommandPool primaryCommandPool_;
+		VmaAllocator* allocator_;
 
 		SwapChain* swapChain_;
 

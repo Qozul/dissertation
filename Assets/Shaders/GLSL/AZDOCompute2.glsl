@@ -26,7 +26,7 @@ uniform float uRotationAmount = 0.1;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjMatrix;
 
-layout(local_size_x=1) in;
+layout(local_size_x=32) in;
 
 // http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToMatrix/
 mat4 makeModelMatrix(Transform transform)

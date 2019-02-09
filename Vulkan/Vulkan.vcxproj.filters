@@ -13,42 +13,84 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Graphics">
+      <UniqueIdentifier>{37ddfe7a-2099-42a4-81f4-65fb53237319}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Core">
+      <UniqueIdentifier>{bee5dfe6-e5ce-47bc-b607-5806a00578f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{c19f3117-2a08-4810-8293-1274894599ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Core">
+      <UniqueIdentifier>{e19c79d4-6f13-4f5d-8ef6-73323cf4bc42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Memory">
+      <UniqueIdentifier>{7bf1b5a5-930b-4242-a9f2-0510e74e024c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Memory">
+      <UniqueIdentifier>{42ae3468-e610-483c-83d1-2fb06712dcba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Renderer">
+      <UniqueIdentifier>{56d15982-c105-468c-a350-d65999d9acfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Renderer">
+      <UniqueIdentifier>{dc559c8c-41e5-4209-81fe-93c0572b975f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="System.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Validation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LogicDevice.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Graphics\Core</Filter>
     </ClCompile>
     <ClCompile Include="PhysicalDevice.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Graphics\Core</Filter>
     </ClCompile>
     <ClCompile Include="SwapChain.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>Source Files\Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Validation.cpp">
+      <Filter>Source Files\Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Descriptor.cpp">
+      <Filter>Source Files\Graphics\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Pipeline.cpp">
+      <Filter>Source Files\Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="VkUtil.cpp">
+      <Filter>Source Files\Graphics\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="System.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VkUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Validation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LogicDevice.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Graphics\Core</Filter>
     </ClInclude>
     <ClInclude Include="PhysicalDevice.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Graphics\Core</Filter>
     </ClInclude>
     <ClInclude Include="SwapChain.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Header Files\Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Validation.h">
+      <Filter>Header Files\Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="VkUtil.h">
+      <Filter>Header Files\Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Descriptor.h">
+      <Filter>Header Files\Graphics\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipeline.h">
+      <Filter>Header Files\Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPass.h">
+      <Filter>Header Files\Graphics\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -104,7 +104,7 @@ void System::loop()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		basicPerfMeasurer_->startTime();
-		//basicRenderer_->doFrame(viewMatrix_);
+		basicRenderer_->doFrame(viewMatrix_);
 		basicPerfMeasurer_->endTime();
 
 		texturedPerfMeasurer_->startTime();

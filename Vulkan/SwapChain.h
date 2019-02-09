@@ -17,6 +17,8 @@ namespace QZL
 
 	class SwapChain {
 		friend class LogicDevice;
+	public:
+		void loop();
 	private:
 		SwapChain(GLFWwindow* window, VkSurfaceKHR surface, LogicDevice* logicDevice, DeviceSurfaceCapabilities& surfaceCapabilities);
 		~SwapChain();
@@ -28,6 +30,9 @@ namespace QZL
 		VkSurfaceFormatKHR chooseFormat(std::vector<VkSurfaceFormatKHR>& formats);
 		VkPresentModeKHR choosePresentMode(std::vector<VkPresentModeKHR>& presentModes);
 		VkExtent2D chooseExtent(GLFWwindow* window, VkSurfaceCapabilitiesKHR& capabilities);
+
+		void queueSubmit();
+		void presentSubmit();
 
 		SwapChainDetails details_;
 		LogicDevice* logicDevice_;

@@ -1,9 +1,12 @@
 #include "LogicDevice.h"
 #include "SwapChain.h"
+#include "vk_mem_alloc.h"
+#include "System.h"
+#include "PhysicalDevice.h"
 
 using namespace QZL;
 
-LogicDevice::LogicDevice(VkDevice device, GLFWwindow* window, VkSurfaceKHR surface, DeviceSurfaceCapabilities& surfaceCapabilities,
+LogicDevice::LogicDevice(VkDevice device, const SystemDetails& sysDetails, DeviceSurfaceCapabilities& surfaceCapabilities,
 	std::vector<uint32_t> indices, std::vector<VkQueue> handles)
 	: device_(device), queueFamilyIndices_(indices), queueHandles_(handles)
 {
@@ -13,7 +16,13 @@ LogicDevice::LogicDevice(VkDevice device, GLFWwindow* window, VkSurfaceKHR surfa
 
 	CHECK_VKRESULT(vkCreateCommandPool(device_, &poolInfo, nullptr, &primaryCommandPool_));
 
-	swapChain_ = new SwapChain(window, surface, this, surfaceCapabilities);
+	VmaAllocatorCreateInfo allocatorInfo = {};
+	allocatorInfo.physicalDevice = sysDetails.physicalDevice->getPhysicalDevice();
+	allocatorInfo.device = device;
+
+	vmaCreateAllocator(&allocatorInfo, allocator_);
+
+	swapChain_ = new SwapChain(sysDetails.window, sysDetails.surface, this, surfaceCapabilities);
 }
 
 LogicDevice::~LogicDevice()

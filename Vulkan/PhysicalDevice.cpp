@@ -2,6 +2,7 @@
 
 #include "SwapChain.h"
 #include "LogicDevice.h"
+#include "System.h"
 
 using namespace QZL;
 
@@ -25,7 +26,7 @@ bool PhysicalDevice::isValid(DeviceSurfaceCapabilities& surfaceCapabilities, VkS
 		hasRequiredQueueFamilies();
 }
 
-LogicDevice* PhysicalDevice::createLogicDevice(GLFWwindow* window, VkSurfaceKHR surface, DeviceSurfaceCapabilities& surfaceCapabilities, 
+LogicDevice* PhysicalDevice::createLogicDevice(const SystemDetails& sysDetails, DeviceSurfaceCapabilities& surfaceCapabilities,
 	uint32_t& enabledLayerCount, const char* const*& ppEnabledLayerNames)
 {
 	const float queuePriority = 1.0f;
@@ -50,7 +51,7 @@ LogicDevice* PhysicalDevice::createLogicDevice(GLFWwindow* window, VkSurfaceKHR 
 	queueHandles_[static_cast<size_t>(QueueFamilyType::kGraphicsQueue)] = createQueueHandles(logicDevice, QueueFamilyType::kGraphicsQueue);
 	queueHandles_[static_cast<size_t>(QueueFamilyType::kPresentationQueue)] = createQueueHandles(logicDevice, QueueFamilyType::kPresentationQueue);
 
-	return new LogicDevice(logicDevice, window, surface, surfaceCapabilities, queueFamilyIndices_, queueHandles_);
+	return new LogicDevice(logicDevice, sysDetails, surfaceCapabilities, queueFamilyIndices_, queueHandles_);
 }
 
 VkPhysicalDevice PhysicalDevice::getPhysicalDevice() const

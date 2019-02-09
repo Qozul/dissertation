@@ -5,6 +5,7 @@ namespace QZL
 {
 	struct DeviceSurfaceCapabilities;
 	class LogicDevice;
+	struct SystemDetails;
 
 	enum class QueueFamilyType : size_t;
 
@@ -13,7 +14,7 @@ namespace QZL
 		friend class System;
 	public:
 		bool isValid(DeviceSurfaceCapabilities& swapChainDetails, VkSurfaceKHR& surface);
-		LogicDevice* createLogicDevice(GLFWwindow* window, VkSurfaceKHR surface, DeviceSurfaceCapabilities& surfaceCapabilities, 
+		LogicDevice* createLogicDevice(const SystemDetails& sysDetails, DeviceSurfaceCapabilities& surfaceCapabilities,
 			uint32_t& enabledLayerCount, const char* const*& ppEnabledLayerNames);
 		VkPhysicalDevice getPhysicalDevice() const;
 
