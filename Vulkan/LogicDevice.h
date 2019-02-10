@@ -1,8 +1,6 @@
 #pragma once
 #include "VkUtil.h"
 
-struct VmaAllocator;
-
 namespace QZL
 {
 	class SwapChain;

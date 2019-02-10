@@ -57,18 +57,12 @@ size_t VaoWrapper::addVertices(Shared::Vertex* data, const size_t size)
 {
 	ENSURES(!isCommitted_)
 	const size_t prevSize = vertices_.size();
-
-	// Ensure buffer has room for new data
 	vertices_.resize(prevSize + size);
-
-	// Simply copy the data across directly
 	std::copy_n(data, size, vertices_.begin() + prevSize);
-
-	// First index of the new data is equal to the previous size (1 past the old data end)
 	return prevSize;
 }
 
-size_t VaoWrapper::addIndices(Index * data, const size_t size)
+size_t VaoWrapper::addIndices(Index* data, const size_t size)
 {
 	ENSURES(!isCommitted_);
 	const size_t prevSize = indices_.size();

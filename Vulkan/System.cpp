@@ -107,7 +107,7 @@ void System::initDevices(uint32_t& enabledLayerCount, const char* const*& enable
 		PhysicalDevice device(handle, details_.surface);
 		if (device.isValid(surfaceCapabilities, details_.surface)) {
 			details_.physicalDevice = new PhysicalDevice(device);
-			details_.logicDevice = details_.physicalDevice->createLogicDevice(details_.window, details_.surface, surfaceCapabilities, enabledLayerCount, enabledLayerNames);
+			details_.logicDevice = details_.physicalDevice->createLogicDevice(details_, surfaceCapabilities, enabledLayerCount, enabledLayerNames);
 		}
 	}
 }

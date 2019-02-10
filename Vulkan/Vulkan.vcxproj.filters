@@ -63,6 +63,12 @@
     <ClCompile Include="VkUtil.cpp">
       <Filter>Source Files\Graphics\Core</Filter>
     </ClCompile>
+    <ClCompile Include="DeviceMemory.cpp">
+      <Filter>Source Files\Graphics\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="ElementBuffer.cpp">
+      <Filter>Source Files\Graphics\Memory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LogicDevice.h">
@@ -91,6 +97,18 @@
     </ClInclude>
     <ClInclude Include="RenderPass.h">
       <Filter>Header Files\Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceMemory.h">
+      <Filter>Header Files\Graphics\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="UniformBuffer.h">
+      <Filter>Header Files\Graphics\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="ElementBuffer.h">
+      <Filter>Header Files\Graphics\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryAllocation.h">
+      <Filter>Header Files\Graphics\Memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
