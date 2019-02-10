@@ -3,7 +3,7 @@
 /// Purpose: To define the Shader class with necessary wrappings around
 ///          a shader module for one or more pipelines.
 #pragma once
-#include "../Shared/Utility.h"
+#include "VkUtil.h"
 
 namespace QZL
 {

@@ -5,31 +5,12 @@
 
 using namespace QZL;
 
-/*
-typedef enum VkBufferUsageFlagBits {
-	VK_BUFFER_USAGE_TRANSFER_SRC_BIT = 0x00000001,
-	VK_BUFFER_USAGE_TRANSFER_DST_BIT = 0x00000002,
-	VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT = 0x00000004,
-	VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT = 0x00000008,
-	VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT = 0x00000010,
-	VK_BUFFER_USAGE_STORAGE_BUFFER_BIT = 0x00000020,
-	VK_BUFFER_USAGE_INDEX_BUFFER_BIT = 0x00000040,
-	VK_BUFFER_USAGE_VERTEX_BUFFER_BIT = 0x00000080,
-	VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT = 0x00000100,
-	VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT = 0x00000800,
-	VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT = 0x00001000,
-	VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT = 0x00000200,
-	VK_BUFFER_USAGE_RAY_TRACING_BIT_NV = 0x00000400,
-	VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT_EXT = 0x00020000,
-} VkBufferUsageFlagBits;
-*/
-
-DeviceMemory::DeviceMemory(const SystemDetails& sysDetails)
-	: availableId_(1)
+DeviceMemory::DeviceMemory(PhysicalDevice* physicalDevice, LogicDevice* logicDevice, VkCommandBuffer transferCmdBuffer, VkQueue queue)
+	: availableId_(1), logicDevice_(logicDevice), transferCmdBuffer_(transferCmdBuffer), queue_(queue)
 {
 	VmaAllocatorCreateInfo allocatorInfo = {};
-	allocatorInfo.physicalDevice = sysDetails.physicalDevice->getPhysicalDevice();
-	allocatorInfo.device = sysDetails.logicDevice->getLogicDevice();
+	allocatorInfo.physicalDevice = physicalDevice->getPhysicalDevice();
+	allocatorInfo.device = logicDevice->getLogicDevice();
 
 	vmaCreateAllocator(&allocatorInfo, &allocator_);
 }
@@ -43,6 +24,7 @@ const MemoryAllocationDetails DeviceMemory::createBuffer(MemoryAllocationPattern
 {
 	MemoryAllocationDetails allocationDetails = {};
 	allocationDetails.size = size;
+	allocationDetails.id = availableId_++;
 
 	VkBufferCreateInfo bufferCreateInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 	bufferCreateInfo.size = allocationDetails.size;
@@ -51,7 +33,7 @@ const MemoryAllocationDetails DeviceMemory::createBuffer(MemoryAllocationPattern
 	VmaAllocationCreateInfo allocCreateInfo = makeVmaCreateInfo(pattern, allocationDetails.access);
 	VmaAllocationInfo allocInfo;
 
-	CHECK_VKRESULT(vmaCreateBuffer(allocator_, &bufferCreateInfo, &allocCreateInfo, &allocationDetails.buffer, &allocations_[availableId_++], &allocInfo));
+	CHECK_VKRESULT(vmaCreateBuffer(allocator_, &bufferCreateInfo, &allocCreateInfo, &allocationDetails.buffer, &allocations_[allocationDetails.id], &allocInfo));
 
 	VkMemoryPropertyFlags memFlags;
 	vmaGetMemoryTypeProperties(allocator_, allocInfo.memoryType, &memFlags);
@@ -61,20 +43,24 @@ const MemoryAllocationDetails DeviceMemory::createBuffer(MemoryAllocationPattern
 	return allocationDetails;
 }
 
-const MemoryAllocationDetails DeviceMemory::createImage(MemoryAllocationPattern pattern, VkImageCreateInfo imageCreateInfo, VkDeviceSize size)
+const MemoryAllocationDetails DeviceMemory::createImage(MemoryAllocationPattern pattern, VkImageCreateInfo imageCreateInfo)
 {
 	MemoryAllocationDetails allocationDetails = {};
-	allocationDetails.size = size;
+	allocationDetails.id = availableId_++;
 
 	VmaAllocationCreateInfo allocCreateInfo = makeVmaCreateInfo(pattern, allocationDetails.access);
 	VmaAllocationInfo allocInfo;
 
-	CHECK_VKRESULT(vmaCreateImage(allocator_, &imageCreateInfo, &allocCreateInfo, &allocationDetails.image, &allocations_[availableId_++], &allocInfo));
+	CHECK_VKRESULT(vmaCreateImage(allocator_, &imageCreateInfo, &allocCreateInfo, &allocationDetails.image, &allocations_[allocationDetails.id], &allocInfo));
 
 	VkMemoryPropertyFlags memFlags;
 	vmaGetMemoryTypeProperties(allocator_, allocInfo.memoryType, &memFlags);
 
 	fixAccessType(allocationDetails.access, allocInfo, memFlags);
+
+	VkMemoryRequirements memRequirements;
+	vkGetImageMemoryRequirements(logicDevice_->getLogicDevice(), allocationDetails.image, &memRequirements);
+	allocationDetails.size = memRequirements.size;
 
 	return allocationDetails;
 }
@@ -101,6 +87,98 @@ void* DeviceMemory::mapMemory(const AllocationID& id)
 void DeviceMemory::unmapMemory(const AllocationID & id)
 {
 	vmaUnmapMemory(allocator_, allocations_[id]);
+}
+
+void DeviceMemory::transferMemory(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size)
+{
+	VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	vkBeginCommandBuffer(transferCmdBuffer_, &beginInfo);
+
+	VkBufferCopy copyRegion = { srcOffset, dstOffset, size };
+	vkCmdCopyBuffer(transferCmdBuffer_, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	vkEndCommandBuffer(transferCmdBuffer_);
+	VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &transferCmdBuffer_;
+
+	vkQueueSubmit(queue_, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(queue_);
+}
+
+void DeviceMemory::changeImageLayout(const VkImage& image, const VkImageLayout oldLayout, const VkImageLayout newLayout, const VkFormat& format, uint32_t mipLevels)
+{
+	VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	vkBeginCommandBuffer(transferCmdBuffer_, &beginInfo);
+
+	VkImageMemoryBarrier barrier = {};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.oldLayout = oldLayout;
+	barrier.newLayout = newLayout;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = image;
+
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = mipLevels;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+
+	VkPipelineStageFlags oldStage;
+	VkPipelineStageFlags newStage;
+
+	switch (oldLayout) {
+	case VK_IMAGE_LAYOUT_UNDEFINED:
+		barrier.srcAccessMask = 0;
+		oldStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		oldStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		break;
+	default:
+		ENSURESM(false, "Old layout invalid.");
+	}
+
+	switch (newLayout) {
+	case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		newStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		newStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+		barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		newStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+		if (format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT)
+			barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+		break;
+	case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+		barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		newStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		break;
+	default:
+		ENSURESM(false, "New layout invalid.");
+	}
+
+	vkCmdPipelineBarrier(transferCmdBuffer_, oldStage, newStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+	vkEndCommandBuffer(transferCmdBuffer_);
+
+	VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &transferCmdBuffer_;
+
+	vkQueueSubmit(queue_, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(queue_);
 }
 
 void DeviceMemory::fixAccessType(MemoryAccessType& access, VmaAllocationInfo allocInfo, VkMemoryPropertyFlags memFlags)

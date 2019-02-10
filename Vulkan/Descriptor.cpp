@@ -1,9 +1,11 @@
 #include "Descriptor.h"
 
-QZL::Descriptor::Descriptor()
+using namespace QZL;
+
+Descriptor::Descriptor()
 {
 }
 
-QZL::Descriptor::~Descriptor()
+Descriptor::~Descriptor()
 {
 }

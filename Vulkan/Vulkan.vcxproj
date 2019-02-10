@@ -24,31 +24,41 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BasicRenderer.cpp" />
     <ClCompile Include="Descriptor.cpp" />
     <ClCompile Include="DeviceMemory.cpp" />
     <ClCompile Include="ElementBuffer.cpp" />
+    <ClCompile Include="Image2D.cpp" />
     <ClCompile Include="LogicDevice.cpp" />
     <ClCompile Include="PhysicalDevice.cpp" />
-    <ClCompile Include="Pipeline.cpp" />
+    <ClCompile Include="RendererPipeline.cpp" />
+    <ClCompile Include="RenderPass.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="Validation.cpp" />
+    <ClCompile Include="Vertex.cpp" />
     <ClCompile Include="VkUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BasicRenderer.h" />
     <ClInclude Include="Descriptor.h" />
     <ClInclude Include="DeviceMemory.h" />
     <ClInclude Include="ElementBuffer.h" />
+    <ClInclude Include="Image2D.h" />
     <ClInclude Include="LogicDevice.h" />
     <ClInclude Include="MemoryAllocation.h" />
     <ClInclude Include="PhysicalDevice.h" />
-    <ClInclude Include="Pipeline.h" />
+    <ClInclude Include="RendererPipeline.h" />
     <ClInclude Include="RenderPass.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="Validation.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="VkUtil.h" />
+    <ClInclude Include="vk_mem_alloc.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

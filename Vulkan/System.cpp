@@ -108,14 +108,16 @@ void System::initDevices(uint32_t& enabledLayerCount, const char* const*& enable
 		if (device.isValid(surfaceCapabilities, details_.surface)) {
 			details_.physicalDevice = new PhysicalDevice(device);
 			details_.logicDevice = details_.physicalDevice->createLogicDevice(details_, surfaceCapabilities, enabledLayerCount, enabledLayerNames);
+			return;
 		}
 	}
+	ENSURES(false);
 }
 
 void System::loop()
 {
 	while (!glfwWindowShouldClose(details_.window)) {
 		glfwPollEvents();
-		//swapChain_->loop();
+		details_.logicDevice->swapChain_->loop();
 	}
 }

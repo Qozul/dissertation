@@ -4,6 +4,8 @@
 
 namespace QZL
 {
+	class LogicDevice;
+	class PhysicalDevice;
 	struct SystemDetails;
 
 	/// Interface for https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/index.html
@@ -11,14 +13,15 @@ namespace QZL
 		friend class LogicDevice;
 	public:
 		const MemoryAllocationDetails createBuffer(MemoryAllocationPattern pattern, VkBufferUsageFlags bufferUsage, VkDeviceSize size);
-		const MemoryAllocationDetails createImage(MemoryAllocationPattern pattern, VkImageCreateInfo imageCreateInfo, VkDeviceSize size);
+		const MemoryAllocationDetails createImage(MemoryAllocationPattern pattern, VkImageCreateInfo imageCreateInfo);
 		void deleteAllocation(AllocationID id, VkBuffer buffer);
 		void deleteAllocation(AllocationID id, VkImage image);
 		void* mapMemory(const AllocationID& id);
 		void unmapMemory(const AllocationID& id);
-		void transferMemory(const AllocationID& srcId, const AllocationID& dstId);
+		void transferMemory(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size);
+		void changeImageLayout(const VkImage& image, const VkImageLayout srcLayout, const VkImageLayout dstLayout, const VkFormat& format, uint32_t mipLevels);
 	private:
-		DeviceMemory(const SystemDetails& sysDetails);
+		DeviceMemory(PhysicalDevice* physicalDevice, LogicDevice* logicDevice, VkCommandBuffer transferCmdBuffer, VkQueue queue);
 		~DeviceMemory();
 
 		// Ensure mapped access is possible if requested
@@ -29,5 +32,9 @@ namespace QZL
 		VmaAllocator allocator_;
 		AllocationID availableId_; // 0 reserved for invalid id
 		std::map<AllocationID, VmaAllocation> allocations_;
+
+		VkQueue queue_;
+		VkCommandBuffer transferCmdBuffer_;
+		LogicDevice* logicDevice_;
 	};
 }

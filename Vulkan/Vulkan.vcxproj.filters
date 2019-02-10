@@ -31,11 +31,20 @@
     <Filter Include="Source Files\Graphics\Memory">
       <UniqueIdentifier>{42ae3468-e610-483c-83d1-2fb06712dcba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Graphics\Renderer">
+    <Filter Include="Header Files\Graphics\Memory\VMA">
+      <UniqueIdentifier>{cc8b8b01-bbfe-438d-bcc7-d4805b1451ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Render">
       <UniqueIdentifier>{56d15982-c105-468c-a350-d65999d9acfa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics\Renderer">
+    <Filter Include="Header Files\Graphics\Render\Renderers">
+      <UniqueIdentifier>{66d8d112-f179-4e0c-8f81-de1377958543}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Render">
       <UniqueIdentifier>{dc559c8c-41e5-4209-81fe-93c0572b975f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Render\Renderers">
+      <UniqueIdentifier>{f30bd23f-879e-4110-8a8c-74c1167c77d0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -57,9 +66,6 @@
     <ClCompile Include="Descriptor.cpp">
       <Filter>Source Files\Graphics\Memory</Filter>
     </ClCompile>
-    <ClCompile Include="Pipeline.cpp">
-      <Filter>Source Files\Graphics\Core</Filter>
-    </ClCompile>
     <ClCompile Include="VkUtil.cpp">
       <Filter>Source Files\Graphics\Core</Filter>
     </ClCompile>
@@ -68,6 +74,24 @@
     </ClCompile>
     <ClCompile Include="ElementBuffer.cpp">
       <Filter>Source Files\Graphics\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Image2D.cpp">
+      <Filter>Source Files\Graphics\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderPass.cpp">
+      <Filter>Source Files\Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="RendererPipeline.cpp">
+      <Filter>Source Files\Graphics\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Graphics\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>Source Files\Graphics\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicRenderer.cpp">
+      <Filter>Source Files\Graphics\Render\Renderers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -92,9 +116,6 @@
     <ClInclude Include="Descriptor.h">
       <Filter>Header Files\Graphics\Memory</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline.h">
-      <Filter>Header Files\Graphics\Core</Filter>
-    </ClInclude>
     <ClInclude Include="RenderPass.h">
       <Filter>Header Files\Graphics\Core</Filter>
     </ClInclude>
@@ -109,6 +130,24 @@
     </ClInclude>
     <ClInclude Include="MemoryAllocation.h">
       <Filter>Header Files\Graphics\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Image2D.h">
+      <Filter>Header Files\Graphics\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererPipeline.h">
+      <Filter>Header Files\Graphics\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="vk_mem_alloc.h">
+      <Filter>Header Files\Graphics\Memory\VMA</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files\Graphics\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Header Files\Graphics\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicRenderer.h">
+      <Filter>Header Files\Graphics\Render\Renderers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@
 
 #include <stdlib.h> // system() for runBatchCompilation
 #include <fstream> // for ifstream
+#include <filesystem>
 
 using namespace QZL;
 
@@ -59,7 +60,6 @@ void Shader::createModule(const std::string& fileName)
 	CHECK_VKRESULT(vkCreateShaderModule(cLogicDevice_, &createInfo, nullptr, &module_));
 }
 
-#include <filesystem>
 
 std::vector<char> Shader::readSPIRV(const std::string& fileName)
 {

@@ -51,7 +51,7 @@ LogicDevice* PhysicalDevice::createLogicDevice(const SystemDetails& sysDetails, 
 	queueHandles_[static_cast<size_t>(QueueFamilyType::kGraphicsQueue)] = createQueueHandles(logicDevice, QueueFamilyType::kGraphicsQueue);
 	queueHandles_[static_cast<size_t>(QueueFamilyType::kPresentationQueue)] = createQueueHandles(logicDevice, QueueFamilyType::kPresentationQueue);
 
-	return new LogicDevice(logicDevice, sysDetails, surfaceCapabilities, queueFamilyIndices_, queueHandles_);
+	return new LogicDevice(this, logicDevice, sysDetails, surfaceCapabilities, queueFamilyIndices_, queueHandles_);
 }
 
 VkPhysicalDevice PhysicalDevice::getPhysicalDevice() const
@@ -93,17 +93,19 @@ bool PhysicalDevice::hasRequiredQueueFamilies()
 bool PhysicalDevice::hasRequiredSwapchain(DeviceSurfaceCapabilities& surfaceCapabilities, VkSurfaceKHR& surface)
 {
 	auto availableExts = obtainVkData<VkExtensionProperties>(vkEnumerateDeviceExtensionProperties, device_, nullptr);
-	std::vector<const char*> availableExtNames;
-	std::transform(availableExts.begin(), availableExts.end(), std::back_inserter(availableExtNames),
-		[](const VkExtensionProperties& prop) { return prop.extensionName; });
-
-	if (std::find(std::begin(availableExtNames), std::end(availableExtNames), VK_KHR_SWAPCHAIN_EXTENSION_NAME) != availableExtNames.end()) {
+	auto test = false;
+	for (auto& ext : availableExts) {
+		if (!strcmp(ext.extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
+			test = true;
+			break;
+		}
+	}
+	if (test) {
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device_, surface, &surfaceCapabilities.capabilities);
 		surfaceCapabilities.formats = obtainVkData<VkSurfaceFormatKHR>(vkGetPhysicalDeviceSurfaceFormatsKHR, device_, surface);
 		surfaceCapabilities.presentModes = obtainVkData<VkPresentModeKHR>(vkGetPhysicalDeviceSurfacePresentModesKHR, device_, surface);
 		return !surfaceCapabilities.formats.empty() && !surfaceCapabilities.presentModes.empty();
 	}
-
 	return false;
 }
 

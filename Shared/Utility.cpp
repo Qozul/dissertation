@@ -43,8 +43,7 @@ VkCommandBuffer QZL::Shared::Vulk::beginSingleTimeCommands(VkDevice logicDevice,
 	VkCommandBuffer commandBuffer;
 	vkAllocateCommandBuffers(logicDevice, &allocInfo, &commandBuffer);
 
-	VkCommandBufferBeginInfo beginInfo = {};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
 	vkBeginCommandBuffer(commandBuffer, &beginInfo);
@@ -55,8 +54,7 @@ VkCommandBuffer QZL::Shared::Vulk::beginSingleTimeCommands(VkDevice logicDevice,
 void QZL::Shared::Vulk::endSingleTimeCommands(VkDevice logicDevice, VkCommandPool commandPool, VkQueue queue, VkCommandBuffer commandBuffer) {
 	vkEndCommandBuffer(commandBuffer);
 
-	VkSubmitInfo submitInfo = {};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO  };
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
 

@@ -3,12 +3,15 @@
 
 namespace QZL
 {
+	class DeviceMemory;
+	class PhysicalDevice;
 	class SwapChain;
 	struct SystemDetails;
 
 	enum class QueueFamilyType : size_t {
 		kGraphicsQueue = 0,
 		kPresentationQueue,
+		//kTransferQueue,
 		kNumQueueFamilyTypes // Do not index with this, this is the size
 	};
 
@@ -23,21 +26,26 @@ namespace QZL
 		friend class System;
 	public:
 		VkDevice getLogicDevice() const;
+		VkPhysicalDevice getPhysicalDevice() const;
 
+		DeviceMemory* getDeviceMemory() const;
 		const uint32_t getFamilyIndex(QueueFamilyType type) const; // needed in swap chain
 		const std::vector<uint32_t>& getAllIndices() const noexcept; // needed in swap chain
 		VkQueue getQueueHandle(QueueFamilyType type);
 
 	private:
-		LogicDevice(VkDevice device, const SystemDetails& sysDetails, DeviceSurfaceCapabilities& surfaceCapabilities,
+		LogicDevice(PhysicalDevice* physicalDevice, VkDevice device, const SystemDetails& sysDetails, DeviceSurfaceCapabilities& surfaceCapabilities,
 			std::vector<uint32_t> indices, std::vector<VkQueue> handles);
 		~LogicDevice();
+		void createCommandBuffers();
 
 		VkDevice device_;
 		VkCommandPool primaryCommandPool_;
-		VmaAllocator* allocator_;
+		std::vector<VkCommandBuffer> commandBuffers_;
 
+		PhysicalDevice* physicalDevice_; // Hold physical device so only logic device needs to be passed around
 		SwapChain* swapChain_;
+		DeviceMemory* deviceMemory_;
 
 		std::vector<uint32_t> queueFamilyIndices_;
 		std::vector<VkQueue> queueHandles_;
