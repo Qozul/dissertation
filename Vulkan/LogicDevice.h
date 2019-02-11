@@ -29,8 +29,8 @@ namespace QZL
 		VkPhysicalDevice getPhysicalDevice() const;
 
 		DeviceMemory* getDeviceMemory() const;
-		const uint32_t getFamilyIndex(QueueFamilyType type) const; // needed in swap chain
-		const std::vector<uint32_t>& getAllIndices() const noexcept; // needed in swap chain
+		const uint32_t getFamilyIndex(QueueFamilyType type) const;
+		const std::vector<uint32_t>& getAllIndices() const;
 		VkQueue getQueueHandle(QueueFamilyType type);
 
 	private:

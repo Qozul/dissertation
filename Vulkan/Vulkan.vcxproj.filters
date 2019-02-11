@@ -122,9 +122,6 @@
     <ClInclude Include="DeviceMemory.h">
       <Filter>Header Files\Graphics\Memory</Filter>
     </ClInclude>
-    <ClInclude Include="UniformBuffer.h">
-      <Filter>Header Files\Graphics\Memory</Filter>
-    </ClInclude>
     <ClInclude Include="ElementBuffer.h">
       <Filter>Header Files\Graphics\Memory</Filter>
     </ClInclude>
@@ -148,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="BasicRenderer.h">
       <Filter>Header Files\Graphics\Render\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="UniformBuffer.h">
+      <Filter>Header Files\Graphics\Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

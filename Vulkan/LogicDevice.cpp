@@ -69,7 +69,7 @@ const uint32_t LogicDevice::getFamilyIndex(QueueFamilyType type) const
 	return queueFamilyIndices_[static_cast<unsigned int>(type)];
 }
 
-const std::vector<uint32_t>& LogicDevice::getAllIndices() const noexcept
+const std::vector<uint32_t>& LogicDevice::getAllIndices() const
 {
 	return queueFamilyIndices_;
 }
