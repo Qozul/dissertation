@@ -19,7 +19,7 @@ void Shader::runBatchCompilation()
 }
 
 Shader::Shader(VkDevice logicDevice, const std::string& fileName)
-	: cLogicDevice_(logicDevice), module_(VK_NULL_HANDLE)
+	: logicDevice_(logicDevice), module_(VK_NULL_HANDLE)
 {
 	createModule(fileName);
 	ENSURESM(module_ != VK_NULL_HANDLE, "Shader module creation failed.");
@@ -27,7 +27,7 @@ Shader::Shader(VkDevice logicDevice, const std::string& fileName)
 
 Shader::~Shader()
 {
-	vkDestroyShaderModule(cLogicDevice_, module_, nullptr);
+	vkDestroyShaderModule(logicDevice_, module_, nullptr);
 }
 
 VkPipelineShaderStageCreateInfo Shader::getCreateInfo(VkShaderStageFlagBits stageFlagBit) const noexcept
@@ -57,7 +57,7 @@ void Shader::createModule(const std::string& fileName)
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	createInfo.codeSize = shaderCode.size();
 	createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data());
-	CHECK_VKRESULT(vkCreateShaderModule(cLogicDevice_, &createInfo, nullptr, &module_));
+	CHECK_VKRESULT(vkCreateShaderModule(logicDevice_, &createInfo, nullptr, &module_));
 }
 
 

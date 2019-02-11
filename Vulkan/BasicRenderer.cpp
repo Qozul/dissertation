@@ -9,14 +9,17 @@ BasicRenderer::BasicRenderer(const LogicDevice* logicDevice, VkRenderPass render
 	: RendererPipeline(logicDevice, renderPass, swapChainExtent, vertexShader, fragmentShader)
 {
 	ElementBuffer* buf = new ElementBuffer(logicDevice->getDeviceMemory());
-	std::vector<Vertex> vertices = { {-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
+	/*std::vector<Vertex> vertices = { {-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
 									{0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
 									{0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-									{-0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f } };
+									{-0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f } };*/
+	std::vector<Vertex> vertices = { {0.4f, 0.4f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
+									{0.4f, -0.4f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
+									{-0.4f, -0.4f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
+									{-0.4f, 0.4f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f } };
 	buf->addVertices(vertices.data(), vertices.size());
 	std::vector<uint16_t> indices = {
-			0, 1, 2, 2, 3, 0,
-			4, 5, 6, 6, 7, 4
+			0, 1, 2, 2, 3, 0
 	};
 	buf->addIndices(indices.data(), indices.size());
 	buf->commit();
@@ -25,6 +28,7 @@ BasicRenderer::BasicRenderer(const LogicDevice* logicDevice, VkRenderPass render
 
 void BasicRenderer::recordFrame(const uint32_t idx, VkCommandBuffer cmdBuffer)
 {
+	beginFrame(cmdBuffer);
 	for (auto& elementBuffer : elementBuffers_) {
 		VkBuffer vertexBuffers[] = { elementBuffer->getVertexBuffer() };
 		VkDeviceSize offsets[] = { 0 };

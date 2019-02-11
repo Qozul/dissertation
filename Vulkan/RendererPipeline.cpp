@@ -2,6 +2,7 @@
 #include "LogicDevice.h"
 #include "Shader.h"
 #include "Vertex.h"
+#include "ElementBuffer.h"
 
 using namespace QZL;
 
@@ -9,7 +10,6 @@ RendererPipeline::RendererPipeline(const LogicDevice* logicDevice, VkRenderPass 
 	const std::string& vertexShader, const std::string& fragmentShader)
 	: logicDevice_(logicDevice)
 {
-	// V and f shaders
 	Shader vertexModule = { logicDevice_->getLogicDevice(), vertexShader };
 	Shader fragmentModule = { logicDevice_->getLogicDevice(), fragmentShader };
 

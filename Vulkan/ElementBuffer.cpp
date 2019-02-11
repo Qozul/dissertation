@@ -10,9 +10,10 @@ ElementBuffer::ElementBuffer(DeviceMemory* deviceMemory)
 
 ElementBuffer::~ElementBuffer()
 {
-	if (isCommitted_)
+	if (isCommitted_) {
 		deviceMemory_->deleteAllocation(vertexBufferDetails_.id, vertexBufferDetails_.buffer);
 		deviceMemory_->deleteAllocation(indexBufferDetails_.id, indexBufferDetails_.buffer);
+	}
 }
 
 void ElementBuffer::commit()

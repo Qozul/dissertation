@@ -67,24 +67,5 @@ namespace QZL
 			if (err != GL_NO_ERROR)
 				DEBUG_OUT("OpenGL Error " << std::hex << "0x" << err);
 		}
-
-		namespace Vulk
-		{
-			extern VkFormat findSupportedImageFormat(VkPhysicalDevice physicalDevice, const std::vector<VkFormat>& candidates,
-				VkImageTiling tiling, VkFormatFeatureFlags features);
-
-			extern uint32_t findMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
-
-			extern VkCommandBuffer beginSingleTimeCommands(VkDevice logicDevice, VkCommandPool commandPool);
-
-			extern void endSingleTimeCommands(VkDevice logicDevice, VkCommandPool commandPool, VkQueue queue, VkCommandBuffer commandBuffer);
-
-			extern void createBuffer(VkPhysicalDevice physicalDevice, VkDevice logicDevice, VkDeviceSize size, VkBufferUsageFlags usage,
-				VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-
-			extern void copyBuffer(VkDevice logicDevice, VkCommandPool commandPool, VkQueue queue, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-
-			
-		}
 	}
 }

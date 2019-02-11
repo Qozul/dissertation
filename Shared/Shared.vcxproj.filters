@@ -42,9 +42,6 @@
     <Text Include="..\todo.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Utility.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gl3w.c">
       <Filter>Source Files\GL3W</Filter>
     </ClCompile>

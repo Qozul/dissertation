@@ -38,7 +38,7 @@ namespace QZL
 		/// Reads in a .spv found as kPath/filename/kExt to a byte buffer. Possible i/o exceptions.
 		std::vector<char> readSPIRV(const std::string& fileName);
 
-		const VkDevice cLogicDevice_;
+		const VkDevice logicDevice_;
 		VkShaderModule module_;
 
 		static const std::string kPath;

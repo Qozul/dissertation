@@ -62,6 +62,9 @@ System::~System()
 	SAFE_DELETE(loopRenderer_);
 	SAFE_DELETE(computeRenderer_); 
 	SAFE_DELETE(meshLoader_);
+	for (auto& perfMeasurer : perfMeasurers_) {
+		SAFE_DELETE(perfMeasurer);
+	}
 	glfwDestroyWindow(window_);
 	glfwTerminate();
 }

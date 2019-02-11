@@ -139,7 +139,6 @@
     <ClCompile Include="nv_dds.cpp" />
     <ClCompile Include="PerfMeasurer.cpp" />
     <ClCompile Include="ShaderPipeline.cpp" />
-    <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gl3w.h" />
