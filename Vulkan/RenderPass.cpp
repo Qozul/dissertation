@@ -2,7 +2,7 @@
 #include "SwapChain.h"
 #include "LogicDevice.h"
 #include "Image2D.h"
-#include "RendererPipeline.h"
+#include "RendererBase.h"
 #include "BasicRenderer.h"
 
 using namespace QZL;
@@ -79,7 +79,7 @@ RenderPass::~RenderPass()
 	for (auto framebuffer : framebuffers_) {
 		vkDestroyFramebuffer(logicDevice_->getLogicDevice(), framebuffer, nullptr);
 	}
-	for (RendererPipeline* renderer : renderers_) {
+	for (RendererBase* renderer : renderers_) {
 		SAFE_DELETE(renderer);
 	}
 	vkDestroyRenderPass(logicDevice_->getLogicDevice(), renderPass_, nullptr);

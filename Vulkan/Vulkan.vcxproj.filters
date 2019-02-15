@@ -93,6 +93,9 @@
     <ClCompile Include="BasicRenderer.cpp">
       <Filter>Source Files\Graphics\Render\Renderers</Filter>
     </ClCompile>
+    <ClCompile Include="RendererBase.cpp">
+      <Filter>Source Files\Graphics\Render\Renderers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LogicDevice.h">
@@ -148,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="UniformBuffer.h">
       <Filter>Header Files\Graphics\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererBase.h">
+      <Filter>Header Files\Graphics\Render\Renderers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

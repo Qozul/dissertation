@@ -5,7 +5,7 @@ namespace QZL
 {
 	class Image2D;
 	class LogicDevice;
-	class RendererPipeline;
+	class RendererBase;
 	struct SwapChainDetails;
 
 	class RenderPass {
@@ -25,7 +25,7 @@ namespace QZL
 		const SwapChainDetails& swapChainDetails_;
 		const LogicDevice* logicDevice_;
 
-		std::vector<RendererPipeline*> renderers_;
+		std::vector<RendererBase*> renderers_;
 
 		Image2D* backBuffer_;
 		Image2D* depthBuffer_;

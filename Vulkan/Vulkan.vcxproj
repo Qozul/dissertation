@@ -31,6 +31,7 @@
     <ClCompile Include="Image2D.cpp" />
     <ClCompile Include="LogicDevice.cpp" />
     <ClCompile Include="PhysicalDevice.cpp" />
+    <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="RendererPipeline.cpp" />
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -49,6 +50,7 @@
     <ClInclude Include="LogicDevice.h" />
     <ClInclude Include="MemoryAllocation.h" />
     <ClInclude Include="PhysicalDevice.h" />
+    <ClInclude Include="RendererBase.h" />
     <ClInclude Include="RendererPipeline.h" />
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="Shader.h" />

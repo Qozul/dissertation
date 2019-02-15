@@ -2,13 +2,12 @@
 #include "LogicDevice.h"
 #include "Shader.h"
 #include "Vertex.h"
-#include "ElementBuffer.h"
 
 using namespace QZL;
 
-RendererPipeline::RendererPipeline(const LogicDevice* logicDevice, VkRenderPass renderPass, VkExtent2D swapChainExtent,
-	const std::string& vertexShader, const std::string& fragmentShader)
-	: logicDevice_(logicDevice)
+RendererPipeline::RendererPipeline(const LogicDevice* logicDevice, VkRenderPass renderPass, VkExtent2D swapChainExtent, 
+	VkPipelineLayoutCreateInfo layoutInfo, const std::string& vertexShader, const std::string& fragmentShader)
+	: logicDevice_(logicDevice), layout_(VK_NULL_HANDLE)
 {
 	Shader vertexModule = { logicDevice_->getLogicDevice(), vertexShader };
 	Shader fragmentModule = { logicDevice_->getLogicDevice(), fragmentShader };
@@ -100,14 +99,7 @@ RendererPipeline::RendererPipeline(const LogicDevice* logicDevice, VkRenderPass 
 	colorBlending.blendConstants[2] = 0.0f;
 	colorBlending.blendConstants[3] = 0.0f;
 
-	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	//pipelineLayoutInfo.setLayoutCount = 1;
-	//pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-	pipelineLayoutInfo.setLayoutCount = 0;
-	pipelineLayoutInfo.pSetLayouts = nullptr;
-
-	CHECK_VKRESULT(vkCreatePipelineLayout(logicDevice_->getLogicDevice(), &pipelineLayoutInfo, nullptr, &layout_));
+	CHECK_VKRESULT(vkCreatePipelineLayout(logicDevice_->getLogicDevice(), &layoutInfo, nullptr, &layout_));
 
 	VkGraphicsPipelineCreateInfo pipelineInfo = {};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -130,14 +122,20 @@ RendererPipeline::RendererPipeline(const LogicDevice* logicDevice, VkRenderPass 
 
 RendererPipeline::~RendererPipeline()
 {
-	for (auto& buffer : elementBuffers_) {
-		SAFE_DELETE(buffer);
-	}
 	vkDestroyPipeline(logicDevice_->getLogicDevice(), pipeline_, nullptr);
 	vkDestroyPipelineLayout(logicDevice_->getLogicDevice(), layout_, nullptr);
 }
 
-void RendererPipeline::beginFrame(VkCommandBuffer cmdBuffer)
+VkPipeline RendererPipeline::getPipeline()
 {
-	vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
+	return pipeline_;
+}
+
+VkPipelineLayoutCreateInfo RendererPipeline::makeLayoutInfo(const uint32_t layoutCount, const VkDescriptorSetLayout* layouts)
+{
+	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipelineLayoutInfo.setLayoutCount = layoutCount;
+	pipelineLayoutInfo.pSetLayouts = layouts;
+	return pipelineLayoutInfo;
 }

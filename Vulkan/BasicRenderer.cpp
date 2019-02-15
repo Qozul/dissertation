@@ -1,12 +1,13 @@
 #include "BasicRenderer.h"
 #include "ElementBuffer.h"
 #include "LogicDevice.h"
+#include "RendererPipeline.h"
 
 using namespace QZL;
 
 BasicRenderer::BasicRenderer(const LogicDevice* logicDevice, VkRenderPass renderPass, VkExtent2D swapChainExtent,
 	const std::string& vertexShader, const std::string& fragmentShader)
-	: RendererPipeline(logicDevice, renderPass, swapChainExtent, vertexShader, fragmentShader)
+	: RendererBase()
 {
 	ElementBuffer* buf = new ElementBuffer(logicDevice->getDeviceMemory());
 	/*std::vector<Vertex> vertices = { {-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
@@ -24,6 +25,8 @@ BasicRenderer::BasicRenderer(const LogicDevice* logicDevice, VkRenderPass render
 	buf->addIndices(indices.data(), indices.size());
 	buf->commit();
 	elementBuffers_.push_back(buf);
+
+	createPipeline(logicDevice, renderPass, swapChainExtent, RendererPipeline::makeLayoutInfo(0, nullptr), vertexShader, fragmentShader);
 }
 
 void BasicRenderer::recordFrame(const uint32_t idx, VkCommandBuffer cmdBuffer)

@@ -13,6 +13,7 @@ namespace QZL
 		void setDescriptorSet(VkDescriptorSet set);
 		void uploadUniformRange(DataType* data, VkDeviceSize size, VkDeviceSize offset);
 		VkDescriptorSetLayout getLayout();
+		void updateDescriptorSet();
 	private:
 		MemoryAllocationDetails bufferDetails_;
 		VkDescriptorSetLayout layout_;
@@ -78,5 +79,9 @@ namespace QZL
 	inline VkDescriptorSetLayout UniformBuffer<DataType>::getLayout()
 	{
 		return layout_;
+	}
+	template<typename DataType>
+	inline void UniformBuffer<DataType>::updateDescriptorSet()
+	{
 	}
 }
