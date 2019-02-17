@@ -6,7 +6,6 @@ namespace QZL
 	class DeviceMemory;
 	class PhysicalDevice;
 	class SwapChain;
-	class Descriptor;
 	struct SystemDetails;
 
 	enum class QueueFamilyType : size_t {
@@ -30,12 +29,9 @@ namespace QZL
 		VkPhysicalDevice getPhysicalDevice() const;
 
 		DeviceMemory* getDeviceMemory() const;
-		Descriptor* getDescriptorPool() const;
 		const uint32_t getFamilyIndex(QueueFamilyType type) const;
 		const std::vector<uint32_t>& getAllIndices() const;
 		VkQueue getQueueHandle(QueueFamilyType type);
-
-		static const uint32_t kMaxDescriptorSets = 3;
 
 	private:
 		LogicDevice(PhysicalDevice* physicalDevice, VkDevice device, const SystemDetails& sysDetails, DeviceSurfaceCapabilities& surfaceCapabilities,
@@ -46,7 +42,6 @@ namespace QZL
 		VkDevice device_;
 		VkCommandPool primaryCommandPool_;
 		std::vector<VkCommandBuffer> commandBuffers_;
-		Descriptor* descriptorPool_;
 
 		PhysicalDevice* physicalDevice_; // Hold physical device so only logic device needs to be passed around
 		SwapChain* swapChain_;

@@ -189,7 +189,7 @@ void DeviceMemory::fixAccessType(MemoryAccessType& access, VmaAllocationInfo all
 			access = MemoryAccessType::kTransfer;
 		break;
 	case MemoryAccessType::kDirect:
-		if ((memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0)
+		if ((memFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 			access = MemoryAccessType::kTransfer;
 		break;
 	default:

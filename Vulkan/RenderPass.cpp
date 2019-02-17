@@ -2,6 +2,7 @@
 #include "SwapChain.h"
 #include "LogicDevice.h"
 #include "Image2D.h"
+#include "Descriptor.h"
 #include "RendererBase.h"
 #include "BasicRenderer.h"
 
@@ -70,10 +71,12 @@ RenderPass::RenderPass(LogicDevice* logicDevice, const SwapChainDetails& swapCha
 
 	createFramebuffers(logicDevice, swapChainDetails);
 
-	renderers_.push_back(new BasicRenderer(logicDevice, renderPass_, swapChainDetails.extent, "test2_vert", "test2_frag"));
+	descriptor_ = new Descriptor(logicDevice, kMaxRenderers * swapChainDetails.imageViews.size());
+	createRenderers();
 }
 RenderPass::~RenderPass()
 {
+	SAFE_DELETE(descriptor_);
 	SAFE_DELETE(depthBuffer_);
 	SAFE_DELETE(backBuffer_);
 	for (auto framebuffer : framebuffers_) {
@@ -157,4 +160,10 @@ VkFormat RenderPass::createDepthBuffer(LogicDevice* logicDevice, const SwapChain
 		VK_SAMPLE_COUNT_1_BIT, imageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 	depthBuffer_ = new Image2D(logicDevice, logicDevice->getDeviceMemory(), createInfo, MemoryAllocationPattern::kRenderTarget, params);
 	return imageFormat;
+}
+
+void RenderPass::createRenderers()
+{
+	renderers_.reserve(kMaxRenderers);
+	renderers_.push_back(new BasicRenderer(logicDevice_, renderPass_, swapChainDetails_.extent, descriptor_, "test_vert", "test_frag"));
 }

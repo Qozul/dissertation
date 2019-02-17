@@ -131,6 +131,11 @@ VkPipeline RendererPipeline::getPipeline()
 	return pipeline_;
 }
 
+VkPipelineLayout RendererPipeline::getLayout()
+{
+	return layout_;
+}
+
 VkPipelineLayoutCreateInfo RendererPipeline::makeLayoutInfo(const uint32_t layoutCount, const VkDescriptorSetLayout* layouts)
 {
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};

@@ -5,7 +5,7 @@ namespace QZL
 {
 	class BasicRenderer : public RendererBase {
 	public:
-		BasicRenderer(const LogicDevice* logicDevice, VkRenderPass renderPass, VkExtent2D swapChainExtent,
+		BasicRenderer(const LogicDevice* logicDevice, VkRenderPass renderPass, VkExtent2D swapChainExtent, Descriptor* descriptor,
 			const std::string& vertexShader, const std::string& fragmentShader);
 		void recordFrame(const uint32_t idx, VkCommandBuffer cmdBuffer) override;
 	};

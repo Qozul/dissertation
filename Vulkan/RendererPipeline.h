@@ -12,6 +12,7 @@ namespace QZL
 		~RendererPipeline();
 
 		VkPipeline getPipeline();
+		VkPipelineLayout getLayout();
 		static VkPipelineLayoutCreateInfo makeLayoutInfo(const uint32_t layoutCount, const VkDescriptorSetLayout* layouts);
 	protected:
 		VkPipeline pipeline_;

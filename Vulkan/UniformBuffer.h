@@ -4,84 +4,42 @@
 
 namespace QZL
 {
-	template<typename DataType>
 	class UniformBuffer {
 	public:
-		UniformBuffer(const LogicDevice* logicDevice, MemoryAllocationPattern pattern, VkBufferUsageFlags flags, VkDeviceSize maxSize, 
+		UniformBuffer(const LogicDevice* logicDevice, MemoryAllocationPattern pattern, uint32_t binding, VkBufferUsageFlags flags, VkDeviceSize maxSize, 
 			VkShaderStageFlags stageFlags);
 		~UniformBuffer();
-		void setDescriptorSet(VkDescriptorSet set);
+		const VkDescriptorSetLayoutBinding& getBinding();
+		template<typename DataType>
 		void uploadUniformRange(DataType* data, VkDeviceSize size, VkDeviceSize offset);
-		VkDescriptorSetLayout getLayout();
-		void updateDescriptorSet();
+		VkWriteDescriptorSet descriptorWrite(VkDescriptorSet set);
 	private:
 		MemoryAllocationDetails bufferDetails_;
-		VkDescriptorSetLayout layout_;
-		VkDescriptorSet set_;
+		VkDeviceSize size_;
+		uint32_t bindingIdx_;
+		VkDescriptorSetLayoutBinding binding_;
+		VkDescriptorBufferInfo bufferInfo_;
 		const LogicDevice* logicDevice_;
 	};
 
 	template<typename DataType>
-	inline UniformBuffer<DataType>::UniformBuffer(const LogicDevice* logicDevice, MemoryAllocationPattern pattern, 
-		VkBufferUsageFlags flags, VkDeviceSize maxSize, VkShaderStageFlags stageFlags)
-		: logicDevice_(logicDevice), set_(nullptr)
+	inline void UniformBuffer::uploadUniformRange(DataType* data, VkDeviceSize size, VkDeviceSize offset)
 	{
-		bufferDetails_ = logicDevice_->getDeviceMemory()->createBuffer(pattern, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | flags, maxSize);
-		// TODO create staging buffer transfer alternative
-		ENSURES(bufferDetails_.access == MemoryAccessType::kDirect || bufferDetails_.access == MemoryAccessType::kPersistant);
-
-		VkDescriptorSetLayoutBinding layoutBinding = {};
-		layoutBinding.binding = 0;
-		layoutBinding.descriptorCount = 1;
-		layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		layoutBinding.pImmutableSamplers = nullptr;
-		layoutBinding.stageFlags = stageFlags;
-
-		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = 1;
-		layoutInfo.pBindings = &layoutBinding;
-
-		CHECK_VKRESULT(vkCreateDescriptorSetLayout(logicDevice_, &layoutInfo, nullptr, &layout_));
-	}
-
-	template<typename DataType>
-	inline UniformBuffer<DataType>::~UniformBuffer()
-	{
-		deviceMemory_.deleteAllocation(bufferDetails_.id, bufferDetails_.buffer);
-		vkDestroyDescriptorSetLayout(logicDevice_, layout_, nullptr);
-	}
-
-	template<typename DataType>
-	inline void UniformBuffer<DataType>::setDescriptorSet(VkDescriptorSet set)
-	{
-		set_ = set;
-	}
-
-	template<typename DataType>
-	inline void UniformBuffer<DataType>::uploadUniformRange(DataType* data, VkDeviceSize size, VkDeviceSize offset)
-	{
+		auto deviceMemory = logicDevice_->getDeviceMemory();
 		switch (bufferDetails_.access) {
 		case MemoryAccessType::kPersistant:
-			memcpy(bufferDetails_.mappedData, data[offset], sizeof(DataType) * size);
+			memcpy(bufferDetails_.mappedData, &data[offset], size);
 			break;
-		case MemoryAccessType::kDirect:
-			void* dataMap = deviceMemory_.mapMemory(bufferDetails_.id);
-			memcpy(dataMap, data[offset], sizeof(DataType) * size);
-			deviceMemory_.unmapMemory(bufferDetails_.id);
-			break;
-		case MemoryAccessType::kTransfer:
-			// TODO
+		case MemoryAccessType::kDirect: {
+			void* dataMap = deviceMemory->mapMemory(bufferDetails_.id);
+			memcpy(dataMap, &data[offset], size);
+			deviceMemory->unmapMemory(bufferDetails_.id);
 			break;
 		}
-	}
-	template<typename DataType>
-	inline VkDescriptorSetLayout UniformBuffer<DataType>::getLayout()
-	{
-		return layout_;
-	}
-	template<typename DataType>
-	inline void UniformBuffer<DataType>::updateDescriptorSet()
-	{
+		case MemoryAccessType::kTransfer:
+			// TODO
+			ENSURES(false);
+			break;
+		}
 	}
 }

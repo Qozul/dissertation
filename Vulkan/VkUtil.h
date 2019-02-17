@@ -3,8 +3,8 @@
 
 namespace QZL
 {
-#define CHECK_VKRESULT(result) if (result != VK_SUCCESS) throw std::runtime_error("Check VK error code " + std::to_string(static_cast<int>(result)) \
-+ " in file " + __FILE__ + " at line " + std::to_string(__LINE__));
+#define CHECK_VKRESULT(result) if (result != VK_SUCCESS) { auto str = "Check VK error code " + std::to_string(static_cast<int>(result)) \
++ " in file " + __FILE__ + " at line " + std::to_string(__LINE__); DEBUG_OUT(str) throw std::runtime_error(str); };
 #define NOTHROW_CHECK_VKRESULT(result) if (result != VK_SUCCESS) std::cout << "Check VK error code " << std::to_string(static_cast<int>(result)) \
 	<< " in file" << __FILE__ << " at line " << __LINE__ << std::endl;
 

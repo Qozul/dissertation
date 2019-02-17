@@ -3,7 +3,6 @@
 #include "System.h"
 #include "PhysicalDevice.h"
 #include "DeviceMemory.h"
-#include "Descriptor.h"
 
 using namespace QZL;
 
@@ -20,7 +19,6 @@ LogicDevice::LogicDevice(PhysicalDevice* physicalDevice, VkDevice device, const 
 	createCommandBuffers();
 	// Need device memory before swap chain
 	deviceMemory_ = new DeviceMemory(physicalDevice, this, commandBuffers_[0], getQueueHandle(QueueFamilyType::kGraphicsQueue)); // TODO change to transfer queue
-	descriptorPool_ = new Descriptor(this, kMaxDescriptorSets);
 	swapChain_ = new SwapChain(sysDetails.window, sysDetails.surface, this, surfaceCapabilities);
 	swapChain_->setCommandBuffers(std::vector<VkCommandBuffer>(commandBuffers_.begin() + 1, commandBuffers_.end()));
 }
@@ -31,7 +29,6 @@ LogicDevice::~LogicDevice()
 
 	SAFE_DELETE(swapChain_);
 	SAFE_DELETE(deviceMemory_);
-	SAFE_DELETE(descriptorPool_);
 	vkFreeCommandBuffers(device_, primaryCommandPool_, static_cast<uint32_t>(commandBuffers_.size()), commandBuffers_.data());
 	vkDestroyCommandPool(device_, primaryCommandPool_, nullptr);
 	vkDestroyDevice(device_, nullptr);
@@ -64,11 +61,6 @@ VkPhysicalDevice LogicDevice::getPhysicalDevice() const
 DeviceMemory* LogicDevice::getDeviceMemory() const
 {
 	return deviceMemory_;
-}
-
-Descriptor* LogicDevice::getDescriptorPool() const
-{
-	return descriptorPool_;
 }
 
 const uint32_t LogicDevice::getFamilyIndex(QueueFamilyType type) const

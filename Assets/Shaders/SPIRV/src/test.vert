@@ -14,11 +14,10 @@ out gl_PerVertex {
 
 layout(binding = 0) uniform UniformBufferObject {
     mat4 model;
-    mat4 view;
-    mat4 proj;
+    mat4 mvp;
 } ubo;
 
 void main() {
-	gl_Position = ubo.proj * ubo.view * ubo.model * vec4(iPosition, 1.0);
+	gl_Position = ubo.mvp * vec4(iPosition, 1.0);
 	out_color = vec4(iNormal, 1.0);
 }
