@@ -10,9 +10,13 @@ namespace QZL
 			VkShaderStageFlags stageFlags);
 		~UniformBuffer();
 		const VkDescriptorSetLayoutBinding& getBinding();
+		VkWriteDescriptorSet descriptorWrite(VkDescriptorSet set);
 		template<typename DataType>
 		void uploadUniformRange(DataType* data, VkDeviceSize size, VkDeviceSize offset);
-		VkWriteDescriptorSet descriptorWrite(VkDescriptorSet set);
+		// Alternative to uploading a range directly, these allow the mapping to last longer
+		// But if bind is called the caller must ensure unbind is also called
+		void* bindUniformRange();
+		void unbindUniformRange();
 	private:
 		MemoryAllocationDetails bufferDetails_;
 		VkDeviceSize size_;
@@ -28,11 +32,11 @@ namespace QZL
 		auto deviceMemory = logicDevice_->getDeviceMemory();
 		switch (bufferDetails_.access) {
 		case MemoryAccessType::kPersistant:
-			memcpy(bufferDetails_.mappedData, &data[offset], size);
+			memcpy(bufferDetails_.mappedData, &data[offset], size * sizeof(DataType));
 			break;
 		case MemoryAccessType::kDirect: {
 			void* dataMap = deviceMemory->mapMemory(bufferDetails_.id);
-			memcpy(dataMap, &data[offset], size);
+			memcpy(dataMap, &data[offset], size * sizeof(DataType));
 			deviceMemory->unmapMemory(bufferDetails_.id);
 			break;
 		}

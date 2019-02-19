@@ -11,27 +11,9 @@ BasicRenderer::BasicRenderer(const LogicDevice* logicDevice, VkRenderPass render
 	const std::string& vertexShader, const std::string& fragmentShader)
 	: RendererBase()
 {
-	// Setup vertex and index (element) buffer
-	ElementBuffer* buf = new ElementBuffer(logicDevice->getDeviceMemory());
-	/*std::vector<Vertex> vertices = { {-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-									{0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-									{0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-									{-0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f } };*/
-	std::vector<Vertex> vertices = { {0.4f, 0.4f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-									{0.4f, -0.4f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f },
-									{-0.4f, -0.4f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f },
-									{-0.4f, 0.4f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f } };
-	buf->addVertices(vertices.data(), vertices.size());
-	std::vector<uint16_t> indices = {
-			0, 1, 2, 2, 3, 0
-	};
-	buf->addIndices(indices.data(), indices.size());
-	buf->commit();
-	elementBuffers_.push_back(buf);
-
 	// Setup uniform buffers
 	UniformBuffer* mvpBuf = new UniformBuffer(logicDevice, MemoryAllocationPattern::kDynamicResource, 0, 0,
-		sizeof(ElementData), VK_SHADER_STAGE_VERTEX_BIT);
+		sizeof(ElementData) * 10, VK_SHADER_STAGE_VERTEX_BIT);
 	auto layout = descriptor->makeLayout({ mvpBuf->getBinding() });
 	uniformBuffers_.push_back(mvpBuf);
 	size_t idx = descriptor->createSets({ layout, layout, layout });
@@ -46,7 +28,7 @@ BasicRenderer::BasicRenderer(const LogicDevice* logicDevice, VkRenderPass render
 	createPipeline(logicDevice, renderPass, swapChainExtent, RendererPipeline::makeLayoutInfo(uniformBuffers_.size(), &layout), vertexShader, fragmentShader);
 }
 
-void BasicRenderer::recordFrame(const uint32_t idx, VkCommandBuffer cmdBuffer)
+void BasicRenderer::recordFrame(const glm::mat4& viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer)
 {
 	beginFrame(cmdBuffer);
 
@@ -54,21 +36,24 @@ void BasicRenderer::recordFrame(const uint32_t idx, VkCommandBuffer cmdBuffer)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	ElementData ubo = {};
-	ubo.modelMatrix = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	auto view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.mvpMatrix = Shared::kProjectionMatrix * view * ubo.modelMatrix;
-	uniformBuffers_[0]->uploadUniformRange<ElementData>(&ubo, sizeof(ubo), 0);
+	vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->getLayout(), 0, 1, &descriptorSets_[idx], 0, nullptr);
+	ElementData* eleDataPtr = static_cast<ElementData*>(uniformBuffers_[0]->bindUniformRange());
+	for (auto& it : meshes_) {
+		it.first->bind(cmdBuffer);
 
-	for (auto& elementBuffer : elementBuffers_) {
-		VkBuffer vertexBuffers[] = { elementBuffer->getVertexBuffer() };
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(cmdBuffer, 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(cmdBuffer, elementBuffer->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
-
-		// causing VK_ERROR_DEVICE_LOST
-		vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->getLayout(), 0, 1, &descriptorSets_[idx], 0, nullptr);
-
-		vkCmdDrawIndexed(cmdBuffer, elementBuffer->indexCount(), 1, 0, 0, 0);
+		uint32_t instanceCount = 0;
+		for (auto& it2 : it.second) {
+			for (int i = 0; i < it2.second.size(); ++i) {
+				auto inst = it2.second[i];
+				glm::mat4 model = inst->transform.toModelMatrix();
+				eleDataPtr[instanceCount + i].modelMatrix = model;
+				eleDataPtr[instanceCount + i].mvpMatrix = Shared::kProjectionMatrix * viewMatrix * model;
+			}
+			const BasicMesh* mesh = (*it.first)[it2.first];
+			vkCmdDrawIndexed(cmdBuffer, mesh->indexCount, it2.second.size(), mesh->indexOffset, mesh->vertexOffset, instanceCount);
+			instanceCount += it2.second.size();
+		}
 	}
+	uniformBuffers_[0]->unbindUniformRange();
+
 }

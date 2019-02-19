@@ -14,7 +14,7 @@ namespace QZL
 		public:
 			Transform()
 				: position({ 0.0f, 0.0f, 0.0f }), rotation({ 0.0f, 1.0f, 0.0f }),
-				angle(0.0f), scale({ 0.0f, 1.0f, 0.0f }) {}
+				angle(0.0f), scale({ 1.0f, 1.0f, 1.0f }) {}
 			Transform(glm::vec3& position, glm::vec3& rotation, float angle, glm::vec3& scale)
 				: position(position), rotation(rotation), angle(angle), scale(scale) {}
 

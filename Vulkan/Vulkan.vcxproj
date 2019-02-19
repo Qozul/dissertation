@@ -30,6 +30,7 @@
     <ClCompile Include="ElementBuffer.cpp" />
     <ClCompile Include="Image2D.cpp" />
     <ClCompile Include="LogicDevice.cpp" />
+    <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="PhysicalDevice.cpp" />
     <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="RendererPipeline.cpp" />
@@ -50,6 +51,8 @@
     <ClInclude Include="Image2D.h" />
     <ClInclude Include="LogicDevice.h" />
     <ClInclude Include="MemoryAllocation.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="PhysicalDevice.h" />
     <ClInclude Include="RendererBase.h" />
     <ClInclude Include="RendererPipeline.h" />

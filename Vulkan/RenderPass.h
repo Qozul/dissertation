@@ -1,13 +1,16 @@
 #pragma once
 #include "VkUtil.h"
+#include "Mesh.h"
 
 namespace QZL
 {
 	class Image2D;
 	class LogicDevice;
+	template<typename InstType>
 	class RendererBase;
 	class Descriptor;
 	struct SwapChainDetails;
+	class ElementBuffer;
 
 	class RenderPass {
 		friend class SwapChain;
@@ -21,6 +24,7 @@ namespace QZL
 		void createBackBuffer(LogicDevice* logicDevice, const SwapChainDetails& swapChainDetails);
 		VkFormat createDepthBuffer(LogicDevice* logicDevice, const SwapChainDetails& swapChainDetails);
 		void createRenderers();
+		void createElementBuffers();
 
 		VkRenderPass renderPass_;
 		std::vector<VkFramebuffer> framebuffers_;
@@ -29,10 +33,14 @@ namespace QZL
 
 		Descriptor* descriptor_;
 
-		std::vector<RendererBase*> renderers_;
+		std::vector<ElementBuffer*> elementBuffers_;
+
+		RendererBase<MeshInstance>* basicRenderer_;
 
 		Image2D* backBuffer_;
 		Image2D* depthBuffer_;
+
+		glm::mat4 viewMatrix_;
 
 		static const size_t kMaxRenderers = 1;
 	};

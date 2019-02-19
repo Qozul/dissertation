@@ -62,15 +62,3 @@ void BasicRenderer::doFrame(const glm::mat4& viewMatrix)
 	pipeline_->unuse();
 	commandBufferClient_.clear();
 }
-
-
-
-/*for (auto& it : meshes_) {
-	for (auto& mesh : it.second) {
-		for (int i = 0; i < mesh.second.size(); ++i) {
-			MeshInstance* inst = mesh.second[i];
-			inst->transform.position = glm::vec3(2.0f, 2.0f, 0.0f);
-			inst->transform.setScale(0.7f);
-		}
-	}
-}*/

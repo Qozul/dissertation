@@ -99,6 +99,9 @@
     <ClCompile Include="UniformBuffer.cpp">
       <Filter>Source Files\Graphics\Memory</Filter>
     </ClCompile>
+    <ClCompile Include="MeshLoader.cpp">
+      <Filter>Source Files\Graphics\Render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LogicDevice.h">
@@ -157,6 +160,12 @@
     </ClInclude>
     <ClInclude Include="RendererBase.h">
       <Filter>Header Files\Graphics\Render\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader.h">
+      <Filter>Header Files\Graphics\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Graphics\Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -50,6 +50,11 @@ void ElementBuffer::commit()
 	isCommitted_ = true;
 }
 
+const bool ElementBuffer::isCommitted()
+{
+	return isCommitted_;
+}
+
 size_t ElementBuffer::addVertices(Vertex* data, const size_t size)
 {
 	ENSURES(!isCommitted_);
@@ -87,4 +92,26 @@ VkBuffer ElementBuffer::getIndexBuffer()
 uint32_t ElementBuffer::indexCount()
 {
 	return indexCount_;
+}
+
+void ElementBuffer::bind(VkCommandBuffer cmdBuffer)
+{
+	VkBuffer vertexBuffers[] = { getVertexBuffer() };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(cmdBuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindIndexBuffer(cmdBuffer, getIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
+}
+
+void ElementBuffer::emplaceMesh(std::string name, size_t indexCount, size_t indexOffset, size_t vertexOffset)
+{
+	meshes_[name] = new BasicMesh();
+	meshes_[name]->indexCount = indexCount;
+	meshes_[name]->indexOffset = indexOffset;
+	meshes_[name]->vertexOffset = vertexOffset;
+}
+
+const BasicMesh* ElementBuffer::operator[](const std::string& name) const
+{
+	ENSURES(meshes_.count(name) > 0);
+	return meshes_.at(name);
 }

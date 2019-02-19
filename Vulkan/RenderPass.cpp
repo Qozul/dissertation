@@ -3,8 +3,9 @@
 #include "LogicDevice.h"
 #include "Image2D.h"
 #include "Descriptor.h"
-#include "RendererBase.h"
 #include "BasicRenderer.h"
+#include "ElementBuffer.h"
+#include "MeshLoader.h"
 
 using namespace QZL;
 
@@ -73,18 +74,21 @@ RenderPass::RenderPass(LogicDevice* logicDevice, const SwapChainDetails& swapCha
 
 	descriptor_ = new Descriptor(logicDevice, kMaxRenderers * swapChainDetails.imageViews.size());
 	createRenderers();
+	createElementBuffers();
+	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 RenderPass::~RenderPass()
 {
+	for (auto& elementBuffer : elementBuffers_) {
+		SAFE_DELETE(elementBuffer);
+	}
 	SAFE_DELETE(descriptor_);
 	SAFE_DELETE(depthBuffer_);
 	SAFE_DELETE(backBuffer_);
 	for (auto framebuffer : framebuffers_) {
 		vkDestroyFramebuffer(logicDevice_->getLogicDevice(), framebuffer, nullptr);
 	}
-	for (RendererBase* renderer : renderers_) {
-		SAFE_DELETE(renderer);
-	}
+	SAFE_DELETE(basicRenderer_);
 	vkDestroyRenderPass(logicDevice_->getLogicDevice(), renderPass_, nullptr);
 }
 
@@ -106,9 +110,7 @@ void RenderPass::doFrame(const uint32_t idx, VkCommandBuffer cmdBuffer)
 
 	vkCmdBeginRenderPass(cmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	for (auto& renderer : renderers_) {
-		renderer->recordFrame(idx, cmdBuffer);
-	}
+	basicRenderer_->recordFrame(viewMatrix_, idx, cmdBuffer);
 
 	vkCmdEndRenderPass(cmdBuffer);
 }
@@ -164,6 +166,19 @@ VkFormat RenderPass::createDepthBuffer(LogicDevice* logicDevice, const SwapChain
 
 void RenderPass::createRenderers()
 {
-	renderers_.reserve(kMaxRenderers);
-	renderers_.push_back(new BasicRenderer(logicDevice_, renderPass_, swapChainDetails_.extent, descriptor_, "test_vert", "test_frag"));
+	basicRenderer_ = new BasicRenderer(logicDevice_, renderPass_, swapChainDetails_.extent, descriptor_, "test_vert", "test_frag");
+}
+
+void RenderPass::createElementBuffers()
+{
+	// Setup vertex and index (element) buffer
+	ElementBuffer* buf = new ElementBuffer(logicDevice_->getDeviceMemory());
+	elementBuffers_.push_back(buf);
+	for (int i = -5; i < 5; ++i) {
+		MeshInstance* inst = MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *buf);
+		inst->transform.setScale(0.2f);
+		inst->transform.position.x = i;
+		basicRenderer_->addMesh(buf, "teapot-fixed", inst);
+	}
+	buf->commit();
 }

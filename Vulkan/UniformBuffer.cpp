@@ -41,10 +41,20 @@ VkWriteDescriptorSet UniformBuffer::descriptorWrite(VkDescriptorSet set)
 	descriptorWrite.dstSet = set;
 	descriptorWrite.dstBinding = bindingIdx_;
 	descriptorWrite.dstArrayElement = 0;
-	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 	descriptorWrite.descriptorCount = 1;
 	descriptorWrite.pBufferInfo = &bufferInfo_;
 
 	return descriptorWrite;
+}
+
+void* UniformBuffer::bindUniformRange()
+{
+	return logicDevice_->getDeviceMemory()->mapMemory(bufferDetails_.id);
+}
+
+void UniformBuffer::unbindUniformRange()
+{
+	logicDevice_->getDeviceMemory()->unmapMemory(bufferDetails_.id);
 }
 

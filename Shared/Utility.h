@@ -60,7 +60,7 @@ namespace QZL
 
 		constexpr float kFoV = 45.0f;
 
-		static const glm::mat4 kProjectionMatrix = glm::perspective(glm::radians(kFoV), 4.0f/3.0f, 0.1f, 100.0f);
+		static glm::mat4 kProjectionMatrix = glm::perspective(glm::radians(kFoV), 4.0f/3.0f, 0.1f, 100.0f);
 
 		inline void checkGLError() {
 			GLenum err = glGetError();

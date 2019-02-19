@@ -1,17 +1,15 @@
 #include "MeshLoader.h"
 
-
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../Shared/tiny_obj_loader.h"
-#include "../Shared/Vertex.h"
+#include "ElementBuffer.h"
 
 using namespace QZL;
-using namespace QZL::AZDO;
 
 const std::string MeshLoader::kPath = "../Assets/Meshes/";
 const std::string MeshLoader::kExt = ".obj";
 
-void MeshLoader::loadMeshFromFile(const std::string& meshName, VaoWrapper& vao)
+void MeshLoader::loadMeshFromFile(const std::string& meshName, ElementBuffer& eleBuf)
 {
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
@@ -25,12 +23,12 @@ void MeshLoader::loadMeshFromFile(const std::string& meshName, VaoWrapper& vao)
 	if (!err.empty())
 		std::cout << err << std::endl;
 
-	std::vector<GLushort> indices;
-	std::vector<Shared::Vertex> verts;
+	std::vector<uint16_t> indices;
+	std::vector<Vertex> verts;
 	// TODO: remove duplicate vertices
 	for (const auto& shape : shapes) {
 		for (const auto& index : shape.mesh.indices) {
-			Shared::Vertex vertex = {};
+			Vertex vertex = {};
 			vertex.x = attrib.vertices[3 * index.vertex_index + 0];
 			vertex.y = attrib.vertices[3 * index.vertex_index + 1];
 			vertex.z = attrib.vertices[3 * index.vertex_index + 2];
@@ -44,7 +42,7 @@ void MeshLoader::loadMeshFromFile(const std::string& meshName, VaoWrapper& vao)
 			indices.push_back(indices.size());
 		}
 	}
-	auto indexOffset = vao.addIndices(indices.data(), indices.size());
-	auto vertexOffset = vao.addVertices(verts.data(), verts.size());
-	vao.emplaceMesh(meshName, indices.size(), indexOffset, vertexOffset);
+	auto indexOffset = eleBuf.addIndices(indices.data(), indices.size());
+	auto vertexOffset = eleBuf.addVertices(verts.data(), verts.size());
+	eleBuf.emplaceMesh(meshName, indices.size(), indexOffset, vertexOffset);
 }

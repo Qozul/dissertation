@@ -5,12 +5,9 @@
 #include "RendererPipeline.h"
 
 using namespace QZL;
-
+/*
 RendererBase::~RendererBase() {
 	for (auto& buffer : uniformBuffers_) {
-		SAFE_DELETE(buffer);
-	}
-	for (auto& buffer : elementBuffers_) {
 		SAFE_DELETE(buffer);
 	}
 	SAFE_DELETE(pipeline_);
@@ -34,4 +31,4 @@ void RendererBase::beginFrame(VkCommandBuffer cmdBuffer)
 {
 	EXPECTS(pipeline_ != nullptr);
 	vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->getPipeline());
-}
+}*/
