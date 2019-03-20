@@ -74,6 +74,7 @@ namespace QZL
 			size_t totalInstances_;
 			size_t totalCommands_;
 			//std::map<VaoWrapper*, std::vector<std::pair<std::string, std::vector<InstType*>>>> meshes_;
+			// RenderStorage* renderStorage_;
 
 			GLuint instanceDataBuffer_;
 			InstanceData* instanceDataBufPtr_;

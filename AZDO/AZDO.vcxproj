@@ -26,6 +26,7 @@
     <ClInclude Include="LoopRenderer.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshLoader.h" />
+    <ClInclude Include="RendererStorage.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TexturedRenderer.h" />

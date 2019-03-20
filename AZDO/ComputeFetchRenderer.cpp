@@ -2,6 +2,7 @@
 /// Date: 31/01/19
 #include "ComputeFetchRenderer.h"
 #include "VaoWrapper.h"
+#include "../Shared/Transform.h"
 
 using namespace QZL;
 using namespace QZL::AZDO;
@@ -43,9 +44,8 @@ void ComputeFetchRenderer::initialise()
 	commandBufferClient_.reserve(totalCommands_);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeBuffer_);
 	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT | GL_MAP_READ_BIT;
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, totalInstances_ * sizeof(GLfloat), 0, flags);
-	// Persistantly map
-	compBufPtr_ = glMapNamedBufferRange(computeBuffer_, 0, totalInstances_ * sizeof(GLfloat), flags);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, totalInstances_ * sizeof(Shared::Transform), 0, flags);
+	compBufPtr_ = glMapNamedBufferRange(computeBuffer_, 0, totalInstances_ * sizeof(Shared::Transform), flags);
 }
 
 void ComputeFetchRenderer::doFrame(const glm::mat4& viewMatrix)
@@ -88,7 +88,7 @@ void ComputeFetchRenderer::computeTransform()
 	for (auto& it : meshes_) {
 		for (auto& mesh : it.second) {
 			for (int i = 0; i < mesh.second.size(); ++i) {
-				static_cast<GLfloat*>(compBufPtr_)[i] = mesh.second[i]->transform.angle;
+				static_cast<Shared::Transform*>(compBufPtr_)[i] = mesh.second[i]->transform;
 				//memcpy(&static_cast<GLfloat*>(compBufPtr_)[i], &mesh.second[i]->transform.angle, sizeof(GLfloat));
 			}
 		}
@@ -104,7 +104,7 @@ void ComputeFetchRenderer::computeTransform()
 	for (auto& it : meshes_) {
 		for (auto& mesh : it.second) {
 			for (int i = 0; i < mesh.second.size(); ++i) {
-				mesh.second[i]->transform.angle = static_cast<GLfloat*>(compBufPtr_)[i];
+				mesh.second[i]->transform = static_cast<Shared::Transform*>(compBufPtr_)[i];
 				//memcpy(&mesh.second[i]->transform.angle, static_cast<GLfloat*>(compBufPtr_) + sizeof(GLfloat) * i, sizeof(GLfloat));
 			}
 		}

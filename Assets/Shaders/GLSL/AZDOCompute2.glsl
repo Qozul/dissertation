@@ -1,9 +1,9 @@
 #version 440
 
 struct Transform {
-	vec3 position;
-	vec3 rotationAxis;
-	vec3 scale;
+	float raX, raY, raZ; 
+	float pX, pY, pZ;
+	float sX, sY, sZ;
 	float rotationAngle;
 };
 
@@ -14,7 +14,7 @@ struct InstanceData {
 
 layout(std430, binding = 0) writeonly buffer OUT
 {
-	InstandData[] instanceData;
+	InstanceData[] instanceData;
 };
 
 layout(std430, binding = 1) readonly buffer IN
@@ -34,7 +34,7 @@ mat4 makeModelMatrix(Transform transform)
 	float c = cos(transform.rotationAngle);
 	float s = sin(transform.rotationAngle);
 	float t = 1.0 - c;
-	vec3 axis = normalize(transform.rotationAxis);
+	vec3 axis = normalize(vec3(transform.raX, transform.raY, transform.raZ));
 	
 	float txx = t*axis.x*axis.x;
 	float txy = t*axis.x*axis.y;
@@ -48,10 +48,10 @@ mat4 makeModelMatrix(Transform transform)
 	float sz = s*axis.z;
 	
 	mat4 scale = mat4(
-					vec4(transform.scale.x, 0.0, 0.0, 0.0),
-					vec4(0.0, transform.scale.y, 0.0, 0.0),
-					vec4(0.0, 0.0, transform.scale.z, 0.0),
-					vec4(0.0, 0.0, 0.0,               1.0));
+					vec4(transform.sX, 0.0, 0.0, 0.0),
+					vec4(0.0, transform.sY, 0.0, 0.0),
+					vec4(0.0, 0.0, transform.sZ, 0.0),
+					vec4(0.0, 0.0, 0.0,          1.0));
 
 	mat4 rotation = mat4(
 						vec4(txx + c,  txy + sz, txz - sy, 0.0),
@@ -62,9 +62,9 @@ mat4 makeModelMatrix(Transform transform)
 	mat4 modelMat = rotation * scale;
 
 	// Translation directly
-	modelMat[3][0] = transform.position.x;
-	modelMat[3][1] = transform.position.y;
-	modelMat[3][2] = transform.position.z;
+	modelMat[3][0] = transform.pX;
+	modelMat[3][1] = transform.pY;
+	modelMat[3][2] = transform.pZ;
 	
 	return modelMat;
 }

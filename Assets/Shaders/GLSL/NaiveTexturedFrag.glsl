@@ -13,7 +13,7 @@ out vec4 fragColor;
 uniform sampler2D tDiffuse;
 uniform vec3 uCamPosition = vec3(0.0, 0.0, 10.0);
 
-const vec3 kLightPosition = vec3(1000.0, 500.0, 1000.0);
+const vec3 kLightPosition = vec3(1000.0, 500.0, -1000.0);
 const vec3 kAmbientColour = vec3(0.2, 0.2, 0.2);
 const vec3 kDiffuseColour = vec3(1.0, 1.0, 1.0);
 const vec3 kSpecularColour = vec3(1.0, 1.0, 1.0);

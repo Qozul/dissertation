@@ -32,7 +32,6 @@
     <ClCompile Include="LogicDevice.cpp" />
     <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="PhysicalDevice.cpp" />
-    <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="RendererPipeline.cpp" />
     <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="Shader.cpp" />

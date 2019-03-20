@@ -70,9 +70,7 @@ TextureStore::~TextureStore()
 	for (GLsizei page : pages_) {
 		commit(page, false);
 	}
-	// Unresident
 	glMakeTextureHandleNonResidentARB(handle_);
-	// Delete
 	glDeleteTextures(1, &texId_);
 }
 

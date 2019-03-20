@@ -93,9 +93,6 @@
     <ClCompile Include="BasicRenderer.cpp">
       <Filter>Source Files\Graphics\Render\Renderers</Filter>
     </ClCompile>
-    <ClCompile Include="RendererBase.cpp">
-      <Filter>Source Files\Graphics\Render\Renderers</Filter>
-    </ClCompile>
     <ClCompile Include="UniformBuffer.cpp">
       <Filter>Source Files\Graphics\Memory</Filter>
     </ClCompile>

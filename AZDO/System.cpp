@@ -35,33 +35,33 @@ System::System()
 	QZL::Shared::checkGLError();
 
 	basicRenderer_ = new BasicRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
-	for (int i = 0; i < 10000; ++i) {
+	/*for (int i = 0; i < 10000; ++i) {
 		basicRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
 	}
-	basicRenderer_->initialise();
+	basicRenderer_->initialise();*/
 
 	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("AZDOTexturedVert", "AZDOTexturedFrag"));
-	for (int i = 0; i < 10; ++i) {
+	/*for (int i = 0; i < 10; ++i) {
 		auto inst = MeshLoader::loadMesh<TexturedMeshInstance>("teapot-fixed", *vaoWrapper_);
 		inst->texture = texture_;
 		texturedRenderer_->addMesh(vaoWrapper_, "teapot-fixed", inst);
 	}
-	texturedRenderer_->initialise();
+	texturedRenderer_->initialise(); */
 
 	loopRenderer_ = new LoopRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
-	for (int i = 0; i < 10; ++i) {
+	/*for (int i = 0; i < 10; ++i) {
 		loopRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
 	}
-	loopRenderer_->initialise();
+	loopRenderer_->initialise(); */
 
 	computeFetchRenderer_ = new ComputeFetchRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
-	for (int i = 0; i < 10; ++i) {
+	/*for (int i = 0; i < 10; ++i) {
 		computeFetchRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
 	}
-	computeFetchRenderer_->initialise();
+	computeFetchRenderer_->initialise(); */
 
-	computeRenderer_ = new ComputeFetchRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
-	for (int i = 0; i < 10000; ++i) {
+	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
+	for (int i = 0; i < 10; ++i) {
 		computeRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
 	}
 	computeRenderer_->initialise();
@@ -103,7 +103,7 @@ void System::loop()
 		glClearDepth(1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		basicPerfMeasurer_->startTime();
+		/*basicPerfMeasurer_->startTime();
 		basicRenderer_->doFrame(viewMatrix_);
 		basicPerfMeasurer_->endTime();
 
@@ -113,7 +113,7 @@ void System::loop()
 
 		loopPerfMeasurer_->startTime();
 		//loopRenderer_->doFrame(viewMatrix_);
-		loopPerfMeasurer_->endTime();
+		loopPerfMeasurer_->endTime();*/
 
 		computePerfMeasurer_->startTime();
 		//computeFetchRenderer_->doFrame(viewMatrix_);
@@ -123,9 +123,9 @@ void System::loop()
 		glfwSwapBuffers(window_);
 		QZL::Shared::checkGLError();
 	}
-	std::cout << "Basic perf: " << basicPerfMeasurer_->getAverageTime().count() << std::endl;
-	std::cout << "Textured perf: " << texturedPerfMeasurer_->getAverageTime().count() << std::endl;
-	std::cout << "Loop perf: " << loopPerfMeasurer_->getAverageTime().count() << std::endl;
+	//std::cout << "Basic perf: " << basicPerfMeasurer_->getAverageTime().count() << std::endl;
+	//std::cout << "Textured perf: " << texturedPerfMeasurer_->getAverageTime().count() << std::endl;
+	//std::cout << "Loop perf: " << loopPerfMeasurer_->getAverageTime().count() << std::endl;
 	std::cout << "Compute perf: " << computePerfMeasurer_->getAverageTime().count() << std::endl;
 }
 
