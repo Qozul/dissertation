@@ -13,13 +13,14 @@ namespace QZL
 		class TexturedRenderer : public AbstractRenderer<TexturedMeshInstance> {
 			using Base = AbstractRenderer<TexturedMeshInstance>;
 		public:
-			TexturedRenderer(ShaderPipeline* pipeline, VaoWrapper* vao);
+			TexturedRenderer(ShaderPipeline* pipeline, VaoWrapper* vao, const glm::mat4* viewMatrix);
 			~TexturedRenderer();
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;
 		private:
 			GLuint textureBuffer_;
 			TextureData* texBufPtr_;
+			const glm::mat4* viewMatrix_;
 		};
 	}
 }

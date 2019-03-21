@@ -14,7 +14,7 @@
 #include "../Shared/RendererBase.h"
 
 #define NUM_OBJECTS 1000
-#define BASIC_RUN
+//#define BASIC_RUN
 //#define TEXTURED_RUN
 //#define LOOP_RUN
 //#define COMPUTE_READBACK_RUN
@@ -38,9 +38,10 @@ System::System()
 
 	vaoWrapper_ = new VaoWrapper();
 	QZL::Shared::checkGLError();
+	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 #ifdef BASIC_RUN
-	basicRenderer_ = new BasicRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"), vaoWrapper_);
+	basicRenderer_ = new BasicRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"), vaoWrapper_, &viewMatrix_);
 	basicRenderer_->addMesh("teapot-fixed", MeshLoader::loadMesh("teapot-fixed", *vaoWrapper_));
 	MeshInstance meshInst;
 	for (int i = 0; i < NUM_OBJECTS; ++i) {
@@ -51,7 +52,7 @@ System::System()
 	textureLoader_ = new TextureLoader();
 	texture_ = textureLoader_->loadTexture("101");
 	texture_->commit(true);
-	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("AZDOTexturedVert", "AZDOTexturedFrag"), vaoWrapper_);
+	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("AZDOTexturedVert", "AZDOTexturedFrag"), vaoWrapper_, &viewMatrix_);
 	texturedRenderer_->addMesh("teapot-fixed", MeshLoader::loadMesh("teapot-fixed", *vaoWrapper_));
 	TexturedMeshInstance meshInst;
 	meshInst.texture = texture_;
@@ -84,7 +85,6 @@ System::System()
 	}
 	computeRenderer_->initialise();
 #endif
-	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	vaoWrapper_->commit();
 	QZL::Shared::checkGLError();

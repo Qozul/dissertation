@@ -8,8 +8,8 @@
 using namespace QZL;
 using namespace QZL::AZDO;
 
-TexturedRenderer::TexturedRenderer(ShaderPipeline* pipeline, VaoWrapper* vao)
-	: Base(pipeline, vao)
+TexturedRenderer::TexturedRenderer(ShaderPipeline* pipeline, VaoWrapper* vao, const glm::mat4* viewMatrix)
+	: Base(pipeline, vao), viewMatrix_(viewMatrix)
 {
 	glGenBuffers(1, &textureBuffer_);
 }
@@ -23,18 +23,23 @@ TexturedRenderer::~TexturedRenderer()
 
 void TexturedRenderer::initialise()
 {
+	setupInstanceDataBuffer();
 	auto instPtr = renderStorage_->instanceData();
 	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
 		(instPtr + i)->transform.position = glm::vec3(-4.0f + i * 0.5f, -1.0f, 0.0f);
 		(instPtr + i)->transform.setScale(0.2f);
+		glm::mat4 model = (instPtr + i)->transform.toModelMatrix();
+		instanceDataBufPtr_[i] = {
+			model, Shared::kProjectionMatrix * *viewMatrix_ * model
+		};
 	}
-	setupInstanceDataBuffer();
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, textureBuffer_);
 	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT;
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, renderStorage_->textureCount() * sizeof(TextureData), 0, flags);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, textureBuffer_);
-	texBufPtr_ = static_cast<TextureData*>(glMapNamedBufferRange(textureBuffer_, 0, renderStorage_->textureCount() * sizeof(TextureData), flags));
+	texBufPtr_ = static_cast<TextureData*>(glMapNamedBufferRange(textureBuffer_, 0, 
+		renderStorage_->textureCount() * sizeof(TextureData), flags));
 }
 
 void TexturedRenderer::doFrame(const glm::mat4& viewMatrix)
@@ -42,13 +47,6 @@ void TexturedRenderer::doFrame(const glm::mat4& viewMatrix)
 	bindInstanceDataBuffer();
 	pipeline_->use();
 	renderStorage_->vao()->bind();
-	auto instPtr = renderStorage_->instanceData();
-	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
-		glm::mat4 model = (instPtr + i)->transform.toModelMatrix();
-		instanceDataBufPtr_[i] = {
-			model, Shared::kProjectionMatrix * viewMatrix * model
-		};
-	}
 	memcpy(texBufPtr_, renderStorage_->textureData(), renderStorage_->textureCount());
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, commandBuffer_);
 	glBufferData(GL_DRAW_INDIRECT_BUFFER, renderStorage_->meshCount() * sizeof(DrawElementsCommand), renderStorage_->meshData(), GL_DYNAMIC_DRAW);

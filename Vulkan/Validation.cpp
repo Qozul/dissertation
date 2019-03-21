@@ -24,6 +24,7 @@ Validation::Validation(const VkInstance instance, const VkDebugUtilsMessageSever
 		auto createFunction = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(cInstance_, "vkCreateDebugUtilsMessengerEXT");
 		DEBUG_IFERR((createFunction == nullptr || createFunction(cInstance_, &createInfo, nullptr, &callbackHandle_) != VK_SUCCESS),
 			"Warning: Validation callback setup failed.");
+		DEBUG_OUT("Validation is enabled");
 	}
 }
 
