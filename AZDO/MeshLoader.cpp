@@ -11,6 +11,16 @@ using namespace QZL::AZDO;
 const std::string MeshLoader::kPath = "../Assets/Meshes/";
 const std::string MeshLoader::kExt = ".obj";
 
+BasicMesh* MeshLoader::loadMesh(const std::string& meshName, VaoWrapper& vao)
+{
+	ENSURES(!vao.isCommitted());
+	if (!vao.contains(meshName))
+		loadMeshFromFile(meshName, vao);
+
+	DEBUG_OUT("Loaded instance of AZDO BasicMesh " << kPath << meshName << kExt);
+	return vao.meshes_[meshName];
+}
+
 void MeshLoader::loadMeshFromFile(const std::string& meshName, VaoWrapper& vao)
 {
 	tinyobj::attrib_t attrib;

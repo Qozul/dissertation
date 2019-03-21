@@ -44,6 +44,7 @@ namespace QZL
 			Shared::PerfMeasurer* texturedPerfMeasurer_;
 			Shared::PerfMeasurer* loopPerfMeasurer_;
 			Shared::PerfMeasurer* computePerfMeasurer_;
+			Shared::PerfMeasurer* computeRbPerfMeasurer_;
 
 			GLFWwindow* window_;
 		};

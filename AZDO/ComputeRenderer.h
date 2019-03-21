@@ -10,7 +10,7 @@ namespace QZL
 		class ComputeRenderer : public AbstractRenderer<MeshInstance> {
 			using Base = AbstractRenderer<MeshInstance>;
 		public:
-			ComputeRenderer(ShaderPipeline* pipeline);
+			ComputeRenderer(ShaderPipeline* pipeline, VaoWrapper* vao);
 			~ComputeRenderer();
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;

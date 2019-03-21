@@ -63,6 +63,9 @@
     <ClInclude Include="RendererStorage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DrawElementsCommand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="System.cpp">
@@ -100,6 +103,9 @@
     </ClCompile>
     <ClCompile Include="ComputeRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="RendererStorage.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

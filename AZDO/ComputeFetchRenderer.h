@@ -10,7 +10,7 @@ namespace QZL
 		class ComputeFetchRenderer : public AbstractRenderer<MeshInstance> {
 			using Base = AbstractRenderer<MeshInstance>;
 		public:
-			ComputeFetchRenderer(ShaderPipeline* pipeline);
+			ComputeFetchRenderer(ShaderPipeline* pipeline, VaoWrapper* vao);
 			~ComputeFetchRenderer();
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;

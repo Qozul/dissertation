@@ -14,7 +14,7 @@ namespace QZL
 		class LoopRenderer : public AbstractRenderer<MeshInstance> {
 			using Base = AbstractRenderer<MeshInstance>;
 		public:
-			LoopRenderer(ShaderPipeline* pipeline);
+			LoopRenderer(ShaderPipeline* pipeline, VaoWrapper* vao);
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;
 

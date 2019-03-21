@@ -23,6 +23,7 @@
     <ClInclude Include="BasicRenderer.h" />
     <ClInclude Include="ComputeFetchRenderer.h" />
     <ClInclude Include="ComputeRenderer.h" />
+    <ClInclude Include="DrawElementsCommand.h" />
     <ClInclude Include="LoopRenderer.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshLoader.h" />
@@ -41,6 +42,7 @@
     <ClCompile Include="LoopRenderer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshLoader.cpp" />
+    <ClCompile Include="RendererStorage.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TexturedRenderer.cpp" />
@@ -57,7 +59,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{C45C1B9D-3C64-4899-89C8-8FF746F9E38A}</ProjectGuid>
     <RootNamespace>AZDO</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

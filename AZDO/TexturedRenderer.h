@@ -8,11 +8,12 @@ namespace QZL
 	namespace AZDO
 	{
 		struct TextureData;
+		class VaoWrapper;
 
 		class TexturedRenderer : public AbstractRenderer<TexturedMeshInstance> {
 			using Base = AbstractRenderer<TexturedMeshInstance>;
 		public:
-			TexturedRenderer(ShaderPipeline* pipeline);
+			TexturedRenderer(ShaderPipeline* pipeline, VaoWrapper* vao);
 			~TexturedRenderer();
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;

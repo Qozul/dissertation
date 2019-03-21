@@ -22,8 +22,8 @@ namespace QZL
 		};
 		struct TexturedMeshInstance {
 			Texture* texture;
-			Shared::Transform transform;
-			//MeshInstance meshInst;
+			//Shared::Transform transform;
+			MeshInstance meshInst;
 		};
 		template<typename InstType>
 		inline InstType* makeMeshInstance(const std::string& meshName, const BasicMesh& mesh)

@@ -10,6 +10,7 @@ namespace QZL
 	{
 		class VaoWrapper {
 			using Index = GLushort;
+			friend class MeshLoader;
 		public:
 			VaoWrapper();
 			~VaoWrapper();

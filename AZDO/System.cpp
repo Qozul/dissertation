@@ -13,6 +13,13 @@
 #include "../Shared/PerfMeasurer.h"
 #include "../Shared/RendererBase.h"
 
+#define NUM_OBJECTS 1000
+#define BASIC_RUN
+//#define TEXTURED_RUN
+//#define LOOP_RUN
+//#define COMPUTE_READBACK_RUN
+//#define COMPUTE_RUN
+
 using namespace QZL;
 using namespace QZL::AZDO;
 
@@ -23,49 +30,60 @@ void errorCallback(int error, const char* description)
 
 System::System()
 	: basicPerfMeasurer_(new Shared::PerfMeasurer()), loopPerfMeasurer_(new Shared::PerfMeasurer()), 
-	computePerfMeasurer_(new Shared::PerfMeasurer()), texturedPerfMeasurer_(new Shared::PerfMeasurer())
+	computePerfMeasurer_(new Shared::PerfMeasurer()), texturedPerfMeasurer_(new Shared::PerfMeasurer()),
+	computeRbPerfMeasurer_(new Shared::PerfMeasurer())
 {
 	initGLFW();
 	initGL3W();
 
 	vaoWrapper_ = new VaoWrapper();
+	QZL::Shared::checkGLError();
+
+#ifdef BASIC_RUN
+	basicRenderer_ = new BasicRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"), vaoWrapper_);
+	basicRenderer_->addMesh("teapot-fixed", MeshLoader::loadMesh("teapot-fixed", *vaoWrapper_));
+	MeshInstance meshInst;
+	for (int i = 0; i < NUM_OBJECTS; ++i) {
+		basicRenderer_->addMeshInstance("teapot-fixed", &meshInst);
+	}
+	basicRenderer_->initialise();
+#elif defined(TEXTURED_RUN)
 	textureLoader_ = new TextureLoader();
 	texture_ = textureLoader_->loadTexture("101");
 	texture_->commit(true);
-	QZL::Shared::checkGLError();
-
-	basicRenderer_ = new BasicRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
-	/*for (int i = 0; i < 10000; ++i) {
-		basicRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
+	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("AZDOTexturedVert", "AZDOTexturedFrag"), vaoWrapper_);
+	texturedRenderer_->addMesh("teapot-fixed", MeshLoader::loadMesh("teapot-fixed", *vaoWrapper_));
+	TexturedMeshInstance meshInst;
+	meshInst.texture = texture_;
+	for (int i = 0; i < NUM_OBJECTS; ++i) {
+		texturedRenderer_->addMeshInstance("teapot-fixed", &meshInst);
 	}
-	basicRenderer_->initialise();*/
-
-	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("AZDOTexturedVert", "AZDOTexturedFrag"));
-	/*for (int i = 0; i < 10; ++i) {
-		auto inst = MeshLoader::loadMesh<TexturedMeshInstance>("teapot-fixed", *vaoWrapper_);
-		inst->texture = texture_;
-		texturedRenderer_->addMesh(vaoWrapper_, "teapot-fixed", inst);
+	texturedRenderer_->initialise();
+#elif defined(LOOP_RUN)
+	loopRenderer_ = new LoopRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"), vaoWrapper_);
+	loopRenderer_->addMesh("teapot-fixed", MeshLoader::loadMesh("teapot-fixed", *vaoWrapper_));
+	MeshInstance meshInst;
+	for (int i = 0; i < NUM_OBJECTS; ++i) {
+		loopRenderer_->addMeshInstance("teapot-fixed", &meshInst);
 	}
-	texturedRenderer_->initialise(); */
-
-	loopRenderer_ = new LoopRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
-	/*for (int i = 0; i < 10; ++i) {
-		loopRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
+	loopRenderer_->initialise();
+#elif defined(COMPUTE_READBACK_RUN)
+	computeFetchRenderer_ = new ComputeFetchRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"), vaoWrapper_);
+	computeFetchRenderer_->addMesh("teapot-fixed", MeshLoader::loadMesh("teapot-fixed", *vaoWrapper_));
+	MeshInstance meshInst;
+	for (int i = 0; i < NUM_OBJECTS; ++i) {
+		computeFetchRenderer_->addMeshInstance("teapot-fixed", &meshInst);
 	}
-	loopRenderer_->initialise(); */
-
-	computeFetchRenderer_ = new ComputeFetchRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
-	/*for (int i = 0; i < 10; ++i) {
-		computeFetchRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
-	}
-	computeFetchRenderer_->initialise(); */
-
-	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"));
-	for (int i = 0; i < 10; ++i) {
-		computeRenderer_->addMesh(vaoWrapper_, "teapot-fixed", MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *vaoWrapper_));
+	computeFetchRenderer_->initialise();
+#elif defined(COMPUTE_RUN)
+	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("AZDOBasicVert", "AZDOBasicFrag"), vaoWrapper_);
+	computeRenderer_->addMesh("teapot-fixed", MeshLoader::loadMesh("teapot-fixed", *vaoWrapper_));
+	MeshInstance meshInst;
+	for (int i = 0; i < NUM_OBJECTS; ++i) {
+		computeRenderer_->addMeshInstance("teapot-fixed", &meshInst);
 	}
 	computeRenderer_->initialise();
-
+#endif
 	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	vaoWrapper_->commit();
@@ -74,11 +92,17 @@ System::System()
 
 System::~System()
 {
+#ifdef BASIC_RUN
 	SAFE_DELETE(basicRenderer_);
+#elif defined(TEXTURED_RUN)
 	SAFE_DELETE(texturedRenderer_);
+#elif defined(LOOP_RUN)
 	SAFE_DELETE(loopRenderer_);
+#elif defined(COMPUTE_READBACK_RUN)
 	SAFE_DELETE(computeFetchRenderer_);
+#elif defined(COMPUTE_RUN)
 	SAFE_DELETE(computeRenderer_);
+#endif
 	SAFE_DELETE(vaoWrapper_);
 	SAFE_DELETE(basicPerfMeasurer_);
 	SAFE_DELETE(texturedPerfMeasurer_);
@@ -103,30 +127,41 @@ void System::loop()
 		glClearDepth(1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		/*basicPerfMeasurer_->startTime();
+#ifdef BASIC_RUN
+		basicPerfMeasurer_->startTime();
 		basicRenderer_->doFrame(viewMatrix_);
 		basicPerfMeasurer_->endTime();
-
+#elif defined(TEXTURED_RUN)
 		texturedPerfMeasurer_->startTime();
-		//texturedRenderer_->doFrame(viewMatrix_);
+		texturedRenderer_->doFrame(viewMatrix_);
 		texturedPerfMeasurer_->endTime();
-
+#elif defined(LOOP_RUN)
 		loopPerfMeasurer_->startTime();
-		//loopRenderer_->doFrame(viewMatrix_);
-		loopPerfMeasurer_->endTime();*/
-
+		loopRenderer_->doFrame(viewMatrix_);
+		loopPerfMeasurer_->endTime();
+#elif defined(COMPUTE_READBACK_RUN)
+		computeRbPerfMeasurer_->startTime();
+		computeFetchRenderer_->doFrame(viewMatrix_);
+		computeRbPerfMeasurer_->endTime();
+#elif defined(COMPUTE_RUN)
 		computePerfMeasurer_->startTime();
-		//computeFetchRenderer_->doFrame(viewMatrix_);
 		computeRenderer_->doFrame(viewMatrix_);
 		computePerfMeasurer_->endTime();
-
+#endif
 		glfwSwapBuffers(window_);
 		QZL::Shared::checkGLError();
 	}
-	//std::cout << "Basic perf: " << basicPerfMeasurer_->getAverageTime().count() << std::endl;
-	//std::cout << "Textured perf: " << texturedPerfMeasurer_->getAverageTime().count() << std::endl;
-	//std::cout << "Loop perf: " << loopPerfMeasurer_->getAverageTime().count() << std::endl;
+#ifdef BASIC_RUN
+	std::cout << "Basic perf: " << basicPerfMeasurer_->getAverageTime().count() << std::endl;
+#elif defined(TEXTURED_RUN)
+	std::cout << "Textured perf: " << texturedPerfMeasurer_->getAverageTime().count() << std::endl;
+#elif defined(LOOP_RUN)
+	std::cout << "Loop perf: " << loopPerfMeasurer_->getAverageTime().count() << std::endl;
+#elif defined(COMPUTE_READBACK_RUN)
+	std::cout << "Compute perf: " << computeRbPerfMeasurer_->getAverageTime().count() << std::endl;
+#elif defined(COMPUTE_RUN)
 	std::cout << "Compute perf: " << computePerfMeasurer_->getAverageTime().count() << std::endl;
+#endif
 }
 
 void System::initGLFW()
