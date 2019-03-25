@@ -40,6 +40,7 @@ void TexturedRenderer::initialise()
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, textureBuffer_);
 	texBufPtr_ = static_cast<TextureData*>(glMapNamedBufferRange(textureBuffer_, 0, 
 		renderStorage_->textureCount() * sizeof(TextureData), flags));
+	memcpy(texBufPtr_, renderStorage_->textureData(), renderStorage_->textureCount() * sizeof(TextureData));
 }
 
 void TexturedRenderer::doFrame(const glm::mat4& viewMatrix)
@@ -47,7 +48,6 @@ void TexturedRenderer::doFrame(const glm::mat4& viewMatrix)
 	bindInstanceDataBuffer();
 	pipeline_->use();
 	renderStorage_->vao()->bind();
-	memcpy(texBufPtr_, renderStorage_->textureData(), renderStorage_->textureCount());
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, commandBuffer_);
 	glBufferData(GL_DRAW_INDIRECT_BUFFER, renderStorage_->meshCount() * sizeof(DrawElementsCommand), renderStorage_->meshData(), GL_DYNAMIC_DRAW);
 
