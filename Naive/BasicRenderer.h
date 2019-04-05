@@ -10,9 +10,12 @@ namespace QZL
 		class BasicRenderer : public AbstractRenderer {
 			using Base = AbstractRenderer;
 		public:
-			BasicRenderer(ShaderPipeline* pipeline);
+			BasicRenderer(ShaderPipeline* pipeline, const glm::mat4* viewMatrix);
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;
+		private:
+			const glm::mat4* viewMatrix_;
+			std::vector<InstanceData> idata_;
 		};
 	}
 }

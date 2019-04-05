@@ -20,6 +20,7 @@ namespace QZL
 
 		private:
 			void updateTransform(Shared::Transform& transform);
+			std::vector<InstanceData> idata_;
 
 			static const float kRotationSpeed;
 		};

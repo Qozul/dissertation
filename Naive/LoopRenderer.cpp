@@ -12,17 +12,17 @@ LoopRenderer::LoopRenderer(ShaderPipeline* pipeline)
 
 void LoopRenderer::initialise()
 {
-	meshes_[0]->transform.position = glm::vec3(2.0f, -2.0f, 0.0f);
-	meshes_[0]->transform.setScale(0.7f);
+	for (size_t i = 0; i < meshes_.size(); ++i) {
+		meshes_[i]->transform.position = glm::vec3(-4.0f + i * 0.5f, 2.0f, 0.0f);
+		meshes_[i]->transform.setScale(0.2f);
+	}
 }
 
 void LoopRenderer::doFrame(const glm::mat4& viewMatrix)
 {
-	for (auto& mesh : meshes_) {
-		updateTransform(mesh->transform);
-	}
 	pipeline_->use();
 	for (const auto& mesh : meshes_) {
+		updateTransform(mesh->transform);
 		GLint loc0 = pipeline_->getUniformLocation("uModelMat");
 		GLint loc1 = pipeline_->getUniformLocation("uMVP");
 		glm::mat4 model = mesh->transform.toModelMatrix();
@@ -43,7 +43,7 @@ void LoopRenderer::doFrame(const glm::mat4& viewMatrix)
 	pipeline_->unuse();
 }
 
-void LoopRenderer::updateTransform(QZL::Shared::Transform & transform)
+void LoopRenderer::updateTransform(QZL::Shared::Transform& transform)
 {
 	transform.angle = transform.angle + kRotationSpeed;
 }

@@ -116,8 +116,12 @@ void System::initDevices(uint32_t& enabledLayerCount, const char* const*& enable
 
 void System::loop()
 {
+	Shared::PerfMeasurer perfMeasurer;
 	while (!glfwWindowShouldClose(details_.window)) {
 		glfwPollEvents();
+		perfMeasurer.startTime();
 		details_.logicDevice->swapChain_->loop();
+		perfMeasurer.endTime();
 	}
+	std::cout << "Vulkan perf: " << perfMeasurer.getAverageTime().count() << std::endl;
 }

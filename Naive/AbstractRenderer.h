@@ -8,6 +8,11 @@ namespace QZL
 {
 	namespace Naive
 	{
+		struct InstanceData {
+			glm::mat4 model;
+			glm::mat4 mvp;
+		};
+
 		// Intermediate renderer for shared behaviour of non-textured renderers.
 		class AbstractRenderer : public Shared::RendererBase {
 		public:

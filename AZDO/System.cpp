@@ -16,7 +16,7 @@
 #define NUM_OBJECTS 1000
 //#define BASIC_RUN
 //#define TEXTURED_RUN
-//#define LOOP_RUN
+#define LOOP_RUN
 //#define COMPUTE_READBACK_RUN
 //#define COMPUTE_RUN
 

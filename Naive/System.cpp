@@ -10,6 +10,13 @@
 #include "Mesh.h"
 #include "../Shared/PerfMeasurer.h"
 
+#define NUM_OBJECTS 1000
+#define BASIC_RUN
+//#define TEXTURED_RUN
+//#define LOOP_RUN
+//#define COMPUTE_READBACK_RUN
+//#define COMPUTE_RUN
+
 using namespace QZL;
 using namespace QZL::Naive;
 
@@ -27,40 +34,49 @@ System::System()
 	for (int i = 0; i < 4; ++i)
 		perfMeasurers_.push_back(new Shared::PerfMeasurer());
 
-	basicRenderer_ = new BasicRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	for (int i = 0; i < 10; ++i)
+	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+#ifdef BASIC_RUN
+	basicRenderer_ = new BasicRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"), &viewMatrix_);
+	for (int i = 0; i < NUM_OBJECTS; ++i)
 		basicRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	basicRenderer_->initialise();
-
+#elif defined(TEXTURED_RUN)
 	texture_ = new Texture("mandelbrot");
 	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("NaiveTexturedVert", "NaiveTexturedFrag"));
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < NUM_OBJECTS; ++i) {
 		TexturedBasicMesh* texturedMesh = basicToTextured(meshLoader_->loadMesh("teapot-fixed"), texture_);
 		texturedRenderer_->addMesh(texturedMesh->texture->id, texturedMesh);
 	}
 	texturedRenderer_->initialise();
-
+#elif defined(LOOP_RUN)
 	loopRenderer_ = new LoopRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < NUM_OBJECTS; ++i)
 		loopRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	loopRenderer_->initialise();
-
+#elif defined(COMPUTE_READBACK_RUN)
 	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < NUM_OBJECTS; ++i)
 		computeRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	computeRenderer_->initialise();
-
-	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+#elif defined(COMPUTE_RUN)
+#endif
 
 	QZL::Shared::checkGLError();
 }
 
 System::~System()
 {
+#ifdef BASIC_RUN
 	SAFE_DELETE(basicRenderer_);
+#elif defined(TEXTURED_RUN)
 	SAFE_DELETE(texturedRenderer_);
+#elif defined(LOOP_RUN)
 	SAFE_DELETE(loopRenderer_);
-	SAFE_DELETE(computeRenderer_); 
+#elif defined(COMPUTE_READBACK_RUN)
+	SAFE_DELETE(computeRenderer_);
+#elif defined(COMPUTE_RUN)
+#endif
 	SAFE_DELETE(meshLoader_);
 	for (auto& perfMeasurer : perfMeasurers_) {
 		SAFE_DELETE(perfMeasurer);
@@ -82,31 +98,39 @@ void System::loop()
 		glClearDepth(1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+#ifdef BASIC_RUN
 		perfMeasurers_[0]->startTime();
 		basicRenderer_->doFrame(viewMatrix_);
 		perfMeasurers_[0]->endTime();
-
+#elif defined(TEXTURED_RUN)
 		perfMeasurers_[1]->startTime();
 		texturedRenderer_->doFrame(viewMatrix_);
 		perfMeasurers_[1]->endTime();
-
+#elif defined(LOOP_RUN)
 		perfMeasurers_[2]->startTime();
 		loopRenderer_->doFrame(viewMatrix_);
 		perfMeasurers_[2]->endTime();
-
+#elif defined(COMPUTE_READBACK_RUN)
 		perfMeasurers_[3]->startTime();
 		computeRenderer_->doFrame(viewMatrix_);
 		perfMeasurers_[3]->endTime();
-
+#elif defined(COMPUTE_RUN)
+#endif
 		glfwSwapBuffers(window_);
 
 		QZL::Shared::checkGLError();
 	}
 
-	std::cout << "Basic perf: " << perfMeasurers_[0]->getAverageTime().count() << std::endl <<
-		"Textured perf: " << perfMeasurers_[1]->getAverageTime().count() << std::endl <<
-		"Loop perf: " << perfMeasurers_[2]->getAverageTime().count() << std::endl <<
-		"Compute perf: " << perfMeasurers_[3]->getAverageTime().count() << std::endl;
+#ifdef BASIC_RUN
+	std::cout << "Basic perf: " << perfMeasurers_[0]->getAverageTime().count() << std::endl;
+#elif defined(TEXTURED_RUN)
+	std::cout << "Textured perf: " << perfMeasurers_[1]->getAverageTime().count() << std::endl;
+#elif defined(LOOP_RUN)
+	std::cout << "Loop perf: " << perfMeasurers_[2]->getAverageTime().count() << std::endl;
+#elif defined(COMPUTE_READBACK_RUN)
+	std::cout << "Compute perf: " << perfMeasurers_[3]->getAverageTime().count() << std::endl;
+#elif defined(COMPUTE_RUN)
+#endif
 }
 
 void System::initGLFW()
