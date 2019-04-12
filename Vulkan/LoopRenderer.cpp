@@ -28,7 +28,13 @@ LoopRenderer::LoopRenderer(const LogicDevice* logicDevice, VkRenderPass renderPa
 	createPipeline(logicDevice, renderPass, swapChainExtent, RendererPipeline::makeLayoutInfo(uniformBuffers_.size(), &layout), vertexShader, fragmentShader);
 }
 
-void LoopRenderer::recordFrame(const glm::mat4 & viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer)
+void LoopRenderer::initialise(const glm::mat4& viewMatrix)
+{
+	if (Shared::kProjectionMatrix[1][1] >= 0)
+		Shared::kProjectionMatrix[1][1] *= -1;
+}
+
+void LoopRenderer::recordFrame(const glm::mat4& viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer)
 {
 	beginFrame(cmdBuffer);
 
@@ -37,7 +43,7 @@ void LoopRenderer::recordFrame(const glm::mat4 & viewMatrix, const uint32_t idx,
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->getLayout(), 0, 1, &descriptorSets_[idx], 0, nullptr);
-	ElementData * eleDataPtr = static_cast<ElementData*>(uniformBuffers_[0]->bindUniformRange());
+	ElementData* eleDataPtr = static_cast<ElementData*>(uniformBuffers_[0]->bindUniformRange());
 	for (auto& it : meshes_) {
 		it.first->bind(cmdBuffer);
 

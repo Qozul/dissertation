@@ -18,12 +18,13 @@ namespace QZL
 	class RendererBase {
 	public:
 		RendererBase() : pipeline_(nullptr) {
-			// Vulkan origin is changed so need to flip axis
-			Shared::kProjectionMatrix[1][1] *= -1;
+			if (Shared::kProjectionMatrix[1][1] >= 0)
+				Shared::kProjectionMatrix[1][1] *= -1;
 		}
 		virtual ~RendererBase();
 		virtual void recordFrame(const glm::mat4& viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer) = 0;
 		std::vector<VkWriteDescriptorSet> getDescriptorWrites(uint32_t frameIdx);
+		virtual void initialise(const glm::mat4& viewMatrix) = 0;
 
 		void addMesh(ElementBuffer* buf, const std::string& meshName, InstType* instance) {
 			meshes_[buf][meshName].push_back(instance);

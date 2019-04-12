@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicRenderer.h" />
+    <ClInclude Include="ComputeRenderer.h" />
     <ClInclude Include="Descriptor.h" />
     <ClInclude Include="DeviceMemory.h" />
     <ClInclude Include="ElementBuffer.h" />

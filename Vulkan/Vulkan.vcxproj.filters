@@ -194,5 +194,8 @@
     <ClInclude Include="LoopRenderer.h">
       <Filter>Header Files\Graphics\Render\Renderers</Filter>
     </ClInclude>
+    <ClInclude Include="ComputeRenderer.h">
+      <Filter>Header Files\Graphics\Render\Renderers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

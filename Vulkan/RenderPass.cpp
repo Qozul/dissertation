@@ -9,14 +9,15 @@
 #include "ElementBuffer.h"
 #include "MeshLoader.h"
 
+#define NUM_ELEMENTS 10
 //#define BASIC_RUN
-//#define TEXTURED_RUN
-#define LOOP_RUN
+#define TEXTURED_RUN
+//#define LOOP_RUN
 
 #ifdef TEXTURED_RUN
 	#define CURRENT_RENDERER texturedRenderer_
 	#define CURRENT_RENDERER_TYPE TexturedRenderer
-	#define SHADERS "textured_vert", "textured_frag"
+	#define SHADERS "TexturedVert", "TexturedFrag"
 #else
 	#ifdef BASIC_RUN
 		#define CURRENT_RENDERER basicRenderer_
@@ -25,7 +26,7 @@
 		#define CURRENT_RENDERER loopRenderer_
 		#define CURRENT_RENDERER_TYPE LoopRenderer
 	#endif
-	#define SHADERS "test_vert", "test_frag"
+	#define SHADERS "BasicVert", "BasicFrag"
 #endif
 
 using namespace QZL;
@@ -94,9 +95,9 @@ RenderPass::RenderPass(LogicDevice* logicDevice, const SwapChainDetails& swapCha
 	createFramebuffers(logicDevice, swapChainDetails);
 
 	descriptor_ = new Descriptor(logicDevice, kMaxRenderers * swapChainDetails.imageViews.size());
+	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	createRenderers();
 	createElementBuffers();
-	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 RenderPass::~RenderPass()
 {
@@ -195,11 +196,12 @@ void RenderPass::createElementBuffers()
 	// Setup vertex and index (element) buffer
 	ElementBuffer* buf = new ElementBuffer(logicDevice_->getDeviceMemory());
 	elementBuffers_.push_back(buf);
-	for (int i = -5; i < 5; ++i) {
+	for (int i = 0; i < NUM_ELEMENTS; ++i) {
 		MeshInstance* inst = MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *buf);
 		inst->transform.setScale(0.2f);
 		inst->transform.position.x = i;
 		CURRENT_RENDERER->addMesh(buf, "teapot-fixed", inst);
 	}
 	buf->commit();
+	CURRENT_RENDERER->initialise(viewMatrix_);
 }

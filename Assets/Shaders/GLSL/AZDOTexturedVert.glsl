@@ -1,4 +1,4 @@
-#version 440 core
+#version 460 core
 
 struct InstanceData
 {
@@ -14,7 +14,6 @@ layout(std430, binding = 0) buffer InstanceDataBuffer
 layout(location = 0) in vec3 iPosition;
 layout(location = 1) in vec2 iTexUV;
 layout(location = 2) in vec3 iNormal;
-in int gl_BaseInstanceARB;
 
 out Vertex
 {
@@ -26,7 +25,7 @@ out Vertex
 
 void main(void)
 {
-	OUT.instanceID = gl_BaseInstanceARB + gl_InstanceID;
+	OUT.instanceID = gl_BaseInstance + gl_InstanceID;
 	gl_Position	= uInstanceData[OUT.instanceID].mvp * vec4(iPosition, 1.0);
 	OUT.texUV = iTexUV;
 	OUT.worldPos = (uInstanceData[OUT.instanceID].model * vec4(iPosition, 1.0)).xyz;
