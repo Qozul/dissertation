@@ -17,7 +17,7 @@ layout(std430, binding = 0) writeonly buffer OUT
 	InstanceData[] instanceData;
 };
 
-layout(std430, binding = 1) readonly buffer IN
+layout(std430, binding = 1) buffer IN
 {
     Transform[] transforms;
 };
@@ -28,7 +28,7 @@ uniform mat4 uProjMatrix;
 
 layout(local_size_x=32) in;
 
-// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToMatrix/
+// Reference: http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToMatrix/
 mat4 makeModelMatrix(Transform transform)
 {
 	float c = cos(transform.rotationAngle);
@@ -71,9 +71,8 @@ mat4 makeModelMatrix(Transform transform)
 
 void main(void)
 {
-	Transform trans = transforms[gl_GlobalInvocationID.x];
-	trans.rotationAngle += uRotationAmount;
-	mat4 model = makeModelMatrix(trans);
+	transforms[gl_GlobalInvocationID.x].rotationAngle += uRotationAmount;
+	mat4 model = makeModelMatrix(transforms[gl_GlobalInvocationID.x]);
 	instanceData[gl_GlobalInvocationID.x].model = model;
 	instanceData[gl_GlobalInvocationID.x].mvp = uProjMatrix * uViewMatrix * model;
 	

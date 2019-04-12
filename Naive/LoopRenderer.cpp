@@ -23,12 +23,10 @@ void LoopRenderer::doFrame(const glm::mat4& viewMatrix)
 	pipeline_->use();
 	for (const auto& mesh : meshes_) {
 		updateTransform(mesh->transform);
-		GLint loc0 = pipeline_->getUniformLocation("uModelMat");
-		GLint loc1 = pipeline_->getUniformLocation("uMVP");
 		glm::mat4 model = mesh->transform.toModelMatrix();
 		glm::mat4 mvp = Shared::kProjectionMatrix * viewMatrix * model;
-		glUniformMatrix4fv(loc0, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(loc1, 1, GL_FALSE, glm::value_ptr(mvp));
+		glUniformMatrix4fv(pipeline_->getUniformLocation("uModelMat"), 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(pipeline_->getUniformLocation("uMVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 
 		glBindVertexArray(mesh->vaoId);
 		glEnableVertexAttribArray(0);

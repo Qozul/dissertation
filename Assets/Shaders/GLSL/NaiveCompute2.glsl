@@ -1,6 +1,5 @@
 #version 440
 
-#define NUM_FLOATS_IN_TRANSFORM 10
 struct Transform {
 	float raX, raY, raZ; 
 	float pX, pY, pZ;
@@ -18,8 +17,12 @@ layout(std430, binding = 0) writeonly buffer OUT0
     ElementData elementData;
 };
 
+layout(std430, binding = 1) buffer INOUT0
+{
+    Transform transform;
+};
+
 uniform float uRotationAmount = 0.1;
-uniform float uTransform[NUM_FLOATS_IN_TRANSFORM];
 uniform mat4 uViewMatrix;
 uniform mat4 uProjMatrix;
 
@@ -68,18 +71,8 @@ mat4 makeModelMatrix(Transform transform)
 
 void main(void)
 {
-	Transform trans;
-	trans.raX = uTransform[0]; 
-	trans.raY = uTransform[1];
-	trans.raZ = uTransform[2];
-	trans.pX = uTransform[3];
-	trans.pY = uTransform[4];
-	trans.pZ = uTransform[5];
-	trans.sX = uTransform[6];
-	trans.sY = uTransform[7];
-	trans.sZ = uTransform[8];
-	trans.rotationAngle = uTransform[9] + uRotationAmount;
-	mat4 model = makeModelMatrix(trans);
+	transform.rotationAngle += uRotationAmount;
+	mat4 model = makeModelMatrix(transform);
 	elementData.model = model;
 	elementData.mvp = uProjMatrix * uViewMatrix * model;
 }

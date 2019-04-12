@@ -5,16 +5,17 @@
 #include "TexturedRenderer.h"
 #include "LoopRenderer.h"
 #include "ComputeRenderer.h"
+#include "ComputeFetchRenderer.h"
 #include "Texture.h"
 #include "MeshLoader.h"
 #include "Mesh.h"
 #include "../Shared/PerfMeasurer.h"
 
-#define NUM_OBJECTS 1000
-#define BASIC_RUN
+#define NUM_OBJECTS 10
+//#define BASIC_RUN
 //#define TEXTURED_RUN
 //#define LOOP_RUN
-//#define COMPUTE_READBACK_RUN
+#define COMPUTE_READBACK_RUN
 //#define COMPUTE_RUN
 
 using namespace QZL;
@@ -31,7 +32,7 @@ System::System()
 	initGLFW();
 	initGL3W();
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 5; ++i)
 		perfMeasurers_.push_back(new Shared::PerfMeasurer());
 
 	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -55,13 +56,16 @@ System::System()
 		loopRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	loopRenderer_->initialise();
 #elif defined(COMPUTE_READBACK_RUN)
-	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("NaiveBasicVert", "NaiveBasicFrag"));
+	computeReadbackRenderer_ = new ComputeFetchRenderer(new ShaderPipeline("NaiveComputeVert", "NaiveComputeFrag"));
+	for (int i = 0; i < NUM_OBJECTS; ++i)
+		computeReadbackRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
+	computeReadbackRenderer_->initialise();
+#elif defined(COMPUTE_RUN)
+	computeRenderer_ = new ComputeRenderer(new ShaderPipeline("NaiveComputeVert", "NaiveComputeFrag"));
 	for (int i = 0; i < NUM_OBJECTS; ++i)
 		computeRenderer_->addMesh(meshLoader_->loadMesh("teapot-fixed"));
 	computeRenderer_->initialise();
-#elif defined(COMPUTE_RUN)
 #endif
-
 	QZL::Shared::checkGLError();
 }
 
@@ -74,8 +78,9 @@ System::~System()
 #elif defined(LOOP_RUN)
 	SAFE_DELETE(loopRenderer_);
 #elif defined(COMPUTE_READBACK_RUN)
-	SAFE_DELETE(computeRenderer_);
+	SAFE_DELETE(computeReadbackRenderer_);
 #elif defined(COMPUTE_RUN)
+	SAFE_DELETE(computeRenderer_);
 #endif
 	SAFE_DELETE(meshLoader_);
 	for (auto& perfMeasurer : perfMeasurers_) {
@@ -112,9 +117,12 @@ void System::loop()
 		perfMeasurers_[2]->endTime();
 #elif defined(COMPUTE_READBACK_RUN)
 		perfMeasurers_[3]->startTime();
-		computeRenderer_->doFrame(viewMatrix_);
+		computeReadbackRenderer_->doFrame(viewMatrix_);
 		perfMeasurers_[3]->endTime();
 #elif defined(COMPUTE_RUN)
+		perfMeasurers_[4]->startTime();
+		computeRenderer_->doFrame(viewMatrix_);
+		perfMeasurers_[4]->endTime();
 #endif
 		glfwSwapBuffers(window_);
 
@@ -128,8 +136,9 @@ void System::loop()
 #elif defined(LOOP_RUN)
 	std::cout << "Loop perf: " << perfMeasurers_[2]->getAverageTime().count() << std::endl;
 #elif defined(COMPUTE_READBACK_RUN)
-	std::cout << "Compute perf: " << perfMeasurers_[3]->getAverageTime().count() << std::endl;
+	std::cout << "Compute Fetch perf: " << perfMeasurers_[3]->getAverageTime().count() << std::endl;
 #elif defined(COMPUTE_RUN)
+	std::cout << "Compute perf: " << perfMeasurers_[4]->getAverageTime().count() << std::endl;
 #endif
 }
 

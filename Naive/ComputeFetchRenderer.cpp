@@ -1,34 +1,44 @@
-#include "ComputeRenderer.h"
+#include "ComputeFetchRenderer.h"
 
 using namespace QZL;
 using namespace QZL::Naive;
 
-const float ComputeRenderer::kRotationSpeed = 0.11f;
+const float ComputeFetchRenderer::kRotationSpeed = 0.11f;
 
-ComputeRenderer::ComputeRenderer(ShaderPipeline* pipeline)
-	: Base(pipeline), computePipeline_(new ShaderPipeline("NaiveCompute")), compBufPtr_(nullptr)
+ComputeFetchRenderer::ComputeFetchRenderer(ShaderPipeline* pipeline)
+	: Base(pipeline), computePipeline_(new ShaderPipeline("NaiveCompute2")), compTransBufPtr_(nullptr)
 {
+	// SSBO for compute write
 	glGenBuffers(1, &computeBuffer_);
+	glGenBuffers(1, &computeTransBuffer_);
 }
 
-ComputeRenderer::~ComputeRenderer()
+ComputeFetchRenderer::~ComputeFetchRenderer()
 {
-	if (compBufPtr_)
-		glUnmapNamedBuffer(computeBuffer_);
+	if (compTransBufPtr_)
+		glUnmapNamedBuffer(computeTransBuffer_);
 	glDeleteBuffers(1, &computeBuffer_);
+	glDeleteBuffers(1, &computeTransBuffer_);
 	SAFE_DELETE(computePipeline_)
 }
 
-void ComputeRenderer::initialise()
+void ComputeFetchRenderer::initialise()
 {
 	meshes_[0]->transform.position = glm::vec3(-2.0f, -2.0f, 0.0f);
 	meshes_[0]->transform.setScale(0.7f);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeBuffer_);
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(ElementData), NULL, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, computeBuffer_);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeTransBuffer_);
+	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT | GL_MAP_READ_BIT;
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(Shared::Transform), NULL, flags);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, computeTransBuffer_);
+	compTransBufPtr_ = glMapNamedBufferRange(computeTransBuffer_, 0, sizeof(Shared::Transform), flags);
+	QZL::Shared::checkGLError();
 }
 
-void ComputeRenderer::doFrame(const glm::mat4& viewMatrix)
+void ComputeFetchRenderer::doFrame(const glm::mat4& viewMatrix)
 {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, computeBuffer_);
 	for (auto& mesh : meshes_) {
@@ -42,20 +52,20 @@ void ComputeRenderer::doFrame(const glm::mat4& viewMatrix)
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(0);
-		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		pipeline_->unuse();
 	}
 	glBindVertexArray(0);
 }
 
-void ComputeRenderer::computeTransform(const glm::mat4& viewMatrix, BasicMesh& mesh)
+void ComputeFetchRenderer::computeTransform(const glm::mat4& viewMatrix, BasicMesh& mesh)
 {
 	computePipeline_->use();
-	glUniform1fv(computePipeline_->getUniformLocation("uTransform"), 10, mesh.transform.data());
-	
+	memcpy(compTransBufPtr_, &mesh.transform, sizeof(Shared::Transform));
+
 	glUniformMatrix4fv(computePipeline_->getUniformLocation("uProjMatrix"), 1, GL_FALSE, glm::value_ptr(Shared::kProjectionMatrix));
 	glUniformMatrix4fv(computePipeline_->getUniformLocation("uViewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glDispatchCompute(1, 1, 1);
 	computePipeline_->unuse();
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	glFinish();
+	memcpy(&mesh.transform, compTransBufPtr_, sizeof(Shared::Transform));
 }

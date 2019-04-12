@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AbstractRenderer.h" />
+    <ClInclude Include="ComputeFetchRenderer.h" />
     <ClInclude Include="ComputeRenderer.h" />
     <ClInclude Include="LoopRenderer.h" />
     <ClInclude Include="BasicRenderer.h" />
@@ -30,6 +31,7 @@
     <ClInclude Include="System.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ComputeFetchRenderer.cpp" />
     <ClCompile Include="ComputeRenderer.cpp" />
     <ClCompile Include="LoopRenderer.cpp" />
     <ClCompile Include="main.cpp" />

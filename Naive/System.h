@@ -34,6 +34,7 @@ namespace QZL
 			TexturedRenderer* texturedRenderer_;
 			AbstractRenderer* loopRenderer_;
 			AbstractRenderer* computeRenderer_;
+			AbstractRenderer* computeReadbackRenderer_;
 
 			std::vector<Shared::PerfMeasurer*> perfMeasurers_;
 

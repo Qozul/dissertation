@@ -7,7 +7,7 @@ namespace QZL
 {
 	namespace Naive
 	{
-		class ComputeRenderer : public AbstractRenderer {
+		class ComputeFetchRenderer : public AbstractRenderer {
 			using Base = AbstractRenderer;
 
 			struct ElementData {
@@ -15,8 +15,8 @@ namespace QZL
 				glm::mat4 mvp;
 			};
 		public:
-			ComputeRenderer(ShaderPipeline* pipeline);
-			~ComputeRenderer();
+			ComputeFetchRenderer(ShaderPipeline* pipeline);
+			~ComputeFetchRenderer();
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;
 
@@ -25,7 +25,8 @@ namespace QZL
 
 			ShaderPipeline* computePipeline_;
 			GLuint computeBuffer_;
-			void* compBufPtr_;
+			GLuint computeTransBuffer_;
+			void* compTransBufPtr_;
 
 			static const float kRotationSpeed;
 		};

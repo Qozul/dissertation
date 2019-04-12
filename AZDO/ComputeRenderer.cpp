@@ -33,9 +33,7 @@ void ComputeRenderer::initialise()
 	setupInstanceDataBuffer();
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeBuffer_);
-	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT;
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, renderStorage_->instanceCount() * sizeof(MeshInstance), 0, flags);
-	compBufPtr_ = glMapNamedBufferRange(computeBuffer_, 0, renderStorage_->instanceCount() * sizeof(MeshInstance), flags);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, renderStorage_->instanceCount() * sizeof(MeshInstance), renderStorage_->instanceData(), GL_MAP_WRITE_BIT);
 }
 
 void ComputeRenderer::doFrame(const glm::mat4& viewMatrix)
@@ -56,15 +54,11 @@ void ComputeRenderer::doFrame(const glm::mat4& viewMatrix)
 
 void ComputeRenderer::computeTransform(const glm::mat4& viewMatrix)
 {
-	memcpy(compBufPtr_, renderStorage_->instanceData(), renderStorage_->instanceCount() * sizeof(MeshInstance));
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, computeBuffer_);
 	computePipeline_->use();
-	GLint rotLoc = computePipeline_->getUniformLocation("uRotationAmount");
-	glUniform1f(rotLoc, kRotationSpeed);
-	GLint loc0 = computePipeline_->getUniformLocation("uViewMatrix");
-	GLint loc1 = computePipeline_->getUniformLocation("uProjMatrix");
-	glUniformMatrix4fv(loc0, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-	glUniformMatrix4fv(loc1, 1, GL_FALSE, glm::value_ptr(Shared::kProjectionMatrix));
+	glUniform1f(computePipeline_->getUniformLocation("uRotationAmount"), kRotationSpeed);
+	glUniformMatrix4fv(computePipeline_->getUniformLocation("uViewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(computePipeline_->getUniformLocation("uProjMatrix"), 1, GL_FALSE, glm::value_ptr(Shared::kProjectionMatrix));
 	glDispatchCompute(renderStorage_->instanceCount(), 1, 1);
 	computePipeline_->unuse();
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);

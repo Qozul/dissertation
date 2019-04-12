@@ -11,7 +11,7 @@ using namespace QZL::AZDO;
 const float ComputeFetchRenderer::kRotationSpeed = 0.11f;
 
 ComputeFetchRenderer::ComputeFetchRenderer(ShaderPipeline* pipeline, VaoWrapper* vao)
-	: Base(pipeline, vao), computePipeline_(new ShaderPipeline("AZDOCompute")), compBufPtr_(nullptr)
+	: Base(pipeline, vao), computePipeline_(new ShaderPipeline("AZDOCompute2")), compBufPtr_(nullptr)
 {
 	glGenBuffers(1, &computeBuffer_);
 }
@@ -35,23 +35,16 @@ void ComputeFetchRenderer::initialise()
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeBuffer_);
 	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT | GL_MAP_READ_BIT;
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, renderStorage_->instanceCount() * sizeof(MeshInstance), 0, flags);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, renderStorage_->instanceCount() * sizeof(MeshInstance), renderStorage_->instanceData(), flags);
 	compBufPtr_ = glMapNamedBufferRange(computeBuffer_, 0, renderStorage_->instanceCount() * sizeof(MeshInstance), flags);
 }
 
 void ComputeFetchRenderer::doFrame(const glm::mat4& viewMatrix)
 {
 	bindInstanceDataBuffer();
-	computeTransform();
+	computeTransform(viewMatrix);
 	pipeline_->use();
 	renderStorage_->vao()->bind();
-	auto instPtr = renderStorage_->instanceData();
-	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
-		glm::mat4 model = (instPtr + i)->transform.toModelMatrix();
-		instanceDataBufPtr_[i] = {
-			model, Shared::kProjectionMatrix * viewMatrix * model
-		};
-	}
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, commandBuffer_);
 	glBufferData(GL_DRAW_INDIRECT_BUFFER, renderStorage_->meshCount() * sizeof(DrawElementsCommand), renderStorage_->meshData(), GL_DYNAMIC_DRAW);
 
@@ -62,13 +55,13 @@ void ComputeFetchRenderer::doFrame(const glm::mat4& viewMatrix)
 	pipeline_->unuse();
 }
 
-void ComputeFetchRenderer::computeTransform()
+void ComputeFetchRenderer::computeTransform(const glm::mat4& viewMatrix)
 {
-	memcpy(compBufPtr_, renderStorage_->instanceData(), renderStorage_->instanceCount() * sizeof(MeshInstance));
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, computeBuffer_);
 	computePipeline_->use();
-	GLint rotLoc = computePipeline_->getUniformLocation("uRotationAmount");
-	glUniform1f(rotLoc, kRotationSpeed);
+	glUniform1f(computePipeline_->getUniformLocation("uRotationAmount"), kRotationSpeed);
+	glUniformMatrix4fv(computePipeline_->getUniformLocation("uViewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniformMatrix4fv(computePipeline_->getUniformLocation("uProjMatrix"), 1, GL_FALSE, glm::value_ptr(Shared::kProjectionMatrix));
 	glDispatchCompute(renderStorage_->instanceCount(), 1, 1);
 	computePipeline_->unuse();
 
