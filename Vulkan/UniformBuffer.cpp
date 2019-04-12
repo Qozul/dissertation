@@ -10,13 +10,12 @@ UniformBuffer::UniformBuffer(const LogicDevice* logicDevice, MemoryAllocationPat
 	// TODO create staging buffer transfer alternative
 	ENSURES(bufferDetails_.access == MemoryAccessType::kDirect || bufferDetails_.access == MemoryAccessType::kPersistant);
 
-	VkDescriptorSetLayoutBinding layoutBinding = {};
-	layoutBinding.binding = bindingIdx_;
-	layoutBinding.descriptorCount = 1;
-	layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	layoutBinding.pImmutableSamplers = nullptr;
-	layoutBinding.stageFlags = stageFlags;
-	binding_ = layoutBinding;
+	binding_ = {};
+	binding_.binding = bindingIdx_;
+	binding_.descriptorCount = 1;
+	binding_.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	binding_.pImmutableSamplers = nullptr;
+	binding_.stageFlags = stageFlags;
 }
 
 UniformBuffer::~UniformBuffer()
@@ -41,7 +40,7 @@ VkWriteDescriptorSet UniformBuffer::descriptorWrite(VkDescriptorSet set)
 	descriptorWrite.dstSet = set;
 	descriptorWrite.dstBinding = bindingIdx_;
 	descriptorWrite.dstArrayElement = 0;
-	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC; // VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
 	descriptorWrite.descriptorCount = 1;
 	descriptorWrite.pBufferInfo = &bufferInfo_;
 

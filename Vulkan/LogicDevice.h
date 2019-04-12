@@ -33,6 +33,10 @@ namespace QZL
 		const std::vector<uint32_t>& getAllIndices() const;
 		VkQueue getQueueHandle(QueueFamilyType type);
 
+		operator VkDevice() const {
+			return device_;
+		}
+
 	private:
 		LogicDevice(PhysicalDevice* physicalDevice, VkDevice device, const SystemDetails& sysDetails, DeviceSurfaceCapabilities& surfaceCapabilities,
 			std::vector<uint32_t> indices, std::vector<VkQueue> handles);

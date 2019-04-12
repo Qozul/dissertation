@@ -4,8 +4,29 @@
 #include "Image2D.h"
 #include "Descriptor.h"
 #include "BasicRenderer.h"
+#include "LoopRenderer.h"
+#include "TexturedRenderer.h"
 #include "ElementBuffer.h"
 #include "MeshLoader.h"
+
+//#define BASIC_RUN
+//#define TEXTURED_RUN
+#define LOOP_RUN
+
+#ifdef TEXTURED_RUN
+	#define CURRENT_RENDERER texturedRenderer_
+	#define CURRENT_RENDERER_TYPE TexturedRenderer
+	#define SHADERS "textured_vert", "textured_frag"
+#else
+	#ifdef BASIC_RUN
+		#define CURRENT_RENDERER basicRenderer_
+		#define CURRENT_RENDERER_TYPE BasicRenderer
+	#elif defined(LOOP_RUN)
+		#define CURRENT_RENDERER loopRenderer_
+		#define CURRENT_RENDERER_TYPE LoopRenderer
+	#endif
+	#define SHADERS "test_vert", "test_frag"
+#endif
 
 using namespace QZL;
 
@@ -68,7 +89,7 @@ RenderPass::RenderPass(LogicDevice* logicDevice, const SwapChainDetails& swapCha
 	renderPassInfo.dependencyCount = 1;
 	renderPassInfo.pDependencies = &dependency;
 
-	CHECK_VKRESULT(vkCreateRenderPass(logicDevice->getLogicDevice(), &renderPassInfo, nullptr, &renderPass_));
+	CHECK_VKRESULT(vkCreateRenderPass(*logicDevice, &renderPassInfo, nullptr, &renderPass_));
 
 	createFramebuffers(logicDevice, swapChainDetails);
 
@@ -86,10 +107,10 @@ RenderPass::~RenderPass()
 	SAFE_DELETE(depthBuffer_);
 	SAFE_DELETE(backBuffer_);
 	for (auto framebuffer : framebuffers_) {
-		vkDestroyFramebuffer(logicDevice_->getLogicDevice(), framebuffer, nullptr);
+		vkDestroyFramebuffer(*logicDevice_, framebuffer, nullptr);
 	}
-	SAFE_DELETE(basicRenderer_);
-	vkDestroyRenderPass(logicDevice_->getLogicDevice(), renderPass_, nullptr);
+	SAFE_DELETE(CURRENT_RENDERER);
+	vkDestroyRenderPass(*logicDevice_, renderPass_, nullptr);
 }
 
 void RenderPass::doFrame(const uint32_t idx, VkCommandBuffer cmdBuffer)
@@ -110,7 +131,7 @@ void RenderPass::doFrame(const uint32_t idx, VkCommandBuffer cmdBuffer)
 
 	vkCmdBeginRenderPass(cmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	basicRenderer_->recordFrame(viewMatrix_, idx, cmdBuffer);
+	CURRENT_RENDERER->recordFrame(viewMatrix_, idx, cmdBuffer);
 
 	vkCmdEndRenderPass(cmdBuffer);
 }
@@ -131,7 +152,7 @@ void RenderPass::createFramebuffers(LogicDevice* logicDevice, const SwapChainDet
 		framebufferInfo.height = swapChainDetails.extent.height;
 		framebufferInfo.layers = 1;
 
-		CHECK_VKRESULT(vkCreateFramebuffer(logicDevice->getLogicDevice(), &framebufferInfo, nullptr, &framebuffers_[i]));
+		CHECK_VKRESULT(vkCreateFramebuffer(*logicDevice, &framebufferInfo, nullptr, &framebuffers_[i]));
 	}
 }
 
@@ -140,7 +161,7 @@ void RenderPass::createBackBuffer(LogicDevice* logicDevice, const SwapChainDetai
 	ImageParameters params = { VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
 	VkImageCreateInfo createInfo = Image2D::makeImageCreateInfo(swapChainDetails.extent.width, swapChainDetails.extent.height, 1,
 		VK_SAMPLE_COUNT_1_BIT, swapChainDetails.surfaceFormat.format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT |
-		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 	backBuffer_ = new Image2D(logicDevice, logicDevice->getDeviceMemory(), createInfo, MemoryAllocationPattern::kRenderTarget, params);
 }
 
@@ -159,14 +180,14 @@ VkFormat RenderPass::createDepthBuffer(LogicDevice* logicDevice, const SwapChain
 	}
 
 	VkImageCreateInfo createInfo = Image2D::makeImageCreateInfo(swapChainDetails.extent.width, swapChainDetails.extent.height, 1,
-		VK_SAMPLE_COUNT_1_BIT, imageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		VK_SAMPLE_COUNT_1_BIT, imageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 	depthBuffer_ = new Image2D(logicDevice, logicDevice->getDeviceMemory(), createInfo, MemoryAllocationPattern::kRenderTarget, params);
 	return imageFormat;
 }
 
 void RenderPass::createRenderers()
 {
-	basicRenderer_ = new BasicRenderer(logicDevice_, renderPass_, swapChainDetails_.extent, descriptor_, "test_vert", "test_frag");
+	CURRENT_RENDERER = new CURRENT_RENDERER_TYPE(logicDevice_, renderPass_, swapChainDetails_.extent, descriptor_, SHADERS);
 }
 
 void RenderPass::createElementBuffers()
@@ -178,7 +199,7 @@ void RenderPass::createElementBuffers()
 		MeshInstance* inst = MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *buf);
 		inst->transform.setScale(0.2f);
 		inst->transform.position.x = i;
-		basicRenderer_->addMesh(buf, "teapot-fixed", inst);
+		CURRENT_RENDERER->addMesh(buf, "teapot-fixed", inst);
 	}
 	buf->commit();
 }

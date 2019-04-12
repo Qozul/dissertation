@@ -6,24 +6,30 @@ using namespace QZL;
 Descriptor::Descriptor(const LogicDevice* logicDevice, const uint32_t maxSets)
 	: logicDevice_(logicDevice)
 {
-	VkDescriptorPoolSize poolSize = {};
-	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSize.descriptorCount = maxSets;
+	std::vector<VkDescriptorPoolSize> poolSizes;
+	VkDescriptorPoolSize uniformPoolSize = {};
+	uniformPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uniformPoolSize.descriptorCount = maxSets;
+	poolSizes.push_back(uniformPoolSize);
+	VkDescriptorPoolSize samplerPoolSize = {};
+	samplerPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerPoolSize.descriptorCount = maxSets;
+	poolSizes.push_back(samplerPoolSize);
 
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 1;
-	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.poolSizeCount = poolSizes.size();
+	poolInfo.pPoolSizes = poolSizes.data();
 	poolInfo.maxSets = maxSets;
 
-	CHECK_VKRESULT(vkCreateDescriptorPool(logicDevice_->getLogicDevice(), &poolInfo, nullptr, &pool_));
+	CHECK_VKRESULT(vkCreateDescriptorPool(*logicDevice_, &poolInfo, nullptr, &pool_));
 }
 
 Descriptor::~Descriptor()
 {
 	for (auto layout : layouts_)
-		vkDestroyDescriptorSetLayout(logicDevice_->getLogicDevice(), layout, nullptr);
-	vkDestroyDescriptorPool(logicDevice_->getLogicDevice(), pool_, nullptr);
+		vkDestroyDescriptorSetLayout(*logicDevice_, layout, nullptr);
+	vkDestroyDescriptorPool(*logicDevice_, pool_, nullptr);
 	sets_.clear();
 }
 
@@ -37,7 +43,7 @@ size_t Descriptor::createSets(const std::vector<VkDescriptorSetLayout>& layouts)
 
 	size_t firstIdx = sets_.size();
 	sets_.resize(sets_.size() + layouts.size());
-	CHECK_VKRESULT(vkAllocateDescriptorSets(logicDevice_->getLogicDevice(), &allocInfo, &sets_[firstIdx]));
+	CHECK_VKRESULT(vkAllocateDescriptorSets(*logicDevice_, &allocInfo, &sets_[firstIdx]));
 
 	return firstIdx;
 }
@@ -54,12 +60,12 @@ VkDescriptorSetLayout Descriptor::makeLayout(const std::vector<VkDescriptorSetLa
 	layoutInfo.bindingCount = bindings.size();
 	layoutInfo.pBindings = bindings.data();
 	VkDescriptorSetLayout layout;
-	CHECK_VKRESULT(vkCreateDescriptorSetLayout(logicDevice_->getLogicDevice(), &layoutInfo, nullptr, &layout));
+	CHECK_VKRESULT(vkCreateDescriptorSetLayout(*logicDevice_, &layoutInfo, nullptr, &layout));
 	layouts_.push_back(layout);
 	return layout;
 }
 
 void Descriptor::updateDescriptorSets(const std::vector<VkWriteDescriptorSet>& descriptorWrites)
 {
-	vkUpdateDescriptorSets(logicDevice_->getLogicDevice(), descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+	vkUpdateDescriptorSets(*logicDevice_, descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }

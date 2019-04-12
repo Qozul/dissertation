@@ -9,8 +9,8 @@ RendererPipeline::RendererPipeline(const LogicDevice* logicDevice, VkRenderPass 
 	VkPipelineLayoutCreateInfo layoutInfo, const std::string& vertexShader, const std::string& fragmentShader)
 	: logicDevice_(logicDevice), layout_(VK_NULL_HANDLE)
 {
-	Shader vertexModule = { logicDevice_->getLogicDevice(), vertexShader };
-	Shader fragmentModule = { logicDevice_->getLogicDevice(), fragmentShader };
+	Shader vertexModule = { *logicDevice_, vertexShader };
+	Shader fragmentModule = { *logicDevice_, fragmentShader };
 
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -99,7 +99,7 @@ RendererPipeline::RendererPipeline(const LogicDevice* logicDevice, VkRenderPass 
 	colorBlending.blendConstants[2] = 0.0f;
 	colorBlending.blendConstants[3] = 0.0f;
 
-	CHECK_VKRESULT(vkCreatePipelineLayout(logicDevice_->getLogicDevice(), &layoutInfo, nullptr, &layout_));
+	CHECK_VKRESULT(vkCreatePipelineLayout(*logicDevice_, &layoutInfo, nullptr, &layout_));
 
 	VkGraphicsPipelineCreateInfo pipelineInfo = {};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -117,13 +117,13 @@ RendererPipeline::RendererPipeline(const LogicDevice* logicDevice, VkRenderPass 
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-	CHECK_VKRESULT(vkCreateGraphicsPipelines(logicDevice_->getLogicDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline_));
+	CHECK_VKRESULT(vkCreateGraphicsPipelines(*logicDevice_, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline_));
 }
 
 RendererPipeline::~RendererPipeline()
 {
-	vkDestroyPipeline(logicDevice_->getLogicDevice(), pipeline_, nullptr);
-	vkDestroyPipelineLayout(logicDevice_->getLogicDevice(), layout_, nullptr);
+	vkDestroyPipeline(*logicDevice_, pipeline_, nullptr);
+	vkDestroyPipelineLayout(*logicDevice_, layout_, nullptr);
 }
 
 VkPipeline RendererPipeline::getPipeline()

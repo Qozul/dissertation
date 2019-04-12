@@ -23,7 +23,7 @@ bool PhysicalDevice::isValid(DeviceSurfaceCapabilities& surfaceCapabilities, VkS
 	// Can expand this to see if features contains certain things if needed
 	return properties_.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && 
 		hasRequiredSwapchain(surfaceCapabilities, surface) &&
-		hasRequiredQueueFamilies();
+		hasRequiredQueueFamilies() && features_.samplerAnisotropy;
 }
 
 LogicDevice* PhysicalDevice::createLogicDevice(const SystemDetails& sysDetails, DeviceSurfaceCapabilities& surfaceCapabilities,
@@ -35,6 +35,7 @@ LogicDevice* PhysicalDevice::createLogicDevice(const SystemDetails& sysDetails, 
 	std::array<const char*, 1U> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 	VkPhysicalDeviceFeatures deviceFeatures = {};
+	deviceFeatures.samplerAnisotropy = VK_TRUE;
 	VkDeviceCreateInfo deviceCreateInfo = {};
 	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	deviceCreateInfo.pQueueCreateInfos = createInfos.data();

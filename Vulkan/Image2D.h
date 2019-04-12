@@ -14,11 +14,12 @@ namespace QZL
 
 	class Image2D {
 	public:
-		Image2D(LogicDevice* logicDevice, DeviceMemory* deviceMemory, const VkImageCreateInfo createInfo, MemoryAllocationPattern pattern,
+		Image2D(const LogicDevice* logicDevice, DeviceMemory* deviceMemory, const VkImageCreateInfo createInfo, MemoryAllocationPattern pattern,
 			ImageParameters imageParameters);
 		~Image2D();
+		void changeLayout(ImageParameters imageParameters);
 		static VkImageCreateInfo makeImageCreateInfo(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples,
-			VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
+			VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage);
 
 		const VkImageView& getImageView();
 		const VkImage& getImage();
@@ -26,8 +27,10 @@ namespace QZL
 	private:
 		MemoryAllocationDetails imageDetails_;
 		VkImageView imageView_;
+		VkFormat format_;
+		uint32_t mipLevels_;
 
 		DeviceMemory* deviceMemory_;
-		LogicDevice* logicDevice_;
+		const LogicDevice* logicDevice_;
 	};
 }

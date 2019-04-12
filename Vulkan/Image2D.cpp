@@ -4,9 +4,9 @@
 
 using namespace QZL;
 
-Image2D::Image2D(LogicDevice* logicDevice, DeviceMemory* deviceMemory, const VkImageCreateInfo createInfo, MemoryAllocationPattern pattern,
+Image2D::Image2D(const LogicDevice* logicDevice, DeviceMemory* deviceMemory, const VkImageCreateInfo createInfo, MemoryAllocationPattern pattern,
 	ImageParameters imageParameters)
-	: logicDevice_(logicDevice), deviceMemory_(deviceMemory)
+	: logicDevice_(logicDevice), deviceMemory_(deviceMemory), format_(createInfo.format), mipLevels_(createInfo.mipLevels)
 {
 	imageDetails_ = deviceMemory_->createImage(pattern, createInfo);
 
@@ -21,18 +21,24 @@ Image2D::Image2D(LogicDevice* logicDevice, DeviceMemory* deviceMemory, const VkI
 	viewInfo.subresourceRange.baseArrayLayer = 0;
 	viewInfo.subresourceRange.layerCount = 1;
 
-	CHECK_VKRESULT(vkCreateImageView(logicDevice->getLogicDevice(), &viewInfo, nullptr, &imageView_));
+	CHECK_VKRESULT(vkCreateImageView(*logicDevice, &viewInfo, nullptr, &imageView_));
 
 	deviceMemory_->changeImageLayout(imageDetails_.image, imageParameters.oldLayout, imageParameters.newLayout, createInfo.format, createInfo.mipLevels);
 }
 
 Image2D::~Image2D()
 {
-	vkDestroyImageView(logicDevice_->getLogicDevice(), imageView_, nullptr);
+	vkDestroyImageView(*logicDevice_, imageView_, nullptr);
 	deviceMemory_->deleteAllocation(imageDetails_.id, imageDetails_.image);
 }
 
-VkImageCreateInfo Image2D::makeImageCreateInfo(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
+void Image2D::changeLayout(ImageParameters imageParameters)
+{
+	deviceMemory_->changeImageLayout(imageDetails_.image, imageParameters.oldLayout, imageParameters.newLayout, format_, mipLevels_);
+}
+
+VkImageCreateInfo Image2D::makeImageCreateInfo(uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, 
+	VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage)
 {
 	VkImageCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

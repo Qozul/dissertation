@@ -11,15 +11,15 @@ namespace QZL
 	/// Utility function for getting data from Vulkan where it needs to call a function to get
 	/// a count of the data and then call it again to get the data.
 	/// Can be called succinctly with the following basic line:
-	/// auto x = Shared::Vulk::obtainVkData<R>(func, arg0, arg1, ..., argN);
+	/// auto x = obtainVkData<R>(func, arg0, arg1, ..., argN);
 	template<class R, typename FP, typename... Args>
-	inline std::vector<R> obtainVkData(FP func_ptr, Args&&... args)
+	inline std::vector<R> obtainVkData(FP funcPtr, Args&&... args)
 	{
 		uint32_t count = 0;
-		func_ptr(std::forward<Args>(args)..., &count, nullptr);
+		funcPtr(std::forward<Args>(args)..., &count, nullptr);
 		DEBUG_IFERR(count == 0, ("Obtain vkdata found no data for type " + std::string(typeid(R).name())));
 		std::vector<R> result(count);
-		func_ptr(std::forward<Args>(args)..., &count, result.data());
+		funcPtr(std::forward<Args>(args)..., &count, result.data());
 		return result;
 	}
 }

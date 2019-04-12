@@ -10,7 +10,7 @@ DeviceMemory::DeviceMemory(PhysicalDevice* physicalDevice, LogicDevice* logicDev
 {
 	VmaAllocatorCreateInfo allocatorInfo = {};
 	allocatorInfo.physicalDevice = physicalDevice->getPhysicalDevice();
-	allocatorInfo.device = logicDevice->getLogicDevice();
+	allocatorInfo.device = *logicDevice;
 
 	vmaCreateAllocator(&allocatorInfo, &allocator_);
 }
@@ -59,7 +59,7 @@ const MemoryAllocationDetails DeviceMemory::createImage(MemoryAllocationPattern 
 	fixAccessType(allocationDetails.access, allocInfo, memFlags);
 
 	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(logicDevice_->getLogicDevice(), allocationDetails.image, &memRequirements);
+	vkGetImageMemoryRequirements(*logicDevice_, allocationDetails.image, &memRequirements);
 	allocationDetails.size = memRequirements.size;
 
 	return allocationDetails;
@@ -97,6 +97,34 @@ void DeviceMemory::transferMemory(const VkBuffer& srcBuffer, const VkBuffer& dst
 
 	VkBufferCopy copyRegion = { srcOffset, dstOffset, size };
 	vkCmdCopyBuffer(transferCmdBuffer_, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	vkEndCommandBuffer(transferCmdBuffer_);
+	VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &transferCmdBuffer_;
+
+	vkQueueSubmit(queue_, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(queue_);
+}
+
+void DeviceMemory::transferMemory(const VkBuffer& srcBuffer, const VkImage& dstImage, VkDeviceSize srcOffset, uint32_t width, uint32_t height)
+{
+	VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+	vkBeginCommandBuffer(transferCmdBuffer_, &beginInfo);
+
+	VkBufferImageCopy copyRegion = {};
+	copyRegion.bufferOffset = srcOffset;
+	copyRegion.bufferRowLength = 0;
+	copyRegion.bufferImageHeight = 0;
+	copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	copyRegion.imageSubresource.mipLevel = 0;
+	copyRegion.imageSubresource.baseArrayLayer = 0;
+	copyRegion.imageSubresource.layerCount = 1;
+	copyRegion.imageOffset = { 0, 0, 0 };
+	copyRegion.imageExtent = { width, height, 1 };
+
+	vkCmdCopyBufferToImage(transferCmdBuffer_, srcBuffer, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 
 	vkEndCommandBuffer(transferCmdBuffer_);
 	VkSubmitInfo submitInfo = { VK_STRUCTURE_TYPE_SUBMIT_INFO };

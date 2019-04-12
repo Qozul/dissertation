@@ -40,14 +40,14 @@ SwapChain::~SwapChain()
 {
 	SAFE_DELETE(renderPass_);
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		vkDestroySemaphore(logicDevice_->getLogicDevice(), renderFinishedSemaphores_[i], nullptr);
-		vkDestroySemaphore(logicDevice_->getLogicDevice(), imageAvailableSemaphores_[i], nullptr);
-		vkDestroyFence(logicDevice_->getLogicDevice(), inFlightFences_[i], nullptr);
+		vkDestroySemaphore(*logicDevice_, renderFinishedSemaphores_[i], nullptr);
+		vkDestroySemaphore(*logicDevice_, imageAvailableSemaphores_[i], nullptr);
+		vkDestroyFence(*logicDevice_, inFlightFences_[i], nullptr);
 	}
 	for (auto view : details_.imageViews) {
-		vkDestroyImageView(logicDevice_->getLogicDevice(), view, nullptr);
+		vkDestroyImageView(*logicDevice_, view, nullptr);
 	}
-	vkDestroySwapchainKHR(logicDevice_->getLogicDevice(), details_.swapChain, nullptr);
+	vkDestroySwapchainKHR(*logicDevice_, details_.swapChain, nullptr);
 }
 
 void SwapChain::initSwapChain(GLFWwindow* window, DeviceSurfaceCapabilities& surfaceCapabilities)
@@ -91,9 +91,9 @@ void SwapChain::initSwapChainImages(GLFWwindow* window, VkSurfaceKHR surface, De
 	createInfo.clipped = VK_TRUE;
 	createInfo.oldSwapchain = VK_NULL_HANDLE; // This NEEDS to be used if the swap chain has to be recreated
 
-	CHECK_VKRESULT(vkCreateSwapchainKHR(logicDevice_->getLogicDevice(), &createInfo, nullptr, &details_.swapChain));
+	CHECK_VKRESULT(vkCreateSwapchainKHR(*logicDevice_, &createInfo, nullptr, &details_.swapChain));
 
-	details_.images = obtainVkData<VkImage>(vkGetSwapchainImagesKHR, logicDevice_->getLogicDevice(), details_.swapChain);
+	details_.images = obtainVkData<VkImage>(vkGetSwapchainImagesKHR, *logicDevice_, details_.swapChain);
 }
 
 void SwapChain::initImageViews()
@@ -115,7 +115,7 @@ void SwapChain::initImageViews()
 		createInfo.subresourceRange.levelCount = 1;
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount = 1;
-		CHECK_VKRESULT(vkCreateImageView(logicDevice_->getLogicDevice(), &createInfo, nullptr, &details_.imageViews[i]));
+		CHECK_VKRESULT(vkCreateImageView(*logicDevice_, &createInfo, nullptr, &details_.imageViews[i]));
 	}
 }
 VkSurfaceFormatKHR SwapChain::chooseFormat(std::vector<VkSurfaceFormatKHR>& formats)
@@ -168,10 +168,10 @@ void SwapChain::setCommandBuffers(const std::vector<VkCommandBuffer>& commandBuf
 
 uint32_t SwapChain::aquireImage()
 {
-	vkWaitForFences(logicDevice_->getLogicDevice(), 1, &inFlightFences_[currentFrame_], VK_TRUE, std::numeric_limits<uint64_t>::max());
+	vkWaitForFences(*logicDevice_, 1, &inFlightFences_[currentFrame_], VK_TRUE, std::numeric_limits<uint64_t>::max());
 
 	uint32_t imgIdx;
-	CHECK_VKRESULT(vkAcquireNextImageKHR(logicDevice_->getLogicDevice(), details_.swapChain, std::numeric_limits<uint64_t>::max(), 
+	CHECK_VKRESULT(vkAcquireNextImageKHR(*logicDevice_, details_.swapChain, std::numeric_limits<uint64_t>::max(),
 		imageAvailableSemaphores_[currentFrame_], VK_NULL_HANDLE, &imgIdx));
 	return imgIdx;
 }
@@ -193,7 +193,7 @@ void SwapChain::submitQueue(const uint32_t imgIdx, VkSemaphore signalSemaphores[
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	vkResetFences(logicDevice_->getLogicDevice(), 1, &inFlightFences_[currentFrame_]);
+	vkResetFences(*logicDevice_, 1, &inFlightFences_[currentFrame_]);
 
 	CHECK_VKRESULT(vkQueueSubmit(logicDevice_->getQueueHandle(QueueFamilyType::kGraphicsQueue), 1, &submitInfo, inFlightFences_[currentFrame_]));
 }
@@ -231,9 +231,9 @@ void SwapChain::createSyncObjects() {
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		if (vkCreateSemaphore(logicDevice_->getLogicDevice(), &semaphoreInfo, nullptr, &imageAvailableSemaphores_[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(logicDevice_->getLogicDevice(), &semaphoreInfo, nullptr, &renderFinishedSemaphores_[i]) != VK_SUCCESS ||
-			vkCreateFence(logicDevice_->getLogicDevice(), &fenceInfo, nullptr, &inFlightFences_[i]) != VK_SUCCESS) {
+		if (vkCreateSemaphore(*logicDevice_, &semaphoreInfo, nullptr, &imageAvailableSemaphores_[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(*logicDevice_, &semaphoreInfo, nullptr, &renderFinishedSemaphores_[i]) != VK_SUCCESS ||
+			vkCreateFence(*logicDevice_, &fenceInfo, nullptr, &inFlightFences_[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create synchronization objects for a frame!");
 		}
 	}

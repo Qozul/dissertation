@@ -46,6 +46,12 @@
     <Filter Include="Source Files\Graphics\Render\Renderers">
       <UniqueIdentifier>{f30bd23f-879e-4110-8a8c-74c1167c77d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphics\Textures">
+      <UniqueIdentifier>{26d90a9d-782c-4ffb-8db9-3b1a70e3b8a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Graphics\Textures">
+      <UniqueIdentifier>{657dd418-2916-4097-9ffe-4e366310f63f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LogicDevice.cpp">
@@ -98,6 +104,18 @@
     </ClCompile>
     <ClCompile Include="MeshLoader.cpp">
       <Filter>Source Files\Graphics\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureLoader.cpp">
+      <Filter>Source Files\Graphics\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureSampler.cpp">
+      <Filter>Source Files\Graphics\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="TexturedRenderer.cpp">
+      <Filter>Source Files\Graphics\Render\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="LoopRenderer.cpp">
+      <Filter>Source Files\Graphics\Render\Renderers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -152,9 +170,6 @@
     <ClInclude Include="BasicRenderer.h">
       <Filter>Header Files\Graphics\Render\Renderers</Filter>
     </ClInclude>
-    <ClInclude Include="UniformBuffer.h">
-      <Filter>Header Files\Graphics\Render</Filter>
-    </ClInclude>
     <ClInclude Include="RendererBase.h">
       <Filter>Header Files\Graphics\Render\Renderers</Filter>
     </ClInclude>
@@ -163,6 +178,21 @@
     </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Header Files\Graphics\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureLoader.h">
+      <Filter>Header Files\Graphics\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureSampler.h">
+      <Filter>Header Files\Graphics\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="UniformBuffer.h">
+      <Filter>Header Files\Graphics\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="TexturedRenderer.h">
+      <Filter>Header Files\Graphics\Render\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="LoopRenderer.h">
+      <Filter>Header Files\Graphics\Render\Renderers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

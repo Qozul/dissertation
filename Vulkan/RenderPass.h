@@ -36,6 +36,8 @@ namespace QZL
 		std::vector<ElementBuffer*> elementBuffers_;
 
 		RendererBase<MeshInstance>* basicRenderer_;
+		RendererBase<MeshInstance>* texturedRenderer_;
+		RendererBase<MeshInstance>* loopRenderer_;
 
 		Image2D* backBuffer_;
 		Image2D* depthBuffer_;

@@ -9,14 +9,15 @@ namespace QZL
 
 	class TextureLoader {
 	public:
-		TextureLoader(LogicDevice* logicDevice, DeviceMemory* deviceMemory);
+		TextureLoader(const LogicDevice* logicDevice, DeviceMemory* deviceMemory);
 		~TextureLoader();
-		Image2D* LoadTexture(const std::string& fileName);
+		Image2D* loadTexture(const std::string& fileName);
 
 	private:
-		std::map<std::string, Image2D*> textures_;
+		std::unordered_map<std::string, Image2D*> textures_;
+		VkFormat convertToVkFormat(unsigned int oldFormat);
 
-		LogicDevice* logicDevice_;
+		const LogicDevice* logicDevice_;
 		DeviceMemory* deviceMemory_;
 
 		static const std::string kPath;

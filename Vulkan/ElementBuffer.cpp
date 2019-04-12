@@ -4,7 +4,7 @@
 using namespace QZL;
 
 ElementBuffer::ElementBuffer(DeviceMemory* deviceMemory)
-	: deviceMemory_(deviceMemory), isCommitted_(false)
+	: deviceMemory_(deviceMemory), isCommitted_(false), indexCount_(0)
 {
 }
 
