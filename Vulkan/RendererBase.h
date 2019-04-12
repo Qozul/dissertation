@@ -23,6 +23,7 @@ namespace QZL
 		}
 		virtual ~RendererBase();
 		virtual void recordFrame(const glm::mat4& viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer) = 0;
+		virtual void recordCompute(const glm::mat4& viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer);
 		std::vector<VkWriteDescriptorSet> getDescriptorWrites(uint32_t frameIdx);
 		virtual void initialise(const glm::mat4& viewMatrix) = 0;
 
@@ -46,6 +47,11 @@ namespace QZL
 			SAFE_DELETE(buffer);
 		}
 		SAFE_DELETE(pipeline_);
+	}
+
+	template<typename InstType>
+	inline void RendererBase<InstType>::recordCompute(const glm::mat4& viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer)
+	{
 	}
 
 	template<typename InstType>

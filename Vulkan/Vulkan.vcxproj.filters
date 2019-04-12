@@ -117,6 +117,12 @@
     <ClCompile Include="LoopRenderer.cpp">
       <Filter>Source Files\Graphics\Render\Renderers</Filter>
     </ClCompile>
+    <ClCompile Include="ComputePipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeRenderer.cpp">
+      <Filter>Source Files\Graphics\Render\Renderers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LogicDevice.h">
@@ -196,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="ComputeRenderer.h">
       <Filter>Header Files\Graphics\Render\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="ComputePipeline.h">
+      <Filter>Header Files\Graphics\Render</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

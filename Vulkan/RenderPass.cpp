@@ -116,6 +116,13 @@ RenderPass::~RenderPass()
 
 void RenderPass::doFrame(const uint32_t idx, VkCommandBuffer cmdBuffer)
 {
+#if defined(COMPUTE_RUN) || defined(COMPUTE_READBACK_RUN)
+	// Might need a separate command buffer
+	CURRENT_RENDERER->recordCompute(viewMatrix_, idx, cmdBuffer);
+	// TODO submit the queue
+	vkQueueSubmit(...);
+	// Need sync? Fence? Semaphore?
+#endif
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = renderPass_;

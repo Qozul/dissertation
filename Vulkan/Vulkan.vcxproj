@@ -25,6 +25,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BasicRenderer.cpp" />
+    <ClCompile Include="ComputePipeline.cpp" />
+    <ClCompile Include="ComputeRenderer.cpp" />
     <ClCompile Include="Descriptor.cpp" />
     <ClCompile Include="DeviceMemory.cpp" />
     <ClCompile Include="ElementBuffer.cpp" />
@@ -48,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicRenderer.h" />
+    <ClInclude Include="ComputePipeline.h" />
     <ClInclude Include="ComputeRenderer.h" />
     <ClInclude Include="Descriptor.h" />
     <ClInclude Include="DeviceMemory.h" />
