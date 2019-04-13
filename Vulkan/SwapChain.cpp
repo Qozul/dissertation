@@ -33,7 +33,7 @@ SwapChain::SwapChain(GLFWwindow* window, VkSurfaceKHR surface, LogicDevice* logi
 	initSwapChainImages(window, surface, surfaceCapabilities);
 	initImageViews();
 	renderPass_ = new RenderPass(logicDevice, details_);
-	createSyncObjects(); // TODOD
+	createSyncObjects(); 
 }
 
 SwapChain::~SwapChain()
@@ -230,11 +230,9 @@ void SwapChain::createSyncObjects() {
 	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		if (vkCreateSemaphore(*logicDevice_, &semaphoreInfo, nullptr, &imageAvailableSemaphores_[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(*logicDevice_, &semaphoreInfo, nullptr, &renderFinishedSemaphores_[i]) != VK_SUCCESS ||
-			vkCreateFence(*logicDevice_, &fenceInfo, nullptr, &inFlightFences_[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create synchronization objects for a frame!");
-		}
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+		CHECK_VKRESULT(vkCreateSemaphore(*logicDevice_, &semaphoreInfo, nullptr, &imageAvailableSemaphores_[i]));
+		CHECK_VKRESULT(vkCreateSemaphore(*logicDevice_, &semaphoreInfo, nullptr, &renderFinishedSemaphores_[i]));
+		CHECK_VKRESULT(vkCreateFence(*logicDevice_, &fenceInfo, nullptr, &inFlightFences_[i]));
 	}
 }

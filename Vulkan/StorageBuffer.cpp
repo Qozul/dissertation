@@ -40,7 +40,7 @@ VkWriteDescriptorSet StorageBuffer::descriptorWrite(VkDescriptorSet set)
 	descriptorWrite.dstSet = set;
 	descriptorWrite.dstBinding = bindingIdx_;
 	descriptorWrite.dstArrayElement = 0;
-	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER; // VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 	descriptorWrite.descriptorCount = 1;
 	descriptorWrite.pBufferInfo = &bufferInfo_;
 

@@ -32,7 +32,7 @@ namespace QZL
 		DeviceMemory* getDeviceMemory() const;
 		const uint32_t getFamilyIndex(QueueFamilyType type) const;
 		const std::vector<uint32_t>& getAllIndices() const;
-		VkQueue getQueueHandle(QueueFamilyType type);
+		VkQueue getQueueHandle(QueueFamilyType type) const;
 
 		operator VkDevice() const {
 			return device_;

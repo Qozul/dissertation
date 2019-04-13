@@ -7,15 +7,16 @@
 #include "LoopRenderer.h"
 #include "TexturedRenderer.h"
 #include "ComputeRenderer.h"
+#include "ComputeFetchRenderer.h"
 #include "ElementBuffer.h"
 #include "MeshLoader.h"
 
 #define NUM_ELEMENTS 10
-#define BASIC_RUN
+//#define BASIC_RUN
 //#define TEXTURED_RUN
 //#define LOOP_RUN
 //#define COMPUTE_RUN
-//#define COMPUTE_READBACK_RUN
+#define COMPUTE_READBACK_RUN
 
 #ifdef TEXTURED_RUN
 	#define CURRENT_RENDERER texturedRenderer_

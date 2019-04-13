@@ -25,8 +25,6 @@ LogicDevice::LogicDevice(PhysicalDevice* physicalDevice, VkDevice device, const 
 
 LogicDevice::~LogicDevice()
 {
-	vkDeviceWaitIdle(device_);
-
 	SAFE_DELETE(swapChain_);
 	SAFE_DELETE(deviceMemory_);
 	vkFreeCommandBuffers(device_, primaryCommandPool_, static_cast<uint32_t>(commandBuffers_.size()), commandBuffers_.data());
@@ -74,7 +72,7 @@ const std::vector<uint32_t>& LogicDevice::getAllIndices() const
 	return queueFamilyIndices_;
 }
 
-VkQueue LogicDevice::getQueueHandle(QueueFamilyType type)
+VkQueue LogicDevice::getQueueHandle(QueueFamilyType type) const
 {
 	EXPECTS(type != QueueFamilyType::kNumQueueFamilyTypes);
 	return queueHandles_[static_cast<size_t>(type)];

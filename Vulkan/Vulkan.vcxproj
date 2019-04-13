@@ -25,6 +25,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BasicRenderer.cpp" />
+    <ClCompile Include="ComputeFetchRenderer.cpp" />
     <ClCompile Include="ComputePipeline.cpp" />
     <ClCompile Include="ComputeRenderer.cpp" />
     <ClCompile Include="Descriptor.cpp" />
@@ -50,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicRenderer.h" />
+    <ClInclude Include="ComputeFetchRenderer.h" />
     <ClInclude Include="ComputePipeline.h" />
     <ClInclude Include="ComputeRenderer.h" />
     <ClInclude Include="Descriptor.h" />

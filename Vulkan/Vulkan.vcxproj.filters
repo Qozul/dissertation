@@ -123,6 +123,9 @@
     <ClCompile Include="ComputePipeline.cpp">
       <Filter>Source Files\Graphics\Render</Filter>
     </ClCompile>
+    <ClCompile Include="ComputeFetchRenderer.cpp">
+      <Filter>Source Files\Graphics\Render\Renderers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LogicDevice.h">
@@ -205,6 +208,9 @@
     </ClInclude>
     <ClInclude Include="StorageBuffer.h">
       <Filter>Header Files\Graphics\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="ComputeFetchRenderer.h">
+      <Filter>Header Files\Graphics\Render\Renderers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

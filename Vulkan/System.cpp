@@ -124,4 +124,5 @@ void System::loop()
 		perfMeasurer.endTime();
 	}
 	std::cout << "Vulkan perf: " << perfMeasurer.getAverageTime().count() << std::endl;
+	vkDeviceWaitIdle(*details_.logicDevice);
 }
