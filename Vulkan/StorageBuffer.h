@@ -4,19 +4,20 @@
 
 namespace QZL
 {
-	class UniformBuffer {
+	class StorageBuffer {
 	public:
-		UniformBuffer(const LogicDevice* logicDevice, MemoryAllocationPattern pattern, uint32_t binding, VkBufferUsageFlags flags, VkDeviceSize maxSize, 
+		StorageBuffer(const LogicDevice* logicDevice, MemoryAllocationPattern pattern, uint32_t binding, VkBufferUsageFlags flags, VkDeviceSize maxSize, 
 			VkShaderStageFlags stageFlags);
-		~UniformBuffer();
+		~StorageBuffer();
 		const VkDescriptorSetLayoutBinding& getBinding();
 		VkWriteDescriptorSet descriptorWrite(VkDescriptorSet set);
 		template<typename DataType>
-		void uploadUniformRange(DataType* data, VkDeviceSize size, VkDeviceSize offset);
+		void uploadRange(DataType* data, VkDeviceSize size, VkDeviceSize offset);
 		// Alternative to uploading a range directly, these allow the mapping to last longer
 		// But if bind is called the caller must ensure unbind is also called
-		void* bindUniformRange();
-		void unbindUniformRange();
+		void* bindRange();
+		void unbindRange();
+		const MemoryAllocationDetails& getBufferDetails() { return bufferDetails_; }
 	private:
 		MemoryAllocationDetails bufferDetails_;
 		VkDeviceSize size_;
@@ -27,7 +28,7 @@ namespace QZL
 	};
 
 	template<typename DataType>
-	inline void UniformBuffer::uploadUniformRange(DataType* data, VkDeviceSize size, VkDeviceSize offset)
+	inline void StorageBuffer::uploadRange(DataType* data, VkDeviceSize size, VkDeviceSize offset)
 	{
 		auto deviceMemory = logicDevice_->getDeviceMemory();
 		switch (bufferDetails_.access) {

@@ -8,9 +8,10 @@ Descriptor::Descriptor(const LogicDevice* logicDevice, const uint32_t maxSets)
 {
 	std::vector<VkDescriptorPoolSize> poolSizes;
 	VkDescriptorPoolSize uniformPoolSize = {};
-	uniformPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uniformPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 	uniformPoolSize.descriptorCount = maxSets;
 	poolSizes.push_back(uniformPoolSize);
+
 	VkDescriptorPoolSize samplerPoolSize = {};
 	samplerPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	samplerPoolSize.descriptorCount = maxSets;

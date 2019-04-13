@@ -1,7 +1,7 @@
 #pragma once
 #include "Mesh.h"
 #include "RendererPipeline.h"
-#include "UniformBuffer.h"
+#include "StorageBuffer.h"
 
 namespace QZL
 {
@@ -37,13 +37,13 @@ namespace QZL
 
 		RendererPipeline* pipeline_;
 		std::map<ElementBuffer*, std::map<std::string, std::vector<InstType*>>> meshes_;
-		std::vector<UniformBuffer*> uniformBuffers_;
+		std::vector<StorageBuffer*> storageBuffers_;
 		std::vector<VkDescriptorSet> descriptorSets_;
 	};
 
 	template<typename InstType>
 	inline RendererBase<InstType>::~RendererBase() {
-		for (auto& buffer : uniformBuffers_) {
+		for (auto& buffer : storageBuffers_) {
 			SAFE_DELETE(buffer);
 		}
 		SAFE_DELETE(pipeline_);
@@ -58,7 +58,7 @@ namespace QZL
 	inline std::vector<VkWriteDescriptorSet> RendererBase<InstType>::getDescriptorWrites(uint32_t frameIdx)
 	{
 		std::vector<VkWriteDescriptorSet> writes;
-		for (auto& buf : uniformBuffers_)
+		for (auto& buf : storageBuffers_)
 			writes.push_back(buf->descriptorWrite(descriptorSets_[frameIdx]));
 		return writes;
 	}

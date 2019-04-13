@@ -1,34 +1,34 @@
-#include "UniformBuffer.h"
+#include "StorageBuffer.h"
 
 using namespace QZL;
 
-UniformBuffer::UniformBuffer(const LogicDevice* logicDevice, MemoryAllocationPattern pattern,
-	uint32_t bindingIdx_, VkBufferUsageFlags flags, VkDeviceSize maxSize, VkShaderStageFlags stageFlags)
-	: logicDevice_(logicDevice), size_(maxSize)
+StorageBuffer::StorageBuffer(const LogicDevice* logicDevice, MemoryAllocationPattern pattern,
+	uint32_t bindingIdx, VkBufferUsageFlags flags, VkDeviceSize maxSize, VkShaderStageFlags stageFlags)
+	: logicDevice_(logicDevice), size_(maxSize), bindingIdx_(bindingIdx)
 {
-	bufferDetails_ = logicDevice_->getDeviceMemory()->createBuffer(pattern, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, maxSize);
+	bufferDetails_ = logicDevice_->getDeviceMemory()->createBuffer(pattern, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, maxSize);
 	// TODO create staging buffer transfer alternative
-	ENSURES(bufferDetails_.access == MemoryAccessType::kDirect || bufferDetails_.access == MemoryAccessType::kPersistant);
+	//ENSURES(bufferDetails_.access == MemoryAccessType::kDirect || bufferDetails_.access == MemoryAccessType::kPersistant);
 
 	binding_ = {};
 	binding_.binding = bindingIdx_;
 	binding_.descriptorCount = 1;
-	binding_.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	binding_.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 	binding_.pImmutableSamplers = nullptr;
 	binding_.stageFlags = stageFlags;
 }
 
-UniformBuffer::~UniformBuffer()
+StorageBuffer::~StorageBuffer()
 {
 	logicDevice_->getDeviceMemory()->deleteAllocation(bufferDetails_.id, bufferDetails_.buffer);
 }
 
-const VkDescriptorSetLayoutBinding& UniformBuffer::getBinding()
+const VkDescriptorSetLayoutBinding& StorageBuffer::getBinding()
 {
 	return binding_;
 }
 
-VkWriteDescriptorSet UniformBuffer::descriptorWrite(VkDescriptorSet set)
+VkWriteDescriptorSet StorageBuffer::descriptorWrite(VkDescriptorSet set)
 {
 	bufferInfo_ = {};
 	bufferInfo_.buffer = bufferDetails_.buffer;
@@ -40,19 +40,19 @@ VkWriteDescriptorSet UniformBuffer::descriptorWrite(VkDescriptorSet set)
 	descriptorWrite.dstSet = set;
 	descriptorWrite.dstBinding = bindingIdx_;
 	descriptorWrite.dstArrayElement = 0;
-	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC; // VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER; // VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
 	descriptorWrite.descriptorCount = 1;
 	descriptorWrite.pBufferInfo = &bufferInfo_;
 
 	return descriptorWrite;
 }
 
-void* UniformBuffer::bindUniformRange()
+void* StorageBuffer::bindRange()
 {
 	return logicDevice_->getDeviceMemory()->mapMemory(bufferDetails_.id);
 }
 
-void UniformBuffer::unbindUniformRange()
+void StorageBuffer::unbindRange()
 {
 	logicDevice_->getDeviceMemory()->unmapMemory(bufferDetails_.id);
 }

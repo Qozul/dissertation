@@ -1,6 +1,6 @@
 #include "ComputeRenderer.h"
 #include "ElementBuffer.h"
-#include "UniformBuffer.h"
+#include "StorageBuffer.h"
 #include "LogicDevice.h"
 #include "Descriptor.h"
 #include "RendererPipeline.h"
@@ -9,49 +9,107 @@
 using namespace QZL;
 
 ComputeRenderer::ComputeRenderer(const LogicDevice* logicDevice, VkRenderPass renderPass, VkExtent2D swapChainExtent, Descriptor* descriptor,
-	const std::string& vertexShader, const std::string& fragmentShader)
+	const std::string& vertexShader, const std::string& fragmentShader, const uint32_t entityCount)
 	: RendererBase()
 {
-	// Setup uniform buffers
-	UniformBuffer* mvpBuf = new UniformBuffer(logicDevice, MemoryAllocationPattern::kDynamicResource, 0, 0,
-		sizeof(ElementData) * 10, VK_SHADER_STAGE_VERTEX_BIT);
+	StorageBuffer* mvpBuf = new StorageBuffer(logicDevice, MemoryAllocationPattern::kDynamicResource, 0, 0,
+		sizeof(ElementData) * entityCount, VK_SHADER_STAGE_COMPUTE_BIT | VK_SHADER_STAGE_VERTEX_BIT);
+	storageBuffers_.push_back(mvpBuf);
 
-	// TODO create a storage buffer device local for ElementData
-	// TODO create a storage buffer device local, transfer for Transform data (note: readback would persistent map)
+	StorageBuffer* transformBuf = new StorageBuffer(logicDevice, MemoryAllocationPattern::kDynamicResource, 2, 0,
+		sizeof(Shared::Transform) * entityCount, VK_SHADER_STAGE_COMPUTE_BIT);
+	storageBuffers_.push_back(transformBuf);
 
-	auto layout = descriptor->makeLayout({ mvpBuf->getBinding() });
-	uniformBuffers_.push_back(mvpBuf);
-	size_t idx = descriptor->createSets({ layout, layout, layout });
+	auto computeLayout = descriptor->makeLayout({ mvpBuf->getBinding(), transformBuf->getBinding() });
+	auto graphicsLayout = descriptor->makeLayout({ mvpBuf->getBinding() });
+	size_t idx = descriptor->createSets({ computeLayout, computeLayout, computeLayout });
 	std::vector<VkWriteDescriptorSet> descWrites;
 	for (int i = 0; i < 3; ++i) {
 		descriptorSets_.push_back(descriptor->getSet(idx + i));
 		descWrites.push_back(mvpBuf->descriptorWrite(descriptor->getSet(idx + i)));
+		descWrites.push_back(transformBuf->descriptorWrite(descriptor->getSet(idx + i)));
 	}
 	descriptor->updateDescriptorSets(descWrites);
 
-	createPipeline(logicDevice, renderPass, swapChainExtent, RendererPipeline::makeLayoutInfo(uniformBuffers_.size(), &layout), vertexShader, fragmentShader);
-	computePipeline_ = new ComputePipeline(logicDevice, ComputePipeline::makeLayoutInfo(uniformBuffers_.size(), &layout), "Compute");
+	createPipeline(logicDevice, renderPass, swapChainExtent, RendererPipeline::makeLayoutInfo(1, &computeLayout), vertexShader, fragmentShader);
+	computePipeline_ = new ComputePipeline(logicDevice, ComputePipeline::makeLayoutInfo(1, &computeLayout), "Compute");
+
+	pushConstantBarrier_ = {};
+	pushConstantBarrier_.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+	pushConstantBarrier_.pNext = NULL;
+
+	bufMemoryBarrier_ = {};
+	bufMemoryBarrier_.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+	bufMemoryBarrier_.pNext = NULL;
+	bufMemoryBarrier_.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
+	bufMemoryBarrier_.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+	bufMemoryBarrier_.buffer = mvpBuf->getBufferDetails().buffer;
+	bufMemoryBarrier_.srcQueueFamilyIndex = logicDevice->getFamilyIndex(QueueFamilyType::kGraphicsQueue);
+	bufMemoryBarrier_.dstQueueFamilyIndex = logicDevice->getFamilyIndex(QueueFamilyType::kGraphicsQueue);
+	bufMemoryBarrier_.offset = 0;
+	bufMemoryBarrier_.size = VK_WHOLE_SIZE; 
+
+	bufMemoryBarrier2_ = {};
+	bufMemoryBarrier2_.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+	bufMemoryBarrier2_.pNext = NULL;
+	bufMemoryBarrier2_.srcAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+	bufMemoryBarrier2_.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
+	bufMemoryBarrier2_.buffer = mvpBuf->getBufferDetails().buffer;
+	bufMemoryBarrier2_.srcQueueFamilyIndex = logicDevice->getFamilyIndex(QueueFamilyType::kGraphicsQueue);
+	bufMemoryBarrier2_.dstQueueFamilyIndex = logicDevice->getFamilyIndex(QueueFamilyType::kGraphicsQueue);
+	bufMemoryBarrier2_.offset = 0;
+	bufMemoryBarrier2_.size = VK_WHOLE_SIZE; 
+
+	transBufMemoryBarrier_ = {};
+	transBufMemoryBarrier_.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+	transBufMemoryBarrier_.pNext = NULL;
+	transBufMemoryBarrier_.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
+	transBufMemoryBarrier_.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
+	transBufMemoryBarrier_.buffer = transformBuf->getBufferDetails().buffer;
+	transBufMemoryBarrier_.srcQueueFamilyIndex = logicDevice->getFamilyIndex(QueueFamilyType::kGraphicsQueue);
+	transBufMemoryBarrier_.dstQueueFamilyIndex = logicDevice->getFamilyIndex(QueueFamilyType::kGraphicsQueue);
+	transBufMemoryBarrier_.offset = 0;
+	transBufMemoryBarrier_.size = VK_WHOLE_SIZE;
 }
 
-void ComputeRenderer::initialise(const glm::mat4 & viewMatrix)
+ComputeRenderer::~ComputeRenderer()
 {
+	SAFE_DELETE(computePipeline_);
+}
+
+void ComputeRenderer::initialise(const glm::mat4& viewMatrix)
+{
+	Shared::Transform* data = static_cast<Shared::Transform*>(storageBuffers_[1]->bindRange());
+	for (auto& it : meshes_) {
+		for (auto& it2 : it.second) {
+			for (int i = 0; i < it2.second.size(); ++i) {
+				// TODO fix for multiple meshes
+				data[i] = it2.second[i]->transform;
+			}
+		}
+	}
+	storageBuffers_[1]->unbindRange();
 }
 
 void ComputeRenderer::recordCompute(const glm::mat4& viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer)
 {
+	vkCmdPipelineBarrier(cmdBuffer, VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_COMPUTE_BIT, 0, 0, nullptr, 1, &bufMemoryBarrier2_, 0, nullptr);
+	vkCmdPipelineBarrier(cmdBuffer, VK_SHADER_STAGE_COMPUTE_BIT, VK_SHADER_STAGE_COMPUTE_BIT, 0, 0, nullptr, 1, &transBufMemoryBarrier_, 0, nullptr);
+
+	std::array<glm::mat4, 2U> pushConstantValue = { viewMatrix, Shared::kProjectionMatrix };
+	vkCmdPushConstants(cmdBuffer, computePipeline_->getLayout(), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(glm::mat4) * 2, pushConstantValue.data());
+	vkCmdPipelineBarrier(cmdBuffer, VK_SHADER_STAGE_COMPUTE_BIT, VK_SHADER_STAGE_COMPUTE_BIT, VK_DEPENDENCY_BY_REGION_BIT, 1, &pushConstantBarrier_, 0, nullptr, 0, nullptr);
 	vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipeline_->getPipeline());
-	// TODO bind descriptor sets
-	uint32_t instanceCount = 1;
+	vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, computePipeline_->getLayout(), 0, 1, &descriptorSets_[idx], 0, nullptr);
+	uint32_t instanceCount = 10;
 	vkCmdDispatch(cmdBuffer, instanceCount, 1, 1);
+
+	vkCmdPipelineBarrier(cmdBuffer, VK_SHADER_STAGE_COMPUTE_BIT, VK_SHADER_STAGE_VERTEX_BIT, 0, 0, nullptr, 1, &bufMemoryBarrier_, 0, nullptr);
 }
 
-void ComputeRenderer::recordFrame(const glm::mat4 & viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer)
+void ComputeRenderer::recordFrame(const glm::mat4& viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer)
 {
 	beginFrame(cmdBuffer);
-
-	static auto startTime = std::chrono::high_resolution_clock::now();
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->getLayout(), 0, 1, &descriptorSets_[idx], 0, nullptr);
 	for (auto& it : meshes_) {

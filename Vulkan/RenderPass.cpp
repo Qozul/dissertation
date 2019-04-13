@@ -6,13 +6,16 @@
 #include "BasicRenderer.h"
 #include "LoopRenderer.h"
 #include "TexturedRenderer.h"
+#include "ComputeRenderer.h"
 #include "ElementBuffer.h"
 #include "MeshLoader.h"
 
 #define NUM_ELEMENTS 10
-//#define BASIC_RUN
-#define TEXTURED_RUN
+#define BASIC_RUN
+//#define TEXTURED_RUN
 //#define LOOP_RUN
+//#define COMPUTE_RUN
+//#define COMPUTE_READBACK_RUN
 
 #ifdef TEXTURED_RUN
 	#define CURRENT_RENDERER texturedRenderer_
@@ -25,6 +28,12 @@
 	#elif defined(LOOP_RUN)
 		#define CURRENT_RENDERER loopRenderer_
 		#define CURRENT_RENDERER_TYPE LoopRenderer
+	#elif defined(COMPUTE_RUN)
+		#define CURRENT_RENDERER computeRenderer_
+		#define CURRENT_RENDERER_TYPE ComputeRenderer
+	#elif defined(COMPUTE_READBACK_RUN)
+		#define CURRENT_RENDERER computeReadbackRenderer_
+		#define CURRENT_RENDERER_TYPE ComputeFetchRenderer
 	#endif
 	#define SHADERS "BasicVert", "BasicFrag"
 #endif
@@ -117,11 +126,7 @@ RenderPass::~RenderPass()
 void RenderPass::doFrame(const uint32_t idx, VkCommandBuffer cmdBuffer)
 {
 #if defined(COMPUTE_RUN) || defined(COMPUTE_READBACK_RUN)
-	// Might need a separate command buffer
 	CURRENT_RENDERER->recordCompute(viewMatrix_, idx, cmdBuffer);
-	// TODO submit the queue
-	vkQueueSubmit(...);
-	// Need sync? Fence? Semaphore?
 #endif
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -195,7 +200,7 @@ VkFormat RenderPass::createDepthBuffer(LogicDevice* logicDevice, const SwapChain
 
 void RenderPass::createRenderers()
 {
-	CURRENT_RENDERER = new CURRENT_RENDERER_TYPE(logicDevice_, renderPass_, swapChainDetails_.extent, descriptor_, SHADERS);
+	CURRENT_RENDERER = new CURRENT_RENDERER_TYPE(logicDevice_, renderPass_, swapChainDetails_.extent, descriptor_, SHADERS, NUM_ELEMENTS);
 }
 
 void RenderPass::createElementBuffers()

@@ -47,9 +47,11 @@
 #else
 #define DEBUG_OUT(m)
 #define DEBUG_ERR(m)
-#define DEBUG_IF_ERR(b, m)
-#define ENSURES(pre, msg)
-#define EXPECTS(post, msg)
+#define DEBUG_IFERR(b, m)
+#define ENSURES(post)
+#define ENSURESM(post, msg)
+#define EXPECTS(pre)
+#define EXPECTSM(pre, msg)
 #endif
 
 namespace QZL

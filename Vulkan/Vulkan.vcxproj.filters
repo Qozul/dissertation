@@ -99,9 +99,6 @@
     <ClCompile Include="BasicRenderer.cpp">
       <Filter>Source Files\Graphics\Render\Renderers</Filter>
     </ClCompile>
-    <ClCompile Include="UniformBuffer.cpp">
-      <Filter>Source Files\Graphics\Memory</Filter>
-    </ClCompile>
     <ClCompile Include="MeshLoader.cpp">
       <Filter>Source Files\Graphics\Render</Filter>
     </ClCompile>
@@ -117,11 +114,14 @@
     <ClCompile Include="LoopRenderer.cpp">
       <Filter>Source Files\Graphics\Render\Renderers</Filter>
     </ClCompile>
-    <ClCompile Include="ComputePipeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ComputeRenderer.cpp">
       <Filter>Source Files\Graphics\Render\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="StorageBuffer.cpp">
+      <Filter>Source Files\Graphics\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputePipeline.cpp">
+      <Filter>Source Files\Graphics\Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -191,9 +191,6 @@
     <ClInclude Include="TextureSampler.h">
       <Filter>Header Files\Graphics\Textures</Filter>
     </ClInclude>
-    <ClInclude Include="UniformBuffer.h">
-      <Filter>Header Files\Graphics\Memory</Filter>
-    </ClInclude>
     <ClInclude Include="TexturedRenderer.h">
       <Filter>Header Files\Graphics\Render\Renderers</Filter>
     </ClInclude>
@@ -205,6 +202,9 @@
     </ClInclude>
     <ClInclude Include="ComputePipeline.h">
       <Filter>Header Files\Graphics\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="StorageBuffer.h">
+      <Filter>Header Files\Graphics\Memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

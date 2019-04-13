@@ -38,6 +38,8 @@ namespace QZL
 		RendererBase<MeshInstance>* basicRenderer_;
 		RendererBase<MeshInstance>* texturedRenderer_;
 		RendererBase<MeshInstance>* loopRenderer_;
+		RendererBase<MeshInstance>* computeRenderer_;
+		RendererBase<MeshInstance>* computeReadbackRenderer_;
 
 		Image2D* backBuffer_;
 		Image2D* depthBuffer_;

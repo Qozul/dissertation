@@ -18,8 +18,8 @@ out gl_PerVertex {
 	vec4 gl_Position;
 };
 
-layout(binding = 0) uniform UniformBufferObject {
-    ElementData[10] uElementData;
+layout(binding = 0) buffer UniformBufferObject {
+    ElementData[] uElementData;
 } ubo;
 
 void main() {

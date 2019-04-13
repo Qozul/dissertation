@@ -11,6 +11,7 @@ namespace QZL
 	enum class QueueFamilyType : size_t {
 		kGraphicsQueue = 0,
 		kPresentationQueue,
+		//kComputeQueue,
 		//kTransferQueue,
 		kNumQueueFamilyTypes // Do not index with this, this is the size
 	};
