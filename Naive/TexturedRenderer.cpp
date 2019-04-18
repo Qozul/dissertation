@@ -23,10 +23,6 @@ TexturedRenderer::~TexturedRenderer()
 
 void TexturedRenderer::initialise()
 {
-	meshes_[1][0]->transform.position = glm::vec3(-2.0f, 2.0f, 0.0f);
-	meshes_[1][0]->transform.setScale(0.7f);
-	meshes_[2][0]->transform.position = glm::vec3(-2.0f, 2.0f, 0.0f);
-	meshes_[2][0]->transform.setScale(0.7f);
 }
 
 void TexturedRenderer::doFrame(const glm::mat4& viewMatrix)

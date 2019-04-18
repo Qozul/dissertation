@@ -79,6 +79,8 @@ ComputeRenderer::~ComputeRenderer()
 
 void ComputeRenderer::initialise(const glm::mat4& viewMatrix)
 {
+	if (Shared::kProjectionMatrix[1][1] >= 0)
+		Shared::kProjectionMatrix[1][1] *= -1;
 	Shared::Transform* data = static_cast<Shared::Transform*>(storageBuffers_[1]->bindRange());
 	for (auto& it : meshes_) {
 		for (auto& it2 : it.second) {

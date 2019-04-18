@@ -12,10 +12,6 @@ LoopRenderer::LoopRenderer(ShaderPipeline* pipeline)
 
 void LoopRenderer::initialise()
 {
-	for (size_t i = 0; i < meshes_.size(); ++i) {
-		meshes_[i]->transform.position = glm::vec3(-4.0f + i * 0.5f, 2.0f, 0.0f);
-		meshes_[i]->transform.setScale(0.2f);
-	}
 }
 
 void LoopRenderer::doFrame(const glm::mat4& viewMatrix)

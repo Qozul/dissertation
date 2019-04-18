@@ -15,8 +15,6 @@ void BasicRenderer::initialise()
 {
 	idata_.reserve(meshes_.size());
 	for (size_t i = 0; i < meshes_.size(); ++i) {
-		meshes_[i]->transform.position = glm::vec3(-4.0f + i * 0.5f, 1.0f, 0.0f);
-		meshes_[i]->transform.setScale(0.2f);
 		glm::mat4 model = meshes_[i]->transform.toModelMatrix();
 		glm::mat4 mvp = Shared::kProjectionMatrix * *viewMatrix_ * model;
 		idata_.push_back({ model, mvp });

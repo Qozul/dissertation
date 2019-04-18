@@ -18,8 +18,6 @@ void BasicRenderer::initialise()
 	setupInstanceDataBuffer();
 	auto instPtr = renderStorage_->instanceData();
 	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
-		(instPtr + i)->transform.position = glm::vec3(-4.0f + i * 0.5f, 1.0f, 0.0f);
-		(instPtr + i)->transform.setScale(0.2f);
 		glm::mat4 model = (instPtr + i)->transform.toModelMatrix();
 		instanceDataBufPtr_[i] = {
 			model, Shared::kProjectionMatrix * *viewMatrix_ * model

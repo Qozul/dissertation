@@ -51,6 +51,8 @@ ComputeFetchRenderer::~ComputeFetchRenderer()
 
 void ComputeFetchRenderer::initialise(const glm::mat4& viewMatrix)
 {
+	if (Shared::kProjectionMatrix[1][1] >= 0)
+		Shared::kProjectionMatrix[1][1] *= -1;
 	Shared::Transform* data = static_cast<Shared::Transform*>(storageBuffers_[1]->bindRange());
 	for (auto& it : meshes_) {
 		for (auto& it2 : it.second) {
@@ -89,6 +91,7 @@ void ComputeFetchRenderer::recordCompute(const glm::mat4& viewMatrix, const uint
 	vkResetFences(*logicDevice_, 1, &readbackFence_);
 	CHECK_VKRESULT(vkQueueSubmit(logicDevice_->getQueueHandle(QueueFamilyType::kGraphicsQueue), 1, &submitInfo, readbackFence_));
 	vkWaitForFences(*logicDevice_, 1, &readbackFence_, VK_TRUE, std::numeric_limits<uint64_t>::max());
+	readback();
 
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -101,7 +104,11 @@ void ComputeFetchRenderer::readback()
 	Shared::Transform* data = static_cast<Shared::Transform*>(storageBuffers_[1]->bindRange());
 	for (auto& it : meshes_) {
 		for (auto& it2 : it.second) {
-			memcpy(it2.second.data(), data, it2.second.size() * sizeof(Shared::Transform));
+			//memcpy(it2.second.data(), data, it2.second.size() * sizeof(Shared::Transform));
+			for (int i = 0; i < it2.second.size(); ++i) {
+				// TODO fix for multiple meshes
+				it2.second[i]->transform = data[i];
+			}
 		}
 	}
 	storageBuffers_[1]->unbindRange();

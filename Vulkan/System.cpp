@@ -111,7 +111,7 @@ void System::initDevices(uint32_t& enabledLayerCount, const char* const*& enable
 			return;
 		}
 	}
-	ENSURES(false);
+	throw std::runtime_error("Cannot create logic device");
 }
 
 void System::loop()

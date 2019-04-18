@@ -36,7 +36,7 @@ namespace QZL
 			AbstractRenderer* computeRenderer_;
 			AbstractRenderer* computeReadbackRenderer_;
 
-			std::vector<Shared::PerfMeasurer*> perfMeasurers_;
+			Shared::PerfMeasurer* perfMeasurer_;
 
 			GLFWwindow* window_;
 		};

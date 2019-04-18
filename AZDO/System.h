@@ -39,12 +39,7 @@ namespace QZL
 			AbstractRenderer<MeshInstance>* loopRenderer_;
 			AbstractRenderer<MeshInstance>* computeFetchRenderer_;
 			AbstractRenderer<MeshInstance>* computeRenderer_;
-
-			Shared::PerfMeasurer* basicPerfMeasurer_;
-			Shared::PerfMeasurer* texturedPerfMeasurer_;
-			Shared::PerfMeasurer* loopPerfMeasurer_;
-			Shared::PerfMeasurer* computePerfMeasurer_;
-			Shared::PerfMeasurer* computeRbPerfMeasurer_;
+			Shared::PerfMeasurer* perfMeasurer_;
 
 			GLFWwindow* window_;
 		};
