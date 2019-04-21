@@ -12,10 +12,10 @@
 #include "ElementBuffer.h"
 #include "MeshLoader.h"
 
-#define BASIC_RUN
+//#define BASIC_RUN
 //#define TEXTURED_RUN
 //#define LOOP_RUN
-//#define COMPUTE_RUN
+#define COMPUTE_RUN
 //#define COMPUTE_READBACK_RUN
 
 #ifdef TEXTURED_RUN

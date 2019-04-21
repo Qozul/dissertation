@@ -31,7 +31,7 @@ namespace QZL
 		void initSwapChainImages(GLFWwindow* window, VkSurfaceKHR surface, DeviceSurfaceCapabilities& surfaceCapabilities);
 		void initImageViews();
 
-		// These three functions are straight from the tutorial TODO: recode
+		// These three functions are straight from the tutorial 
 		VkSurfaceFormatKHR chooseFormat(std::vector<VkSurfaceFormatKHR>& formats);
 		VkPresentModeKHR choosePresentMode(std::vector<VkPresentModeKHR>& presentModes);
 		VkExtent2D chooseExtent(GLFWwindow* window, VkSurfaceCapabilitiesKHR& capabilities);
@@ -49,7 +49,6 @@ namespace QZL
 		SwapChainDetails details_;
 		LogicDevice* logicDevice_;
 
-		// TODODODO
 		void createSyncObjects();
 		std::vector<VkSemaphore> imageAvailableSemaphores_;
 		std::vector<VkSemaphore> renderFinishedSemaphores_;
