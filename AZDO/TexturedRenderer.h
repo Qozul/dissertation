@@ -7,7 +7,7 @@ namespace QZL
 {
 	namespace AZDO
 	{
-		struct TextureData;
+		struct TextureDataWrapper;
 		class VaoWrapper;
 
 		class TexturedRenderer : public AbstractRenderer<TexturedMeshInstance> {
@@ -19,7 +19,7 @@ namespace QZL
 			void doFrame(const glm::mat4& viewMatrix) override;
 		private:
 			GLuint textureBuffer_;
-			TextureData* texBufPtr_;
+			TextureDataWrapper* texBufPtr_;
 			const glm::mat4* viewMatrix_;
 		};
 	}

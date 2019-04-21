@@ -39,22 +39,18 @@ void LoopRenderer::recordFrame(const glm::mat4& viewMatrix, const uint32_t idx, 
 	beginFrame(cmdBuffer);
 
 	vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->getLayout(), 0, 1, &descriptorSets_[idx], 0, nullptr);
+	renderStorage_->buf()->bind(cmdBuffer);
 	ElementData* eleDataPtr = static_cast<ElementData*>(storageBuffers_[0]->bindRange());
-	for (auto& it : meshes_) {
-		it.first->bind(cmdBuffer);
-
-		uint32_t instanceCount = 0;
-		for (auto& it2 : it.second) {
-			for (int i = 0; i < it2.second.size(); ++i) {
-				auto inst = it2.second[i];
-				glm::mat4 model = inst->transform.toModelMatrix();
-				eleDataPtr[instanceCount + i].modelMatrix = model;
-				eleDataPtr[instanceCount + i].mvpMatrix = Shared::kProjectionMatrix * viewMatrix * model;
-			}
-			const BasicMesh* mesh = (*it.first)[it2.first];
-			vkCmdDrawIndexed(cmdBuffer, mesh->indexCount, it2.second.size(), mesh->indexOffset, mesh->vertexOffset, instanceCount);
-			instanceCount += it2.second.size();
-		}
+	auto instPtr = renderStorage_->instanceData();
+	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
+		glm::mat4 model = (instPtr + i)->transform.toModelMatrix();
+		eleDataPtr[i] = {
+			model, Shared::kProjectionMatrix * viewMatrix * model
+		};
 	}
 	storageBuffers_[0]->unbindRange();
+	for (int i = 0; i < renderStorage_->meshCount(); ++i) {
+		const DrawElementsCommand& drawElementCmd = renderStorage_->meshData()[i];
+		vkCmdDrawIndexed(cmdBuffer, drawElementCmd.indexCount, drawElementCmd.instanceCount, drawElementCmd.firstIndex, drawElementCmd.baseVertex, drawElementCmd.baseInstance);
+	}
 }

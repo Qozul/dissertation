@@ -9,6 +9,7 @@ namespace QZL
 
 	// Element buffer is immutable, once committed it cannot be changed
 	class ElementBuffer {
+		friend class MeshLoader;
 	public:
 		ElementBuffer(DeviceMemory* deviceMemory);
 		~ElementBuffer();

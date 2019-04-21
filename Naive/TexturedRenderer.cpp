@@ -3,6 +3,7 @@
 
 #include "TexturedRenderer.h"
 #include "Mesh.h"
+#include "Texture.h"
 
 using namespace QZL;
 using namespace QZL::Naive;
@@ -30,7 +31,9 @@ void TexturedRenderer::doFrame(const glm::mat4& viewMatrix)
 	pipeline_->use();
 	for (const auto& it : meshes_) {
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, it.first);
+		glBindTexture(GL_TEXTURE_2D, it.second.at(0)->texture->id);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, it.second.at(0)->texture2->id);
 		for (const auto& mesh : it.second) {
 			GLint loc0 = pipeline_->getUniformLocation("uModelMat");
 			GLint loc1 = pipeline_->getUniformLocation("uMVP");

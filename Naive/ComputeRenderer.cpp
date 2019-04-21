@@ -6,7 +6,7 @@ using namespace QZL::Naive;
 const float ComputeRenderer::kRotationSpeed = 0.11f;
 
 ComputeRenderer::ComputeRenderer(ShaderPipeline* pipeline)
-	: Base(pipeline), computePipeline_(new ShaderPipeline("NaiveCompute")), compBufPtr_(nullptr)
+	: Base(pipeline), computePipeline_(new ShaderPipeline("NaiveCompute")), compBufPtr_(nullptr), rot_(0.0f)
 {
 	glGenBuffers(1, &computeBuffer_);
 }
@@ -21,8 +21,6 @@ ComputeRenderer::~ComputeRenderer()
 
 void ComputeRenderer::initialise()
 {
-	meshes_[0]->transform.position = glm::vec3(-2.0f, -2.0f, 0.0f);
-	meshes_[0]->transform.setScale(0.7f);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeBuffer_);
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(ElementData), NULL, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, computeBuffer_);
@@ -32,6 +30,7 @@ void ComputeRenderer::doFrame(const glm::mat4& viewMatrix)
 {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, computeBuffer_);
 	for (auto& mesh : meshes_) {
+		rot_ += kRotationSpeed;
 		computeTransform(viewMatrix, *mesh);
 		pipeline_->use();
 		glBindVertexArray(mesh->vaoId);
@@ -52,6 +51,7 @@ void ComputeRenderer::computeTransform(const glm::mat4& viewMatrix, BasicMesh& m
 {
 	computePipeline_->use();
 	glUniform1fv(computePipeline_->getUniformLocation("uTransform"), 10, mesh.transform.data());
+	glUniform1f(computePipeline_->getUniformLocation("uRotationAmount"), rot_);
 	
 	glUniformMatrix4fv(computePipeline_->getUniformLocation("uProjMatrix"), 1, GL_FALSE, glm::value_ptr(Shared::kProjectionMatrix));
 	glUniformMatrix4fv(computePipeline_->getUniformLocation("uViewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));

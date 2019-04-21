@@ -2,11 +2,11 @@
 #include "Mesh.h"
 #include "RendererPipeline.h"
 #include "StorageBuffer.h"
+#include "RenderStorage.h"
 
 namespace QZL
 {
 	class LogicDevice;
-	class ElementBuffer;
 	class Descriptor;
 
 	struct ElementData {
@@ -17,7 +17,7 @@ namespace QZL
 	template<typename InstType>
 	class RendererBase {
 	public:
-		RendererBase() : pipeline_(nullptr) {
+		RendererBase() : pipeline_(nullptr), renderStorage_(nullptr) {
 			if (Shared::kProjectionMatrix[1][1] >= 0)
 				Shared::kProjectionMatrix[1][1] *= -1;
 		}
@@ -26,9 +26,15 @@ namespace QZL
 		virtual void recordCompute(const glm::mat4& viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer);
 		std::vector<VkWriteDescriptorSet> getDescriptorWrites(uint32_t frameIdx);
 		virtual void initialise(const glm::mat4& viewMatrix) = 0;
-
-		void addMesh(ElementBuffer* buf, const std::string& meshName, InstType* instance) {
-			meshes_[buf][meshName].push_back(instance);
+		
+		void createRenderStorage(ElementBuffer* buf) {
+			renderStorage_ = new RenderStorage(buf);
+		}
+		void addMesh(const std::string& meshName, BasicMesh* mesh) {
+			renderStorage_->addMesh(meshName, mesh);
+		}
+		void addMeshInstance(const std::string& meshName, InstType* instance) {
+			renderStorage_->addInstance(meshName, instance);
 		}
 	protected:
 		void createPipeline(const LogicDevice* logicDevice, VkRenderPass renderPass, VkExtent2D swapChainExtent, VkPipelineLayoutCreateInfo layoutInfo,
@@ -36,7 +42,7 @@ namespace QZL
 		void beginFrame(VkCommandBuffer cmdBuffer);
 
 		RendererPipeline* pipeline_;
-		std::map<ElementBuffer*, std::map<std::string, std::vector<InstType*>>> meshes_;
+		RenderStorage* renderStorage_;
 		std::vector<StorageBuffer*> storageBuffers_;
 		std::vector<VkDescriptorSet> descriptorSets_;
 	};
@@ -46,6 +52,7 @@ namespace QZL
 		for (auto& buffer : storageBuffers_) {
 			SAFE_DELETE(buffer);
 		}
+		SAFE_DELETE(renderStorage_);
 		SAFE_DELETE(pipeline_);
 	}
 

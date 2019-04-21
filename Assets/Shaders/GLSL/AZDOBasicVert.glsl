@@ -26,7 +26,7 @@ void main(void)
 {
 	int instanceID = gl_BaseInstance + gl_InstanceID;
 	gl_Position	= uInstanceData[instanceID].mvp * vec4(iPosition, 1.0);
-	OUT.colour = vec4(iNormal, 1.0);
+	OUT.colour = vec4(0.6, 0.7, 0.8, 1.0);
 	OUT.worldPos = (uInstanceData[instanceID].model * vec4(iPosition, 1.0)).xyz;
 	OUT.normal = mat3(transpose(inverse(uInstanceData[instanceID].model))) * iNormal;
 }

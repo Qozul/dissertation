@@ -55,5 +55,14 @@ Image2D* TextureLoader::loadTexture(const std::string& fileName)
 
 VkFormat TextureLoader::convertToVkFormat(unsigned int oldFormat)
 {
-	return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
+	switch (oldFormat) {
+	case 33777:
+		return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
+	case 33778:
+		return VK_FORMAT_BC2_UNORM_BLOCK;
+	case 33779:
+		return VK_FORMAT_BC3_UNORM_BLOCK;
+	default:
+		ENSURES(false);
+	}
 }

@@ -31,17 +31,12 @@ BasicRenderer::BasicRenderer(const LogicDevice* logicDevice, VkRenderPass render
 void BasicRenderer::initialise(const glm::mat4& viewMatrix)
 {
 	ElementData* eleDataPtr = static_cast<ElementData*>(storageBuffers_[0]->bindRange());
-	for (auto& it : meshes_) {
-		uint32_t instanceCount = 0;
-		for (auto& it2 : it.second) {
-			for (int i = 0; i < it2.second.size(); ++i) {
-				auto inst = it2.second[i];
-				glm::mat4 model = inst->transform.toModelMatrix();
-				eleDataPtr[instanceCount + i].modelMatrix = model;
-				eleDataPtr[instanceCount + i].mvpMatrix = Shared::kProjectionMatrix * viewMatrix * model;
-			}
-			instanceCount += it2.second.size();
-		}
+	auto instPtr = renderStorage_->instanceData();
+	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
+		glm::mat4 model = (instPtr + i)->transform.toModelMatrix();
+		eleDataPtr[i] = {
+			model, Shared::kProjectionMatrix * viewMatrix * model
+		};
 	}
 	storageBuffers_[0]->unbindRange();
 }
@@ -52,8 +47,8 @@ void BasicRenderer::recordFrame(const glm::mat4& viewMatrix, const uint32_t idx,
 
 	uint32_t count = 0;
 	vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->getLayout(), 0, 1, &descriptorSets_[idx], 0, nullptr);
-	for (auto& it : meshes_) {
-		it.first->bind(cmdBuffer);
+	renderStorage_->buf()->bind(cmdBuffer);
+	/*for (auto& it : meshes_) {
 
 		uint32_t instanceCount = 0;
 		for (auto& it2 : it.second) {
@@ -62,5 +57,9 @@ void BasicRenderer::recordFrame(const glm::mat4& viewMatrix, const uint32_t idx,
 			instanceCount += it2.second.size();
 			count++;
 		}
+	}*/
+	for (int i = 0; i < renderStorage_->meshCount(); ++i) {
+		const DrawElementsCommand& drawElementCmd = renderStorage_->meshData()[i];
+		vkCmdDrawIndexed(cmdBuffer, drawElementCmd.indexCount, drawElementCmd.instanceCount, drawElementCmd.firstIndex, drawElementCmd.baseVertex, drawElementCmd.baseInstance);
 	}
 }

@@ -26,10 +26,6 @@ ComputeRenderer::~ComputeRenderer()
 void ComputeRenderer::initialise()
 {
 	auto instPtr = renderStorage_->instanceData();
-	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
-		(instPtr + i)->transform.position = glm::vec3(-4.0f + i * 0.5f, 0.0f, 0.0f);
-		(instPtr + i)->transform.setScale(0.2f);
-	}
 	setupInstanceDataBuffer();
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeBuffer_);

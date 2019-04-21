@@ -21,7 +21,6 @@ ComputeFetchRenderer::ComputeFetchRenderer(const LogicDevice* logicDevice, VkRen
 	storageBuffers_.push_back(transformBuf);
 
 	auto computeLayout = descriptor->makeLayout({ mvpBuf->getBinding(), transformBuf->getBinding() });
-	auto graphicsLayout = descriptor->makeLayout({ mvpBuf->getBinding() });
 	size_t idx = descriptor->createSets({ computeLayout, computeLayout, computeLayout });
 	std::vector<VkWriteDescriptorSet> descWrites;
 	for (int i = 0; i < 3; ++i) {
@@ -54,14 +53,7 @@ void ComputeFetchRenderer::initialise(const glm::mat4& viewMatrix)
 	if (Shared::kProjectionMatrix[1][1] >= 0)
 		Shared::kProjectionMatrix[1][1] *= -1;
 	Shared::Transform* data = static_cast<Shared::Transform*>(storageBuffers_[1]->bindRange());
-	for (auto& it : meshes_) {
-		for (auto& it2 : it.second) {
-			for (int i = 0; i < it2.second.size(); ++i) {
-				// TODO fix for multiple meshes
-				data[i] = it2.second[i]->transform;
-			}
-		}
-	}
+	memcpy(data, renderStorage_->instanceData(), renderStorage_->instanceCount() * sizeof(Shared::Transform));
 	storageBuffers_[1]->unbindRange();
 }
 
@@ -102,15 +94,7 @@ void ComputeFetchRenderer::recordCompute(const glm::mat4& viewMatrix, const uint
 void ComputeFetchRenderer::readback()
 {
 	Shared::Transform* data = static_cast<Shared::Transform*>(storageBuffers_[1]->bindRange());
-	for (auto& it : meshes_) {
-		for (auto& it2 : it.second) {
-			//memcpy(it2.second.data(), data, it2.second.size() * sizeof(Shared::Transform));
-			for (int i = 0; i < it2.second.size(); ++i) {
-				// TODO fix for multiple meshes
-				it2.second[i]->transform = data[i];
-			}
-		}
-	}
+	memcpy(renderStorage_->instanceData(), data, renderStorage_->instanceCount() * sizeof(Shared::Transform));
 	storageBuffers_[1]->unbindRange();
 }
 
@@ -119,14 +103,9 @@ void ComputeFetchRenderer::recordFrame(const glm::mat4& viewMatrix, const uint32
 	beginFrame(cmdBuffer);
 
 	vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->getLayout(), 0, 1, &descriptorSets_[idx], 0, nullptr);
-	for (auto& it : meshes_) {
-		it.first->bind(cmdBuffer);
-
-		uint32_t instanceCount = 0;
-		for (auto& it2 : it.second) {
-			const BasicMesh* mesh = (*it.first)[it2.first];
-			vkCmdDrawIndexed(cmdBuffer, mesh->indexCount, it2.second.size(), mesh->indexOffset, mesh->vertexOffset, instanceCount);
-			instanceCount += it2.second.size();
-		}
+	renderStorage_->buf()->bind(cmdBuffer);
+	for (int i = 0; i < renderStorage_->meshCount(); ++i) {
+		const DrawElementsCommand& drawElementCmd = renderStorage_->meshData()[i];
+		vkCmdDrawIndexed(cmdBuffer, drawElementCmd.indexCount, drawElementCmd.instanceCount, drawElementCmd.firstIndex, drawElementCmd.baseVertex, drawElementCmd.baseInstance);
 	}
 }

@@ -16,9 +16,11 @@ void LoopRenderer::initialise()
 
 void LoopRenderer::doFrame(const glm::mat4& viewMatrix)
 {
-	pipeline_->use();
 	for (const auto& mesh : meshes_) {
 		updateTransform(mesh->transform);
+	}
+	pipeline_->use();
+	for (const auto& mesh : meshes_) {
 		glm::mat4 model = mesh->transform.toModelMatrix();
 		glm::mat4 mvp = Shared::kProjectionMatrix * viewMatrix * model;
 		glUniformMatrix4fv(pipeline_->getUniformLocation("uModelMat"), 1, GL_FALSE, glm::value_ptr(model));

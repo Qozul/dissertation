@@ -53,6 +53,7 @@ TextureStore::TextureStore(const TexStoreInfo& info, GLint maxPages)
 	// This would mean the implementation has no valid sizes for us, or that this format doesn't actually support sparse
 	// texture allocation. Need to implement the fallback.
 	ENSURES(bestIndex != -1);
+	Shared::checkGLError();
 
 	handle_ = glGetTextureHandleARB(texId_);
 	ENSURES(handle_ != 0);
@@ -81,7 +82,6 @@ bool TextureStore::hasSpace()
 
 void TextureStore::commit(GLsizei page, bool commit)
 {
-	Shared::checkGLError();
 	GLsizei mipLevelWidth = info_.width;
 	GLsizei mipLevelHeight = info_.height;
 	// For each mipmap level commit or uncommit the texture in the layer
@@ -92,6 +92,7 @@ void TextureStore::commit(GLsizei page, bool commit)
 		mipLevelHeight = std::max(mipLevelHeight / 2, 1);
 	}
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	Shared::checkGLError();
 }
 
 void TextureStore::free(GLsizei page)
@@ -104,7 +105,6 @@ GLsizei TextureStore::alloc()
 {
 	GLsizei page = -1;
 	if (freePages_.size() > 0) {
-		// Use the first free page
 		page = freePages_.front();
 		freePages_.pop();
 	}
@@ -113,13 +113,13 @@ GLsizei TextureStore::alloc()
 }
 
 void TextureStore::addSubImage(GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, 
-	GLsizei depth, GLenum format, GLsizei image_size, const void* data)
+	GLsizei depth, GLenum format, GLsizei imageSize, const void* data)
 {
 	ENSURES(data != nullptr);
 	if (level >= info_.levels)
 		return;
 
-	glCompressedTextureSubImage3D(texId_, level, xoffset, yoffset, zoffset, width, height, depth, format, image_size, data);
+	glCompressedTextureSubImage3D(texId_, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data);
 	Shared::checkGLError();
 }
 

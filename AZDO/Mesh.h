@@ -22,6 +22,7 @@ namespace QZL
 		};
 		struct TexturedMeshInstance {
 			Texture* texture;
+			Texture* texture2;
 			//Shared::Transform transform;
 			MeshInstance meshInst;
 		};

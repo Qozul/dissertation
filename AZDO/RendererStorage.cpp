@@ -42,7 +42,10 @@ void RenderStorage::addInstance(const std::string& name, TexturedMeshInstance* i
 		index = instances_.size();
 
 	instances_.insert(instances_.begin() + index, instance->meshInst);
-	textureData_.insert(textureData_.begin() + index, instance->texture->data());
+	TextureDataWrapper tdw = {};
+	tdw.data0 = instance->texture->data();
+	tdw.data1 = instance->texture2->data();
+	textureData_.insert(textureData_.begin() + index, tdw);
 	meshes_[dataMap_[name]].instanceCount++;
 }
 
@@ -54,7 +57,7 @@ void RenderStorage::modifyInstance(const std::string& name, const size_t instanc
 void RenderStorage::modifyInstance(const std::string& name, const size_t instanceIndex, TexturedMeshInstance* instance)
 {
 	instances_[meshes_[dataMap_[name]].baseInstance + instanceIndex] = instance->meshInst;
-	textureData_[meshes_[dataMap_[name]].baseInstance + instanceIndex] = instance->texture->data();
+	textureData_[meshes_[dataMap_[name]].baseInstance + instanceIndex] = { instance->texture->data(), instance->texture2->data() };
 }
 
 DrawElementsCommand* RenderStorage::meshData() {
@@ -63,7 +66,7 @@ DrawElementsCommand* RenderStorage::meshData() {
 MeshInstance* RenderStorage::instanceData() {
 	return instances_.data();
 }
-TextureData* RenderStorage::textureData() {
+TextureDataWrapper* RenderStorage::textureData() {
 	return textureData_.data();
 }
 

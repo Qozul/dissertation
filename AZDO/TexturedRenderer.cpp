@@ -26,8 +26,6 @@ void TexturedRenderer::initialise()
 	setupInstanceDataBuffer();
 	auto instPtr = renderStorage_->instanceData();
 	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
-		(instPtr + i)->transform.position = glm::vec3(-4.0f + i * 0.5f, -1.0f, 0.0f);
-		(instPtr + i)->transform.setScale(0.2f);
 		glm::mat4 model = (instPtr + i)->transform.toModelMatrix();
 		instanceDataBufPtr_[i] = {
 			model, Shared::kProjectionMatrix * *viewMatrix_ * model
@@ -36,11 +34,11 @@ void TexturedRenderer::initialise()
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, textureBuffer_);
 	GLbitfield flags = GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_WRITE_BIT;
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, renderStorage_->textureCount() * sizeof(TextureData), 0, flags);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, renderStorage_->textureCount() * sizeof(TextureDataWrapper), 0, flags);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, textureBuffer_);
-	texBufPtr_ = static_cast<TextureData*>(glMapNamedBufferRange(textureBuffer_, 0, 
-		renderStorage_->textureCount() * sizeof(TextureData), flags));
-	memcpy(texBufPtr_, renderStorage_->textureData(), renderStorage_->textureCount() * sizeof(TextureData));
+	texBufPtr_ = static_cast<TextureDataWrapper*>(glMapNamedBufferRange(textureBuffer_, 0,
+		renderStorage_->textureCount() * sizeof(TextureDataWrapper), flags));
+	memcpy(texBufPtr_, renderStorage_->textureData(), renderStorage_->textureCount() * sizeof(TextureDataWrapper));
 }
 
 void TexturedRenderer::doFrame(const glm::mat4& viewMatrix)

@@ -21,7 +21,6 @@ ComputeRenderer::ComputeRenderer(const LogicDevice* logicDevice, VkRenderPass re
 	storageBuffers_.push_back(transformBuf);
 
 	auto computeLayout = descriptor->makeLayout({ mvpBuf->getBinding(), transformBuf->getBinding() });
-	auto graphicsLayout = descriptor->makeLayout({ mvpBuf->getBinding() });
 	size_t idx = descriptor->createSets({ computeLayout, computeLayout, computeLayout });
 	std::vector<VkWriteDescriptorSet> descWrites;
 	for (int i = 0; i < 3; ++i) {
@@ -82,13 +81,9 @@ void ComputeRenderer::initialise(const glm::mat4& viewMatrix)
 	if (Shared::kProjectionMatrix[1][1] >= 0)
 		Shared::kProjectionMatrix[1][1] *= -1;
 	Shared::Transform* data = static_cast<Shared::Transform*>(storageBuffers_[1]->bindRange());
-	for (auto& it : meshes_) {
-		for (auto& it2 : it.second) {
-			for (int i = 0; i < it2.second.size(); ++i) {
-				// TODO fix for multiple meshes
-				data[i] = it2.second[i]->transform;
-			}
-		}
+	auto instPtr = renderStorage_->instanceData();
+	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
+		data[i] = (instPtr + i)->transform;
 	}
 	storageBuffers_[1]->unbindRange();
 }
@@ -114,14 +109,9 @@ void ComputeRenderer::recordFrame(const glm::mat4& viewMatrix, const uint32_t id
 	beginFrame(cmdBuffer);
 
 	vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_->getLayout(), 0, 1, &descriptorSets_[idx], 0, nullptr);
-	for (auto& it : meshes_) {
-		it.first->bind(cmdBuffer);
-
-		uint32_t instanceCount = 0;
-		for (auto& it2 : it.second) {
-			const BasicMesh* mesh = (*it.first)[it2.first];
-			vkCmdDrawIndexed(cmdBuffer, mesh->indexCount, it2.second.size(), mesh->indexOffset, mesh->vertexOffset, instanceCount);
-			instanceCount += it2.second.size();
-		}
+	renderStorage_->buf()->bind(cmdBuffer);
+	for (int i = 0; i < renderStorage_->meshCount(); ++i) {
+		const DrawElementsCommand& drawElementCmd = renderStorage_->meshData()[i];
+		vkCmdDrawIndexed(cmdBuffer, drawElementCmd.indexCount, drawElementCmd.instanceCount, drawElementCmd.firstIndex, drawElementCmd.baseVertex, drawElementCmd.baseInstance);
 	}
 }

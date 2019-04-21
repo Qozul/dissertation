@@ -16,11 +16,11 @@ namespace QZL
 			~TexturedRenderer();
 			void initialise() override;
 			void doFrame(const glm::mat4& viewMatrix) override;
-			void addMesh(GLuint texId, TexturedBasicMesh* mesh) {
-				meshes_[texId].push_back(mesh);
+			void addMesh(size_t texPairIdx, TexturedBasicMesh* mesh) {
+				meshes_[texPairIdx].push_back(mesh);
 			}
-			void addMesh(GLuint texId, std::vector<TexturedBasicMesh*> meshes) {
-				std::copy(std::begin(meshes), std::end(meshes), std::back_inserter(meshes_[texId]));
+			void addMesh(size_t texPairIdx, std::vector<TexturedBasicMesh*> meshes) {
+				std::copy(std::begin(meshes), std::end(meshes), std::back_inserter(meshes_[texPairIdx]));
 			}
 		private:
 			std::map<GLuint, std::vector<TexturedBasicMesh*>> meshes_;

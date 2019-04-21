@@ -6,11 +6,28 @@
 
 using namespace QZL;
 
-int main()
+constexpr auto kHoldConsole = false;
+
+EnvironmentArgs environmentArgs;
+
+int main(int argc, char** argv)
 {
+	environmentArgs.numObjectsX = 1;
+	environmentArgs.numObjectsY = 1;
+	environmentArgs.numObjectsZ = 1;
+	if (argc > 1) environmentArgs.numObjectsX = atoi(argv[1]);
+	if (argc > 2) environmentArgs.numObjectsY = atoi(argv[2]);
+	if (argc > 3) environmentArgs.numObjectsZ = atoi(argv[3]);
+
 	System* system = new System();
 	system->loop();
+
 	delete system;
+	if (kHoldConsole) {
+		int x;
+		std::cout << "Enter any value to exit the program." << std::endl;
+		std::cin >> x;
+	}
 	return EXIT_SUCCESS;
 }
 

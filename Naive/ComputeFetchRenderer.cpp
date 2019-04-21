@@ -24,8 +24,6 @@ ComputeFetchRenderer::~ComputeFetchRenderer()
 
 void ComputeFetchRenderer::initialise()
 {
-	meshes_[0]->transform.position = glm::vec3(-2.0f, -2.0f, 0.0f);
-	meshes_[0]->transform.setScale(0.7f);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeBuffer_);
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(ElementData), NULL, 0);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, computeBuffer_);
@@ -53,6 +51,10 @@ void ComputeFetchRenderer::doFrame(const glm::mat4& viewMatrix)
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(0);
 		pipeline_->unuse();
+
+		auto result = glClientWaitSync(fence_, GL_SYNC_FLUSH_COMMANDS_BIT, std::numeric_limits<GLuint64>::max());
+		ENSURES(result != GL_WAIT_FAILED);
+		memcpy(&mesh->transform, compTransBufPtr_, sizeof(Shared::Transform));
 	}
 	glBindVertexArray(0);
 }
@@ -66,6 +68,7 @@ void ComputeFetchRenderer::computeTransform(const glm::mat4& viewMatrix, BasicMe
 	glUniformMatrix4fv(computePipeline_->getUniformLocation("uViewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
 	glDispatchCompute(1, 1, 1);
 	computePipeline_->unuse();
-	glFinish();
-	memcpy(&mesh.transform, compTransBufPtr_, sizeof(Shared::Transform));
+	fence_ = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	if (fence_ == 0)
+		glFinish();
 }

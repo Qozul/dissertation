@@ -1,10 +1,16 @@
 #pragma once
 #include "VkUtil.h"
 
-int main();
+int main(int argc, char** argv);
 
 namespace QZL
 {
+	struct EnvironmentArgs {
+		int numObjectsX;
+		int numObjectsY;
+		int numObjectsZ;
+	};
+
 	struct DeviceSwapChainDetails;
 	class PhysicalDevice;
 	class LogicDevice;
@@ -22,7 +28,7 @@ namespace QZL
 	};
 
 	class System {
-		friend int ::main();
+		friend int ::main(int argc, char** argv);
 	private:
 		System();
 		~System();

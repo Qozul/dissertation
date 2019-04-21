@@ -17,7 +17,7 @@ out Vertex
 void main(void)
 {
 	gl_Position	= uMVP * vec4(iPosition, 1.0);
-	OUT.colour = vec4(iNormal, 1.0);
+	OUT.colour = vec4(0.6, 0.7, 0.8, 1.0);
 	OUT.worldPos = (uModelMat * vec4(iPosition, 1.0)).xyz;
 	OUT.normal = mat3(transpose(inverse(uModelMat))) * iNormal;
 }

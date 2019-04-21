@@ -27,11 +27,11 @@ Texture* TextureLoader::loadTexture(const std::string& fileName)
 
 	nv_dds::CDDSImage image;
 	image.load(kPath + fileName + kExt);
-	// If this is not +1 then everything dies
 	auto info = makeTexStoreInfo(image.get_num_mipmaps()+1, image.get_format(), image.get_width(), image.get_height());
 	auto store = obtainTexStore(info);
-
-	return new Texture(store, image);
+	auto t = new Texture(store, image);
+	t->commit(true);
+	return t;
 }
 
 TextureStore* TextureLoader::obtainTexStore(const TexStoreInfo& info)

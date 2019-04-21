@@ -8,9 +8,9 @@ namespace QZL
 
 	/// BasicMesh needs to provide a transform and pointers to it's data
 	struct BasicMesh {
-		GLuint indexCount;
-		GLuint indexOffset;
-		GLuint vertexOffset;
+		uint32_t indexCount;
+		uint32_t indexOffset;
+		uint32_t vertexOffset;
 	};
 	struct MeshInstance {
 		Shared::Transform transform;

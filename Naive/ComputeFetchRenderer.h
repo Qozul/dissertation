@@ -28,6 +28,8 @@ namespace QZL
 			GLuint computeTransBuffer_;
 			void* compTransBufPtr_;
 
+			GLsync fence_;
+
 			static const float kRotationSpeed;
 		};
 	}

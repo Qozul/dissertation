@@ -17,16 +17,18 @@ namespace QZL
 		struct TexturedBasicMesh {
 			GLuint vaoId;
 			GLsizei indexCount;
-			Texture* texture; // Just a single texture
+			Texture* texture;
+			Texture* texture2;
 			Shared::Transform transform;
 		};
 
-		inline TexturedBasicMesh* basicToTextured(BasicMesh* bmesh, Texture* texture) {
+		inline TexturedBasicMesh* basicToTextured(BasicMesh* bmesh, Texture* texture, Texture* texture2) {
 			Naive::TexturedBasicMesh* tbm = new Naive::TexturedBasicMesh();
 			tbm->vaoId = bmesh->vaoId;
 			tbm->indexCount = bmesh->indexCount;
 			tbm->transform = bmesh->transform;
 			tbm->texture = texture;
+			tbm->texture2 = texture2;
 
 			SAFE_DELETE(bmesh);
 			return tbm;

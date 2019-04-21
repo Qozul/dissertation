@@ -8,15 +8,15 @@
 #include "TexturedRenderer.h"
 #include "ComputeRenderer.h"
 #include "ComputeFetchRenderer.h"
+#include "System.h"
 #include "ElementBuffer.h"
 #include "MeshLoader.h"
 
-#define NUM_ELEMENTS 10
-//#define BASIC_RUN
+#define BASIC_RUN
 //#define TEXTURED_RUN
 //#define LOOP_RUN
 //#define COMPUTE_RUN
-#define COMPUTE_READBACK_RUN
+//#define COMPUTE_READBACK_RUN
 
 #ifdef TEXTURED_RUN
 	#define CURRENT_RENDERER texturedRenderer_
@@ -40,6 +40,8 @@
 #endif
 
 using namespace QZL;
+
+extern EnvironmentArgs environmentArgs;
 
 RenderPass::RenderPass(LogicDevice* logicDevice, const SwapChainDetails& swapChainDetails)
 	: logicDevice_(logicDevice), swapChainDetails_(swapChainDetails)
@@ -105,7 +107,7 @@ RenderPass::RenderPass(LogicDevice* logicDevice, const SwapChainDetails& swapCha
 	createFramebuffers(logicDevice, swapChainDetails);
 
 	descriptor_ = new Descriptor(logicDevice, kMaxRenderers * swapChainDetails.imageViews.size());
-	viewMatrix_ = glm::lookAt(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	viewMatrix_ = glm::lookAt(glm::vec3(25.0f, 0.0f, 50.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	createRenderers();
 	createElementBuffers();
 }
@@ -201,7 +203,8 @@ VkFormat RenderPass::createDepthBuffer(LogicDevice* logicDevice, const SwapChain
 
 void RenderPass::createRenderers()
 {
-	CURRENT_RENDERER = new CURRENT_RENDERER_TYPE(logicDevice_, renderPass_, swapChainDetails_.extent, descriptor_, SHADERS, NUM_ELEMENTS);
+	CURRENT_RENDERER = new CURRENT_RENDERER_TYPE(logicDevice_, renderPass_, swapChainDetails_.extent, descriptor_, SHADERS, 
+		environmentArgs.numObjectsX * environmentArgs.numObjectsY * environmentArgs.numObjectsZ);
 }
 
 void RenderPass::createElementBuffers()
@@ -209,12 +212,22 @@ void RenderPass::createElementBuffers()
 	// Setup vertex and index (element) buffer
 	ElementBuffer* buf = new ElementBuffer(logicDevice_->getDeviceMemory());
 	elementBuffers_.push_back(buf);
-	for (int i = 0; i < NUM_ELEMENTS; ++i) {
-		MeshInstance* inst = MeshLoader::loadMesh<MeshInstance>("teapot-fixed", *buf);
-		inst->transform.setScale(0.2f);
-		inst->transform.position.x = i;
-		CURRENT_RENDERER->addMesh(buf, "teapot-fixed", inst);
+	CURRENT_RENDERER->createRenderStorage(buf);
+	auto meshName = Shared::kMeshNames[Shared::kMeshDist(Shared::kRng)];
+	CURRENT_RENDERER->addMesh(Shared::kMeshNames[0], MeshLoader::loadMesh(Shared::kMeshNames[0], *buf));
+	CURRENT_RENDERER->addMesh(Shared::kMeshNames[1], MeshLoader::loadMesh(Shared::kMeshNames[1], *buf));
+	CURRENT_RENDERER->addMesh(Shared::kMeshNames[2], MeshLoader::loadMesh(Shared::kMeshNames[2], *buf));
+	MeshInstance inst;
+	for (int i = 0; i < environmentArgs.numObjectsX; ++i) {
+		for (int j = 0; j < environmentArgs.numObjectsY; ++j) {
+			for (int k = 0; k < environmentArgs.numObjectsZ; ++k) {
+				inst.transform.position = glm::vec3(i, j, k);
+				inst.transform.setScale(0.05f);
+				CURRENT_RENDERER->addMeshInstance(Shared::kMeshNames[Shared::kMeshDist(Shared::kRng)], &inst);
+			}
+		}
 	}
 	buf->commit();
 	CURRENT_RENDERER->initialise(viewMatrix_);
+	std::cout << "Drawing " << environmentArgs.numObjectsX * environmentArgs.numObjectsY * environmentArgs.numObjectsZ << " objects." << std::endl;
 }

@@ -1,5 +1,5 @@
+/// Reference: https://github.com/syoyo/tinyobjloader code example for loading using tinyobj
 #include "MeshLoader.h"
-
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../Shared/tiny_obj_loader.h"

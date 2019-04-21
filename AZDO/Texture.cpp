@@ -28,7 +28,6 @@ void Texture::commit(bool commit)
 void Texture::addToStorage(nv_dds::CDDSImage& image)
 {
 	// Only a physical texture can be written to
-	DEBUG_OUT(image.get_num_mipmaps());
 	commit(true);
 	// Add the main image to storage
 	Shared::checkGLError();
@@ -40,6 +39,5 @@ void Texture::addToStorage(nv_dds::CDDSImage& image)
 		store_->addSubImage(static_cast<GLint>(i + 1), 0, 0, data_.page, mipmap.get_width(), mipmap.get_height(), 1,
 			image.get_format(), mipmap.get_size(), mipmap);
 	}
-	// Don't want to leave it on physical memory
 	commit(false);
 }

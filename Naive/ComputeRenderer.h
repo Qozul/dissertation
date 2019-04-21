@@ -23,6 +23,7 @@ namespace QZL
 		private:
 			void computeTransform(const glm::mat4& viewMatrix, BasicMesh& mesh);
 
+			float rot_;
 			ShaderPipeline* computePipeline_;
 			GLuint computeBuffer_;
 			void* compBufPtr_;

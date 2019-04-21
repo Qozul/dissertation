@@ -18,7 +18,7 @@ layout(std430, binding = 0) writeonly buffer OUT0
     ElementData elementData;
 };
 
-uniform float uRotationAmount = 0.1;
+uniform float uRotationAmount;
 uniform float uTransform[NUM_FLOATS_IN_TRANSFORM];
 uniform mat4 uViewMatrix;
 uniform mat4 uProjMatrix;

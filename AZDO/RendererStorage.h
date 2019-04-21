@@ -9,6 +9,12 @@ namespace QZL
 	namespace AZDO
 	{
 		class VaoWrapper;
+
+		struct TextureDataWrapper {
+			TextureData data0;
+			TextureData data1;
+		};
+
 		// This class should always be dynamically allocated because it can contain a lot of raw data.
 		// StorageType gives safety: only instance or textured instance should be used, never mixed,
 		// the type allows the class to check that the correct methods are being used.
@@ -30,7 +36,7 @@ namespace QZL
 
 			DrawElementsCommand* meshData();
 			MeshInstance* instanceData();
-			TextureData* textureData();
+			TextureDataWrapper* textureData();
 			size_t meshCount();
 			size_t instanceCount();
 			size_t textureCount();
@@ -44,7 +50,7 @@ namespace QZL
 			std::vector<DrawElementsCommand> meshes_;
 			// instances_ and textureData_ should always be an equal size IF textures are being used
 			std::vector<MeshInstance> instances_;
-			std::vector<TextureData> textureData_;
+			std::vector<TextureDataWrapper> textureData_;
 		};
 	}
 }

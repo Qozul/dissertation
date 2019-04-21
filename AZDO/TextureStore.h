@@ -33,8 +33,6 @@ namespace QZL
 			void addSubImage(GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width,
 				GLsizei height, GLsizei depth, GLenum format, GLsizei image_size, const void* data);
 
-			static GLuint64 obtainTexStore(const TexStoreInfo info);
-
 			GLuint64 handle_;
 			GLuint texId_;
 			const TexStoreInfo info_;

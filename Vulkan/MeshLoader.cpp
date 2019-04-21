@@ -1,3 +1,4 @@
+/// Reference: https://github.com/syoyo/tinyobjloader code example for loading using tinyobj
 #include "MeshLoader.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -8,6 +9,16 @@ using namespace QZL;
 
 const std::string MeshLoader::kPath = "../Assets/Meshes/";
 const std::string MeshLoader::kExt = ".obj";
+
+BasicMesh* MeshLoader::loadMesh(const std::string& meshName, ElementBuffer& eleBuf)
+{
+	ENSURES(!eleBuf.isCommitted());
+	if (!eleBuf.contains(meshName))
+		loadMeshFromFile(meshName, eleBuf);
+
+	DEBUG_OUT("Loaded instance of Vulkan BasicMesh " << kPath << meshName << kExt);
+	return eleBuf.meshes_[meshName];
+}
 
 void MeshLoader::loadMeshFromFile(const std::string& meshName, ElementBuffer& eleBuf)
 {

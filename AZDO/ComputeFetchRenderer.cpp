@@ -27,10 +27,6 @@ ComputeFetchRenderer::~ComputeFetchRenderer()
 void ComputeFetchRenderer::initialise()
 {
 	auto instPtr = renderStorage_->instanceData();
-	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
-		(instPtr + i)->transform.position = glm::vec3(-4.0f + i * 0.5f, 0.0f, 0.0f);
-		(instPtr + i)->transform.setScale(0.2f);
-	}
 	setupInstanceDataBuffer();
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, computeBuffer_);
@@ -53,6 +49,10 @@ void ComputeFetchRenderer::doFrame(const glm::mat4& viewMatrix)
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 	renderStorage_->vao()->unbind();
 	pipeline_->unuse();
+
+	auto result = glClientWaitSync(fence_, GL_SYNC_FLUSH_COMMANDS_BIT, std::numeric_limits<GLuint64>::max());
+	ENSURES(result != GL_WAIT_FAILED);
+	memcpy(renderStorage_->instanceData(), compBufPtr_, renderStorage_->instanceCount() * sizeof(MeshInstance));
 }
 
 void ComputeFetchRenderer::computeTransform(const glm::mat4& viewMatrix)
@@ -65,6 +65,7 @@ void ComputeFetchRenderer::computeTransform(const glm::mat4& viewMatrix)
 	glDispatchCompute(renderStorage_->instanceCount(), 1, 1);
 	computePipeline_->unuse();
 
-	glFinish();
-	memcpy(renderStorage_->instanceData(), compBufPtr_, renderStorage_->instanceCount() * sizeof(MeshInstance));
+	fence_ = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	if (fence_ == 0)
+		glFinish();
 }

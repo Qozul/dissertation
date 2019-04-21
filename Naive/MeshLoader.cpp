@@ -1,5 +1,6 @@
 /// Author: Ralph Ridley
 /// Date: 15/01/19
+/// Reference: https://github.com/syoyo/tinyobjloader code example for loading using tinyobj
 #include "MeshLoader.h"
 #include "Mesh.h"
 #include "../Shared/Vertex.h"

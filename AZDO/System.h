@@ -21,7 +21,7 @@ namespace QZL
 
 		class System {
 		public:
-			System();
+			System(int numObjsX = 1, int numObjsY = 1, int numObjsZ = 1);
 			~System();
 			void loop();
 		private:
@@ -29,7 +29,7 @@ namespace QZL
 			void initGL3W();
 
 			TextureLoader* textureLoader_;
-			Texture* texture_;
+			std::vector<std::pair<Texture*, Texture*>> textures_;
 
 			glm::mat4 viewMatrix_;
 
@@ -42,6 +42,10 @@ namespace QZL
 			Shared::PerfMeasurer* perfMeasurer_;
 
 			GLFWwindow* window_;
+
+			int numObjsX_;
+			int numObjsY_;
+			int numObjsZ_;
 		};
 	}
 }

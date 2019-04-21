@@ -13,14 +13,11 @@
 #include "../Shared/PerfMeasurer.h"
 #include "../Shared/RendererBase.h"
 
-#define NUM_OBJECTS_X 10
-#define NUM_OBJECTS_Y 10
-#define NUM_OBJECTS_Z 10
-#define BASIC_RUN
+//#define BASIC_RUN
 //#define TEXTURED_RUN
 //#define LOOP_RUN
 //#define COMPUTE_RUN
-//#define COMPUTE_READBACK_RUN
+#define COMPUTE_READBACK_RUN
 
 #ifdef TEXTURED_RUN
 	#define CURRENT_RENDERER texturedRenderer_
@@ -38,7 +35,7 @@
 		#define CURRENT_RENDERER computeRenderer_
 		#define CURRENT_RENDERER_TYPE ComputeRenderer
 	#elif defined(COMPUTE_READBACK_RUN)
-		#define CURRENT_RENDERER computeReadbackRenderer_
+		#define CURRENT_RENDERER computeFetchRenderer_
 		#define CURRENT_RENDERER_TYPE ComputeFetchRenderer
 	#endif
 #endif
@@ -51,8 +48,8 @@ void errorCallback(int error, const char* description)
 	DEBUG_ERR(description);
 }
 
-System::System()
-	: perfMeasurer_(new Shared::PerfMeasurer())
+System::System(int numObjsX, int numObjsY, int numObjsZ)
+	: perfMeasurer_(new Shared::PerfMeasurer()), numObjsX_(numObjsX), numObjsY_(numObjsY), numObjsZ_(numObjsZ)
 {
 	initGLFW();
 	initGL3W();
@@ -62,39 +59,58 @@ System::System()
 	viewMatrix_ = glm::lookAt(glm::vec3(25.0f, 0.0f, 50.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 #ifdef TEXTURED_RUN
 	textureLoader_ = new TextureLoader();
-	texture_ = textureLoader_->loadTexture("101");
-	texture_->commit(true);
+	textures_.push_back({ textureLoader_->loadTexture(Shared::kTextureNames[0].first), textureLoader_->loadTexture(Shared::kTextureNames[1].second) });
+	textures_.push_back({ textureLoader_->loadTexture(Shared::kTextureNames[1].first), textureLoader_->loadTexture(Shared::kTextureNames[1].second) });
+	textures_.push_back({ textureLoader_->loadTexture(Shared::kTextureNames[2].first), textureLoader_->loadTexture(Shared::kTextureNames[2].second) });
+	textures_.push_back({ textureLoader_->loadTexture(Shared::kTextureNames[3].first), textureLoader_->loadTexture(Shared::kTextureNames[3].second) });
+	textures_.push_back({ textureLoader_->loadTexture(Shared::kTextureNames[4].first), textureLoader_->loadTexture(Shared::kTextureNames[4].second) });
 	texturedRenderer_ = new TexturedRenderer(new ShaderPipeline("AZDOTexturedVert", "AZDOTexturedFrag"), vaoWrapper_, &viewMatrix_);
-	texturedRenderer_->addMesh("teapot-fixed", MeshLoader::loadMesh("teapot-fixed", *vaoWrapper_));
+
+	texturedRenderer_->addMesh(Shared::kMeshNames[0], MeshLoader::loadMesh(Shared::kMeshNames[0], *vaoWrapper_));
+	texturedRenderer_->addMesh(Shared::kMeshNames[1], MeshLoader::loadMesh(Shared::kMeshNames[1], *vaoWrapper_));
+	texturedRenderer_->addMesh(Shared::kMeshNames[2], MeshLoader::loadMesh(Shared::kMeshNames[2], *vaoWrapper_));
+
 	TexturedMeshInstance meshInst;
-	meshInst.texture = texture_;
-	for (int i = 0; i < NUM_OBJECTS_X; ++i) {
-		for (int j = 0; j < NUM_OBJECTS_Y; ++j) {
-			for (int k = 0; k < NUM_OBJECTS_Z; ++k) {
-				meshInst.transform.position = glm::vec3(i, j, k);
-				meshInst.transform.setScale(0.2f);
-				texturedRenderer_->addMeshInstance("teapot-fixed", &meshInst);
+	for (int i = 0; i < numObjsX_; ++i) {
+		for (int j = 0; j < numObjsY_; ++j) {
+			for (int k = 0; k < numObjsZ_; ++k) {
+				size_t idx = Shared::kTextDist(Shared::kRng);
+				auto& texPair = textures_[idx];
+				meshInst.texture = texPair.first;
+				meshInst.texture2 = texPair.second;
+
+				std::string meshName = Shared::kMeshNames[Shared::kMeshDist(Shared::kRng)];
+				meshInst.meshInst.transform.position = glm::vec3(i, j, k);
+				meshInst.meshInst.transform.setScale(0.05f);
+				texturedRenderer_->addMeshInstance(meshName, &meshInst);
 			}
 		}
 	}
 	texturedRenderer_->initialise();
 #else
+#ifdef BASIC_RUN
 	CURRENT_RENDERER = new CURRENT_RENDERER_TYPE(new ShaderPipeline(SHADERS), vaoWrapper_, &viewMatrix_);
-	CURRENT_RENDERER->addMesh("teapot-fixed", MeshLoader::loadMesh("teapot-fixed", *vaoWrapper_));
+#else
+	CURRENT_RENDERER = new CURRENT_RENDERER_TYPE(new ShaderPipeline(SHADERS), vaoWrapper_);
+#endif
+	CURRENT_RENDERER->addMesh(Shared::kMeshNames[0], MeshLoader::loadMesh(Shared::kMeshNames[0], *vaoWrapper_));
+	CURRENT_RENDERER->addMesh(Shared::kMeshNames[1], MeshLoader::loadMesh(Shared::kMeshNames[1], *vaoWrapper_));
+	CURRENT_RENDERER->addMesh(Shared::kMeshNames[2], MeshLoader::loadMesh(Shared::kMeshNames[2], *vaoWrapper_));
 	MeshInstance meshInst;
-	for (int i = 0; i < NUM_OBJECTS_X; ++i) {
-		for (int j = 0; j < NUM_OBJECTS_Y; ++j) {
-			for (int k = 0; k < NUM_OBJECTS_Z; ++k) {
+	for (int i = 0; i < numObjsX_; ++i) {
+		for (int j = 0; j < numObjsY_; ++j) {
+			for (int k = 0; k < numObjsZ_; ++k) {
+				std::string meshName = Shared::kMeshNames[Shared::kMeshDist(Shared::kRng)];
 				meshInst.transform.position = glm::vec3(i, j, k);
-				meshInst.transform.setScale(0.2f);
-				CURRENT_RENDERER->addMeshInstance("teapot-fixed", &meshInst);
+				meshInst.transform.setScale(0.05f);
+				CURRENT_RENDERER->addMeshInstance(meshName, &meshInst);
 			}
 		}
 	}
 	CURRENT_RENDERER->initialise();
 #endif
 
-	std::cout << "Drawing " << NUM_OBJECTS_X * NUM_OBJECTS_Y* NUM_OBJECTS_Z << " objects" << std::endl;
+	std::cout << "Drawing " << numObjsX_ * numObjsY_ * numObjsZ_ << " objects" << std::endl;
 	vaoWrapper_->commit();
 	QZL::Shared::checkGLError();
 }
@@ -104,7 +120,12 @@ System::~System()
 	SAFE_DELETE(CURRENT_RENDERER);
 	SAFE_DELETE(vaoWrapper_);
 	SAFE_DELETE(perfMeasurer_);
-	SAFE_DELETE(texture_);
+#ifdef TEXTURED_RUN
+	for (auto texPair : textures_) {
+		SAFE_DELETE(texPair.first);
+		SAFE_DELETE(texPair.second);
+	}
+#endif
 	SAFE_DELETE(textureLoader_);
 	glfwDestroyWindow(window_);
 	glfwTerminate();
@@ -116,19 +137,18 @@ void System::loop()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
+	glCullFace(GL_BACK);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	while (!glfwWindowShouldClose(window_)) {
 		glfwPollEvents();
+		perfMeasurer_->startTime();
 		glClearDepth(1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		perfMeasurer_->startTime();
 		CURRENT_RENDERER->doFrame(viewMatrix_);
-		perfMeasurer_->endTime();
 
 		glfwSwapBuffers(window_);
-		QZL::Shared::checkGLError();
+		perfMeasurer_->endTime();
 	}
 	std::cout << "AZDO Frame Time: " << perfMeasurer_->getAverageTime().count() << std::endl;
 }
@@ -141,6 +161,7 @@ void System::initGLFW()
 	//glfwSetWindowUserPointer(window_, this);
 	glfwSetErrorCallback(errorCallback);
 	glfwMakeContextCurrent(window_);
+	glfwSwapInterval(0);
 }
 
 void System::initGL3W()

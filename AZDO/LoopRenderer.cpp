@@ -16,10 +16,6 @@ LoopRenderer::LoopRenderer(ShaderPipeline* pipeline, VaoWrapper* vao)
 void LoopRenderer::initialise()
 {
 	auto instPtr = renderStorage_->instanceData();
-	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
-		(instPtr + i)->transform.position = glm::vec3(-4.0f + i * 0.5f, 2.0f, 0.0f);
-		(instPtr + i)->transform.setScale(0.2f);
-	}
 	setupInstanceDataBuffer();
 }
 
@@ -28,17 +24,14 @@ void LoopRenderer::doFrame(const glm::mat4& viewMatrix)
 	auto instPtr = renderStorage_->instanceData();
 	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
 		(instPtr + i)->transform.angle = (instPtr + i)->transform.angle + 0.1f;
-	}
-	bindInstanceDataBuffer();
-	pipeline_->use();
-	renderStorage_->vao()->bind();
-
-	for (size_t i = 0; i < renderStorage_->instanceCount(); ++i) {
 		glm::mat4 model = (instPtr + i)->transform.toModelMatrix();
 		instanceDataBufPtr_[i] = {
 			model, Shared::kProjectionMatrix * viewMatrix * model
 		};
 	}
+	bindInstanceDataBuffer();
+	pipeline_->use();
+	renderStorage_->vao()->bind();
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, commandBuffer_);
 	glBufferData(GL_DRAW_INDIRECT_BUFFER, renderStorage_->meshCount() * sizeof(DrawElementsCommand), renderStorage_->meshData(), GL_DYNAMIC_DRAW);
 
