@@ -17,23 +17,28 @@ TexturedRenderer::TexturedRenderer(const LogicDevice* logicDevice, VkRenderPass 
 	const std::string& vertexShader, const std::string& fragmentShader, const uint32_t entityCount)
 	: RendererBase(), textureLoader_(new TextureLoader(logicDevice, logicDevice->getDeviceMemory())), descriptor_(descriptor)
 {
-	textures_.push_back({ NEW_TEXTURE0(Shared::kTextureNames[0].first), NEW_TEXTURE1(Shared::kTextureNames[0].second) });
-	textures_.push_back({ NEW_TEXTURE0(Shared::kTextureNames[1].first), NEW_TEXTURE1(Shared::kTextureNames[1].second) });
-	textures_.push_back({ NEW_TEXTURE0(Shared::kTextureNames[2].first), NEW_TEXTURE1(Shared::kTextureNames[2].second) });
+	if (entityCount > 0) {
+		textures_.push_back({ NEW_TEXTURE0(Shared::kTextureNames[0].first), NEW_TEXTURE1(Shared::kTextureNames[0].second) });
+		textures_.push_back({ NEW_TEXTURE0(Shared::kTextureNames[1].first), NEW_TEXTURE1(Shared::kTextureNames[1].second) });
+		textures_.push_back({ NEW_TEXTURE0(Shared::kTextureNames[2].first), NEW_TEXTURE1(Shared::kTextureNames[2].second) });
 
-	StorageBuffer* mvpBuf = new StorageBuffer(logicDevice, MemoryAllocationPattern::kDynamicResource, 0, 0,
-		sizeof(ElementData) * entityCount, VK_SHADER_STAGE_VERTEX_BIT);
-	auto layout = descriptor->makeLayout({ mvpBuf->getBinding(), textures_[0].first->getBinding(), textures_[0].second->getBinding() });
-	storageBuffers_.push_back(mvpBuf);
-	size_t idx = descriptor->createSets({ layout, layout, layout });
-	std::vector<VkWriteDescriptorSet> descWrites;
-	for (int i = 0; i < 3; ++i) {
-		descriptorSets_.push_back(descriptor->getSet(idx + i));
-		descWrites.push_back(mvpBuf->descriptorWrite(descriptor->getSet(idx + i)));
+		StorageBuffer* mvpBuf = new StorageBuffer(logicDevice, MemoryAllocationPattern::kDynamicResource, 0, 0,
+			sizeof(ElementData) * entityCount, VK_SHADER_STAGE_VERTEX_BIT);
+		auto layout = descriptor->makeLayout({ mvpBuf->getBinding(), textures_[0].first->getBinding(), textures_[0].second->getBinding() });
+		storageBuffers_.push_back(mvpBuf);
+		size_t idx = descriptor->createSets({ layout, layout, layout });
+		std::vector<VkWriteDescriptorSet> descWrites;
+		for (int i = 0; i < 3; ++i) {
+			descriptorSets_.push_back(descriptor->getSet(idx + i));
+			descWrites.push_back(mvpBuf->descriptorWrite(descriptor->getSet(idx + i)));
+		}
+		descriptor->updateDescriptorSets(descWrites);
+
+		createPipeline(logicDevice, renderPass, swapChainExtent, RendererPipeline::makeLayoutInfo(storageBuffers_.size(), &layout), vertexShader, fragmentShader);
 	}
-	descriptor->updateDescriptorSets(descWrites);
-
-	createPipeline(logicDevice, renderPass, swapChainExtent, RendererPipeline::makeLayoutInfo(storageBuffers_.size(), &layout), vertexShader, fragmentShader);
+	else {
+		createPipeline(logicDevice, renderPass, swapChainExtent, RendererPipeline::makeLayoutInfo(0, nullptr), vertexShader, fragmentShader);
+	}
 }
 
 TexturedRenderer::~TexturedRenderer()
@@ -47,6 +52,8 @@ TexturedRenderer::~TexturedRenderer()
 
 void TexturedRenderer::initialise(const glm::mat4& viewMatrix)
 {
+	if (renderStorage_->instanceCount() == 0)
+		return;
 	if (Shared::kProjectionMatrix[1][1] >= 0)
 		Shared::kProjectionMatrix[1][1] *= -1;
 	ElementData* eleDataPtr = static_cast<ElementData*>(storageBuffers_[0]->bindRange());
@@ -62,6 +69,8 @@ void TexturedRenderer::initialise(const glm::mat4& viewMatrix)
 
 void TexturedRenderer::recordFrame(const glm::mat4& viewMatrix, const uint32_t idx, VkCommandBuffer cmdBuffer)
 {
+	if (renderStorage_->instanceCount() == 0)
+		return;
 	beginFrame(cmdBuffer);
 
 	renderStorage_->buf()->bind(cmdBuffer);

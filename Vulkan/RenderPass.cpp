@@ -15,8 +15,8 @@
 //#define BASIC_RUN
 //#define TEXTURED_RUN
 //#define LOOP_RUN
-#define COMPUTE_RUN
-//#define COMPUTE_READBACK_RUN
+//#define COMPUTE_RUN
+#define COMPUTE_READBACK_RUN
 
 #ifdef TEXTURED_RUN
 	#define CURRENT_RENDERER texturedRenderer_
@@ -218,8 +218,8 @@ void RenderPass::createElementBuffers()
 	CURRENT_RENDERER->addMesh(Shared::kMeshNames[1], MeshLoader::loadMesh(Shared::kMeshNames[1], *buf));
 	CURRENT_RENDERER->addMesh(Shared::kMeshNames[2], MeshLoader::loadMesh(Shared::kMeshNames[2], *buf));
 	MeshInstance inst;
-	for (int i = 0; i < environmentArgs.numObjectsX; ++i) {
-		for (int j = 0; j < environmentArgs.numObjectsY; ++j) {
+	for (int i = -environmentArgs.numObjectsX; i < 0; ++i) {
+		for (int j = -environmentArgs.numObjectsY; j < 0; ++j) {
 			for (int k = 0; k < environmentArgs.numObjectsZ; ++k) {
 				inst.transform.position = glm::vec3(i, j, k);
 				inst.transform.setScale(0.05f);

@@ -12,7 +12,7 @@ EnvironmentArgs environmentArgs;
 
 int main(int argc, char** argv)
 {
-	environmentArgs.numObjectsX = 1;
+	environmentArgs.numObjectsX = 0;
 	environmentArgs.numObjectsY = 1;
 	environmentArgs.numObjectsZ = 1;
 	if (argc > 1) environmentArgs.numObjectsX = atoi(argv[1]);
