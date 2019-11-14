@@ -2,6 +2,8 @@ System for my 3rd year dissertation, consists of a Naive OpenGL engine, an AZDO 
 Each engine has 5 renderers which are used as experiments for later evaluation, the renderer that will run is controlled
 by preprocessor definitions in System.cpp (naive and AZDO) and RenderPass.cpp (Vulkan).
 
+See <a href="https://drive.google.com/file/d/1UFB8B8CCE19UqJ2pekmkF65sDyI_qHYy/view?usp=sharing">my paper</a> for the results and discussion. 
+
 Requirements:
 
 OpenGL 4.6 for AZDO gl_BaseInstance used in the shaders
