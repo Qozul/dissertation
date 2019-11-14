@@ -4,10 +4,10 @@ by preprocessor definitions in System.cpp (naive and AZDO) and RenderPass.cpp (V
 
 Requirements:
 
-OpenGL 4.6 for AZDO sparse textures
+OpenGL 4.6 for AZDO gl_BaseInstance used in the shaders
 Vulkan SDK 1.1
 Vulkan graphics and compute queues must be the same queue
-A discrete GPU
+A discrete GPU for Vulkan
 
 REFERENCES:
 
